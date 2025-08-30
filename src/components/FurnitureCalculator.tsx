@@ -108,7 +108,7 @@ const FurnitureCalculator: React.FC = () => {
     let chantsVisiblesMontants: string[] = [];
     if (config.montantsTouteHauteur) {
       // Montants traversants: plaqués 4 côtés
-      chantsVisiblesMontants = ['haut', 'bas', 'face avant', 'arrière'];
+      chantsVisiblesMontants = ['haut', 'bas', 'côté gauche', 'côté droit'];
     } else {
       // Montants entre traverses: façade visible, arrière si visible
       chantsVisiblesMontants = ['face avant'];
@@ -156,7 +156,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurTraverses,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
-      chantsVisible: config.traversesTouteLargeur ? chantsVisiblesTraverses : ['face avant']
+      chantsVisible: config.traversesTouteLargeur ? chantsVisiblesTraverses : ['haut']
     });
     
     items.push({
@@ -172,8 +172,8 @@ const FurnitureCalculator: React.FC = () => {
     if (config.nombreRayons > 0) {
       const largeurRayons = config.largeur - (2 * config.epaisseurMontants);
       
-      // Chants visibles des rayons: plaqués dans la longueur (gauche et droite)
-      let chantsVisiblesRayons = ['côté gauche', 'côté droit'];
+      // Chants visibles des rayons: plaqués dans la longueur (haut et bas)
+      let chantsVisiblesRayons = ['haut', 'bas'];
       
       items.push({
         nom: 'Rayon',
