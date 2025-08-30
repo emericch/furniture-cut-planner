@@ -442,52 +442,64 @@ const FurnitureCalculator: React.FC = () => {
     
     meubleGroups.forEach((groupe, index) => {
       content += `
-        <div class="print-section" style="margin-bottom: 40px; ${index > 0 ? 'border-top: 3px solid #333; padding-top: 25px;' : ''}">
-          <div class="print-section-title" style="background: #2563eb; color: white; padding: 15px; font-size: 18px; margin-bottom: 15px; border-radius: 5px;">
-            ${groupe.nom}
+        <div class="print-section" style="margin-bottom: 15px; ${index > 0 ? 'border-top: 2px solid #000; padding-top: 8px;' : ''}">
+          <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; border-bottom: 1px solid #000; padding-bottom: 3px;">
+            ${groupe.nom} (${groupe.config.hauteur}×${groupe.config.largeur}×${groupe.config.profondeur}mm)
           </div>
-          <div class="meuble-info" style="background: #f8fafc; padding: 12px; margin-bottom: 15px; border-left: 4px solid #2563eb; font-size: 14px;">
-            <strong>Dimensions:</strong> ${groupe.config.hauteur} × ${groupe.config.largeur} × ${groupe.config.profondeur} mm<br>
-            <strong>Ajouté le:</strong> ${groupe.dateAjout.toLocaleDateString('fr-FR')}
-          </div>
-          <div class="items-grid" style="display: grid; gap: 10px;">
-            ${groupe.items.map(item => `
-              <div class="print-item" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div class="print-item-name" style="font-weight: bold; font-size: 16px; color: #1e293b; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
-                  ${item.nom} ${item.quantite > 1 ? `(×${item.quantite})` : ''}
-                </div>
-                <div class="print-dimensions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; font-size: 13px; color: #64748b;">
-                  <div><strong>L:</strong> ${item.longueur} mm</div>
-                  <div><strong>l:</strong> ${item.largeur} mm</div>
-                  <div><strong>e:</strong> ${item.epaisseur} mm</div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px;">
+            <thead>
+              <tr style="border-bottom: 1px solid #000;">
+                <th style="text-align: left; padding: 2px 5px; font-weight: bold;">Pièce</th>
+                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">Qté</th>
+                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">L (mm)</th>
+                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">l (mm)</th>
+                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">e (mm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${groupe.items.map(item => `
+                <tr style="border-bottom: 1px solid #ccc;">
+                  <td style="padding: 2px 5px;">${item.nom}</td>
+                  <td style="padding: 2px 5px; text-align: center;">${item.quantite}</td>
+                  <td style="padding: 2px 5px; text-align: center;">${item.longueur}</td>
+                  <td style="padding: 2px 5px; text-align: center;">${item.largeur}</td>
+                  <td style="padding: 2px 5px; text-align: center;">${item.epaisseur}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         </div>
       `;
     });
 
     if (customItems.length > 0) {
       content += `
-        <div class="print-section" style="margin-top: 40px; border-top: 3px solid #333; padding-top: 25px;">
-          <div class="print-section-title" style="background: #dc2626; color: white; padding: 15px; font-size: 18px; margin-bottom: 15px; border-radius: 5px;">
+        <div class="print-section" style="margin-top: 15px; border-top: 2px solid #000; padding-top: 8px;">
+          <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; border-bottom: 1px solid #000; padding-bottom: 3px;">
             Pièces personnalisées
           </div>
-          <div class="items-grid" style="display: grid; gap: 10px;">
-            ${customItems.map(item => `
-              <div class="print-item" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div class="print-item-name" style="font-weight: bold; font-size: 16px; color: #1e293b; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
-                  ${item.nom} ${item.quantite > 1 ? `(×${item.quantite})` : ''}
-                </div>
-                <div class="print-dimensions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; font-size: 13px; color: #64748b;">
-                  <div><strong>L:</strong> ${item.longueur} mm</div>
-                  <div><strong>l:</strong> ${item.largeur} mm</div>
-                  <div><strong>e:</strong> ${item.epaisseur} mm</div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+            <thead>
+              <tr style="border-bottom: 1px solid #000;">
+                <th style="text-align: left; padding: 2px 5px; font-weight: bold;">Pièce</th>
+                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">Qté</th>
+                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">L (mm)</th>
+                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">l (mm)</th>
+                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">e (mm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${customItems.map(item => `
+                <tr style="border-bottom: 1px solid #ccc;">
+                  <td style="padding: 2px 5px;">${item.nom}</td>
+                  <td style="padding: 2px 5px; text-align: center;">${item.quantite}</td>
+                  <td style="padding: 2px 5px; text-align: center;">${item.longueur}</td>
+                  <td style="padding: 2px 5px; text-align: center;">${item.largeur}</td>
+                  <td style="padding: 2px 5px; text-align: center;">${item.epaisseur}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         </div>
       `;
     }
@@ -502,23 +514,10 @@ const FurnitureCalculator: React.FC = () => {
     // Créer un élément temporaire avec le contenu à exporter
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = `
-      <div style="padding: 30px; font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.4; background: #ffffff;">
-        <div style="text-align: center; margin-bottom: 40px; border-bottom: 4px solid #2563eb; padding-bottom: 20px;">
-          <h1 style="font-size: 32px; font-weight: bold; color: #1e293b; margin: 0 0 15px 0; letter-spacing: -0.5px;">
-            Feuille de Débit
-          </h1>
-          <p style="font-size: 16px; color: #64748b; margin: 0;">
-            Générée le ${new Date().toLocaleDateString('fr-FR', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
-          <div style="margin-top: 15px; font-size: 14px; color: #64748b;">
-            Total: ${meubleGroups.length} meuble${meubleGroups.length > 1 ? 's' : ''} 
-            ${customItems.length > 0 ? `+ ${customItems.length} pièce${customItems.length > 1 ? 's' : ''} personnalisée${customItems.length > 1 ? 's' : ''}` : ''}
-          </div>
+      <div style="padding: 15px; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.2; background: #ffffff; color: #000;">
+        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+          <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 5px 0;">FEUILLE DE DÉBIT</h1>
+          <p style="font-size: 11px; margin: 0;">${new Date().toLocaleDateString('fr-FR')}</p>
         </div>
         ${generatePrintContent()}
       </div>
@@ -526,7 +525,7 @@ const FurnitureCalculator: React.FC = () => {
     
     tempDiv.style.position = 'absolute';
     tempDiv.style.left = '-9999px';
-    tempDiv.style.width = '800px';
+    tempDiv.style.width = '750px';
     tempDiv.style.backgroundColor = 'white';
     document.body.appendChild(tempDiv);
 
