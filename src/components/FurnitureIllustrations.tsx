@@ -12,7 +12,7 @@ export const DimensionIllustration: React.FC<DimensionIllustrationProps> = ({ cl
       width: '48px',
       height: '64px',
       border: '2px solid hsl(var(--border))',
-      background: 'transparent',
+      background: 'white',
     },
     hLabel: {
       position: 'absolute' as const,
@@ -68,8 +68,8 @@ export const AssemblyIllustration: React.FC<AssemblyIllustrationProps> = ({
       position: 'relative' as const,
       width: '48px',
       height: '64px',
-      border: '1px solid hsl(var(--muted))',
-      background: 'hsl(var(--muted) / 0.1)',
+      border: '1px solid hsl(var(--border))',
+      background: 'white',
     },
     part: {
       position: 'absolute' as const,
@@ -184,7 +184,7 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
       width: `${rectWidth}px`,
       height: `${rectHeight}px`,
       border: '1px solid hsl(var(--border))',
-      background: highlightFace ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--muted) / 0.05)',
+      background: 'white',
     },
     edge: {
       position: 'absolute' as const,
