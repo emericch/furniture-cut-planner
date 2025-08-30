@@ -333,107 +333,95 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const handlePrint = () => {
-    const printContent = document.getElementById('print-section');
-    if (printContent) {
-      const originalContent = document.body.innerHTML;
-      const printWindow = window.open('', '_blank');
-      
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Feuille de Débit</title>
-              <style>
-                @media print {
-                  body { 
-                    font-family: Arial, sans-serif; 
-                    margin: 20px;
-                    color: #000;
-                  }
-                  .print-header {
-                    text-align: center;
-                    margin-bottom: 30px;
-                    border-bottom: 2px solid #000;
-                    padding-bottom: 10px;
-                  }
-                  .print-section {
-                    margin-bottom: 20px;
-                    page-break-inside: avoid;
-                  }
-                  .print-section-title {
-                    font-weight: bold;
-                    font-size: 16px;
-                    margin-bottom: 10px;
-                    background: #f0f0f0;
-                    padding: 8px;
-                  }
-                  .print-item {
-                    margin-bottom: 8px;
-                    padding: 5px;
-                    border: 1px solid #ddd;
-                  }
-                  .print-item-name {
-                    font-weight: bold;
-                    margin-bottom: 3px;
-                  }
-                  .print-dimensions {
-                    font-size: 12px;
-                    color: #666;
-                  }
-                  @page {
-                    margin: 20mm;
-                  }
+    const printWindow = window.open('', '_blank');
+    
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Feuille de Débit</title>
+            <style>
+              body { 
+                font-family: Arial, sans-serif; 
+                margin: 20px;
+                color: #000;
+                font-size: 12px;
+                line-height: 1.4;
+              }
+              .print-header {
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+              }
+              .print-header h1 {
+                font-size: 18px;
+                font-weight: bold;
+                margin: 0 0 5px 0;
+              }
+              .print-header p {
+                font-size: 11px;
+                margin: 0;
+              }
+              .print-section {
+                margin-bottom: 15px;
+                page-break-inside: avoid;
+              }
+              .print-section:not(:first-child) {
+                border-top: 2px solid #000;
+                padding-top: 8px;
+              }
+              .print-section-title {
+                font-weight: bold;
+                font-size: 14px;
+                margin-bottom: 5px;
+                border-bottom: 1px solid #000;
+                padding-bottom: 3px;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 11px;
+                margin-bottom: 10px;
+              }
+              th, td {
+                border-bottom: 1px solid #ccc;
+                padding: 4px 5px;
+                line-height: 1.4;
+                vertical-align: middle;
+              }
+              th {
+                border-bottom: 1px solid #000;
+                font-weight: bold;
+              }
+              th:first-child, td:first-child {
+                text-align: left;
+              }
+              th:not(:first-child), td:not(:first-child) {
+                text-align: center;
+              }
+              @media print {
+                @page {
+                  margin: 15mm;
                 }
-                body { 
-                  font-family: Arial, sans-serif; 
-                  margin: 20px;
-                  color: #000;
+                body {
+                  margin: 0;
                 }
-                .print-header {
-                  text-align: center;
-                  margin-bottom: 30px;
-                  border-bottom: 2px solid #000;
-                  padding-bottom: 10px;
-                }
-                .print-section {
-                  margin-bottom: 20px;
-                  page-break-inside: avoid;
-                }
-                .print-section-title {
-                  font-weight: bold;
-                  font-size: 16px;
-                  margin-bottom: 10px;
-                  background: #f0f0f0;
-                  padding: 8px;
-                }
-                .print-item {
-                  margin-bottom: 8px;
-                  padding: 5px;
-                  border: 1px solid #ddd;
-                }
-                .print-item-name {
-                  font-weight: bold;
-                  margin-bottom: 3px;
-                }
-                .print-dimensions {
-                  font-size: 12px;
-                  color: #666;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="print-header">
-                <h1>Feuille de Débit</h1>
-                <p>Générée le ${new Date().toLocaleDateString('fr-FR')}</p>
-              </div>
-              ${generatePrintContent()}
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-        printWindow.close();
-      }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="print-header">
+              <h1>FEUILLE DE DÉBIT</h1>
+              <p>${new Date().toLocaleDateString('fr-FR')}</p>
+            </div>
+            ${generatePrintContent()}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
     }
   };
 
