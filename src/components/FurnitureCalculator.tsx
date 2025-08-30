@@ -233,21 +233,21 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-2">
+    <div className="min-h-screen bg-background p-2 sm:p-4">
       <div className="max-w-7xl mx-auto space-y-3">
         {/* En-tête compact */}
         <Card className="interactive-hover">
           <CardHeader className="text-center py-3">
-            <CardTitle className="flex items-center justify-center gap-2 text-xl">
-              <Calculator className="h-5 w-5 text-accent" />
+            <CardTitle className="flex items-center justify-center gap-2 text-lg sm:text-xl">
+              <Calculator className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
               Générateur de Débit Meuble
             </CardTitle>
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-5 xl:grid-cols-3 gap-3 lg:gap-4">
           {/* Configuration - Plus large sur écrans larges */}
-          <div className="xl:col-span-2 space-y-3">
+          <div className="lg:col-span-3 xl:col-span-2 space-y-3">
             {/* Dimensions et épaisseurs dans une seule carte */}
             <Card className="form-section">
               <CardHeader className="py-3">
@@ -303,7 +303,7 @@ const FurnitureCalculator: React.FC = () => {
                 {/* Épaisseurs */}
                 <div>
                   <Label className="text-sm font-medium mb-2 block">Épaisseurs (mm)</Label>
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                     <div>
                       <Label className="text-xs">Montants</Label>
                       <Select 
@@ -542,8 +542,8 @@ const FurnitureCalculator: React.FC = () => {
           </div>
 
           {/* Feuille de débit */}
-          <div className="xl:col-span-1">
-            <Card className="cut-sheet h-fit">
+          <div className="lg:col-span-2 xl:col-span-1">
+            <Card className="cut-sheet h-fit sticky top-4">
               <CardHeader className="py-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <FileText className="h-4 w-4 text-accent" />
