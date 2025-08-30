@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Calculator, FileText, Ruler } from 'lucide-react';
-import { DimensionIllustration, AssemblyIllustration } from './FurnitureIllustrations';
+import { DimensionIllustration, AssemblyIllustration, PieceIllustration } from './FurnitureIllustrations';
 
 
 export interface FurnitureConfig {
@@ -567,25 +567,35 @@ const FurnitureCalculator: React.FC = () => {
                   <div className="space-y-2">
                     {cutSheet.map((item, index) => (
                       <div key={index} className="border border-border rounded-lg p-2 space-y-1">
-                        <div className="flex justify-between items-center">
-                          <h4 className="font-semibold text-sm">{item.nom}</h4>
-                          <span className="text-xs text-muted-foreground">
-                            Qté: {item.quantite}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-1 text-xs">
-                          <div>L: {item.longueur}</div>
-                          <div>l: {item.largeur}</div>
-                          <div>Ép: {item.epaisseur}</div>
-                        </div>
-                        {item.chantsVisible.length > 0 && (
-                          <div className="mt-1">
-                            <span className="text-xs font-medium text-accent">Chants:</span>
-                            <div className="text-xs text-muted-foreground">
-                              {item.chantsVisible.join(', ')}
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-1">
+                              <h4 className="font-semibold text-sm">{item.nom}</h4>
+                              <span className="text-xs text-muted-foreground">
+                                Qté: {item.quantite}
+                              </span>
                             </div>
+                            <div className="grid grid-cols-3 gap-1 text-xs mb-1">
+                              <div>L: {item.longueur}</div>
+                              <div>l: {item.largeur}</div>
+                              <div>Ép: {item.epaisseur}</div>
+                            </div>
+                            {item.chantsVisible.length > 0 && (
+                              <div>
+                                <span className="text-xs font-medium text-accent">Chants:</span>
+                                <div className="text-xs text-muted-foreground">
+                                  {item.chantsVisible.join(', ')}
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
+                          <PieceIllustration 
+                            longueur={item.longueur}
+                            largeur={item.largeur}
+                            chantsVisible={item.chantsVisible}
+                            className="flex-shrink-0"
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>

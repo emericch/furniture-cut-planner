@@ -138,3 +138,130 @@ export const AssemblyIllustration: React.FC<AssemblyIllustrationProps> = ({
     </div>
   );
 };
+
+interface PieceIllustrationProps {
+  longueur: number;
+  largeur: number;
+  chantsVisible: string[];
+  className?: string;
+}
+
+export const PieceIllustration: React.FC<PieceIllustrationProps> = ({ 
+  longueur, 
+  largeur, 
+  chantsVisible, 
+  className 
+}) => {
+  // Calculer les proportions relatives (vue de dessus)
+  const maxDimension = Math.max(longueur, largeur);
+  const scaleWidth = (longueur / maxDimension) * 48; // Max 48px de largeur
+  const scaleHeight = (largeur / maxDimension) * 48; // Max 48px de hauteur
+  
+  // Assurer des dimensions minimales pour la lisibilité
+  const rectWidth = Math.max(scaleWidth, 24);
+  const rectHeight = Math.max(scaleHeight, 16);
+
+  // Déterminer quels côtés surligner
+  const highlightTop = chantsVisible.some(chant => 
+    chant.includes('haut') || chant.includes('dessus')
+  );
+  const highlightBottom = chantsVisible.some(chant => 
+    chant.includes('bas') || chant.includes('dessous')
+  );
+  const highlightLeft = chantsVisible.some(chant => 
+    chant.includes('gauche') || chant.includes('côté gauche')
+  );
+  const highlightRight = chantsVisible.some(chant => 
+    chant.includes('droite') || chant.includes('côté droite') || chant.includes('côté droit')
+  );
+  const highlightFace = chantsVisible.some(chant => 
+    chant.includes('face') || chant.includes('avant') || chant.includes('arrière')
+  );
+
+  const styles = {
+    container: {
+      position: 'relative' as const,
+      width: `${rectWidth}px`,
+      height: `${rectHeight}px`,
+      border: '1px solid hsl(var(--border))',
+      background: highlightFace ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--muted) / 0.05)',
+    },
+    edge: {
+      position: 'absolute' as const,
+      background: 'hsl(var(--primary))',
+      transition: 'all 0.2s ease',
+    },
+    edgeInactive: {
+      background: 'hsl(var(--muted))',
+    },
+    top: {
+      top: '-1px',
+      left: '-1px',
+      right: '-1px',
+      height: '3px',
+    },
+    bottom: {
+      bottom: '-1px',
+      left: '-1px',
+      right: '-1px',
+      height: '3px',
+    },
+    left: {
+      top: '-1px',
+      bottom: '-1px',
+      left: '-1px',
+      width: '3px',
+    },
+    right: {
+      top: '-1px',
+      bottom: '-1px',
+      right: '-1px',
+      width: '3px',
+    },
+    dimensions: {
+      position: 'absolute' as const,
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      fontSize: '8px',
+      color: 'hsl(var(--muted-foreground))',
+      fontWeight: '500',
+      textAlign: 'center' as const,
+      lineHeight: '1',
+      pointerEvents: 'none' as const,
+    },
+  };
+
+  return (
+    <div className={cn("relative inline-block", className)}>
+      <div style={styles.container}>
+        {/* Chants */}
+        <div style={{
+          ...styles.edge,
+          ...styles.top,
+          ...(highlightTop ? {} : styles.edgeInactive)
+        }} />
+        <div style={{
+          ...styles.edge,
+          ...styles.bottom,
+          ...(highlightBottom ? {} : styles.edgeInactive)
+        }} />
+        <div style={{
+          ...styles.edge,
+          ...styles.left,
+          ...(highlightLeft ? {} : styles.edgeInactive)
+        }} />
+        <div style={{
+          ...styles.edge,
+          ...styles.right,
+          ...(highlightRight ? {} : styles.edgeInactive)
+        }} />
+        
+        {/* Dimensions */}
+        <div style={styles.dimensions}>
+          {longueur}×{largeur}
+        </div>
+      </div>
+    </div>
+  );
+};
