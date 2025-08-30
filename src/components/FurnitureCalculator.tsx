@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calculator, FileText, Plus, X, Trash2 } from 'lucide-react';
+import { Calculator, FileText, Plus, X, Trash2, Printer, Download } from 'lucide-react';
 import { AssemblyIllustration } from './FurnitureIllustrations';
 
 export interface FurnitureConfig {
@@ -303,6 +303,207 @@ const FurnitureCalculator: React.FC = () => {
     });
     allItems.push(...customItems);
     return allItems;
+  };
+
+  const handlePrint = () => {
+    const printContent = document.getElementById('print-section');
+    if (printContent) {
+      const originalContent = document.body.innerHTML;
+      const printWindow = window.open('', '_blank');
+      
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Feuille de Débit</title>
+              <style>
+                @media print {
+                  body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 20px;
+                    color: #000;
+                  }
+                  .print-header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 10px;
+                  }
+                  .print-section {
+                    margin-bottom: 20px;
+                    page-break-inside: avoid;
+                  }
+                  .print-section-title {
+                    font-weight: bold;
+                    font-size: 16px;
+                    margin-bottom: 10px;
+                    background: #f0f0f0;
+                    padding: 8px;
+                  }
+                  .print-item {
+                    margin-bottom: 8px;
+                    padding: 5px;
+                    border: 1px solid #ddd;
+                  }
+                  .print-item-name {
+                    font-weight: bold;
+                    margin-bottom: 3px;
+                  }
+                  .print-dimensions {
+                    font-size: 12px;
+                    color: #666;
+                  }
+                  @page {
+                    margin: 20mm;
+                  }
+                }
+                body { 
+                  font-family: Arial, sans-serif; 
+                  margin: 20px;
+                  color: #000;
+                }
+                .print-header {
+                  text-align: center;
+                  margin-bottom: 30px;
+                  border-bottom: 2px solid #000;
+                  padding-bottom: 10px;
+                }
+                .print-section {
+                  margin-bottom: 20px;
+                  page-break-inside: avoid;
+                }
+                .print-section-title {
+                  font-weight: bold;
+                  font-size: 16px;
+                  margin-bottom: 10px;
+                  background: #f0f0f0;
+                  padding: 8px;
+                }
+                .print-item {
+                  margin-bottom: 8px;
+                  padding: 5px;
+                  border: 1px solid #ddd;
+                }
+                .print-item-name {
+                  font-weight: bold;
+                  margin-bottom: 3px;
+                }
+                .print-dimensions {
+                  font-size: 12px;
+                  color: #666;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="print-header">
+                <h1>Feuille de Débit</h1>
+                <p>Générée le ${new Date().toLocaleDateString('fr-FR')}</p>
+              </div>
+              ${generatePrintContent()}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+        printWindow.close();
+      }
+    }
+  };
+
+  const generatePrintContent = () => {
+    let content = '';
+    
+    meubleGroups.forEach(groupe => {
+      content += `
+        <div class="print-section">
+          <div class="print-section-title">${groupe.nom} - ${groupe.config.hauteur} × ${groupe.config.largeur} × ${groupe.config.profondeur}mm</div>
+          ${groupe.items.map(item => `
+            <div class="print-item">
+              <div class="print-item-name">${item.nom}</div>
+              <div class="print-dimensions">
+                Longueur: ${item.longueur}mm | Largeur: ${item.largeur}mm | Épaisseur: ${item.epaisseur}mm | Quantité: ${item.quantite}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    });
+
+    if (customItems.length > 0) {
+      content += `
+        <div class="print-section">
+          <div class="print-section-title">Pièces personnalisées</div>
+          ${customItems.map(item => `
+            <div class="print-item">
+              <div class="print-item-name">${item.nom}</div>
+              <div class="print-dimensions">
+                Longueur: ${item.longueur}mm | Largeur: ${item.largeur}mm | Épaisseur: ${item.epaisseur}mm | Quantité: ${item.quantite}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    return content;
+  };
+
+  const handleExportPDF = async () => {
+    const { jsPDF } = await import('jspdf');
+    const html2canvas = (await import('html2canvas')).default;
+    
+    // Créer un élément temporaire avec le contenu à exporter
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = `
+      <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h1 style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+          Feuille de Débit
+        </h1>
+        <p style="text-align: center; margin-bottom: 30px; color: #666;">
+          Générée le ${new Date().toLocaleDateString('fr-FR')}
+        </p>
+        ${generatePrintContent()}
+      </div>
+    `;
+    
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.width = '800px';
+    tempDiv.style.backgroundColor = 'white';
+    document.body.appendChild(tempDiv);
+
+    try {
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const imgWidth = 190;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`feuille-debit-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+    } finally {
+      document.body.removeChild(tempDiv);
+    }
   };
 
   return (
@@ -615,15 +816,39 @@ const FurnitureCalculator: React.FC = () => {
                     <FileText className="h-4 w-4 text-primary" />
                     Feuille de débit
                   </div>
-                  <Button
-                    onClick={() => setShowAddForm(true)}
-                    size="sm"
-                    variant="outline"
-                    className="flex items-center gap-1"
-                  >
-                    <Plus className="h-3 w-3" />
-                    Ajouter une pièce
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {(meubleGroups.length > 0 || customItems.length > 0) && (
+                      <>
+                        <Button
+                          onClick={handlePrint}
+                          size="sm"
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          <Printer className="h-3 w-3" />
+                          Imprimer
+                        </Button>
+                        <Button
+                          onClick={handleExportPDF}
+                          size="sm"
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          <Download className="h-3 w-3" />
+                          Export PDF
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      onClick={() => setShowAddForm(true)}
+                      size="sm"
+                      variant="outline"
+                      className="flex items-center gap-1"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Ajouter une pièce
+                    </Button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
