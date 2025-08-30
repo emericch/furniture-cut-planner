@@ -97,7 +97,8 @@ const FurnitureCalculator: React.FC = () => {
     const profondeurRayons = 
       profondeurBase 
       - ((config.dosType !== 'aucun' && config.dosType !== 'en-applique') ? config.epaisseurDos + config.decalageDos : 0)
-      - (config.retraitRayons || 0);
+      - (config.retraitRayons || 0)
+      - (config.nombrePortes > 0 && config.typePorte === 'interieur' ? config.epaisseurPortes : 0);
     
     // Calcul des montants
     const hauteurMontants = config.montantsTouteHauteur 
