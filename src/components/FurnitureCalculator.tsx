@@ -162,7 +162,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurTraverses,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
-      chantsVisible: chantsVisiblesTraverses
+      chantsVisible: [...chantsVisiblesTraverses, 'bas']
     });
 
     // Calcul des rayons
