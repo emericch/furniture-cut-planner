@@ -351,7 +351,7 @@ const FurnitureCalculator: React.FC = () => {
               .print-header {
                 text-align: center;
                 margin-bottom: 20px;
-                border-bottom: 2px solid #000;
+                border-bottom: 2px solid #bbb;
                 padding-bottom: 10px;
               }
               .print-header h1 {
@@ -368,15 +368,18 @@ const FurnitureCalculator: React.FC = () => {
                 page-break-inside: avoid;
               }
               .print-section:not(:first-child) {
-                border-top: 2px solid #000;
-                padding-top: 8px;
+                border-top: 1px solid #bbb;
+                padding-top: 6px;
               }
               .print-section-title {
                 font-weight: bold;
                 font-size: 14px;
-                margin-bottom: 5px;
-                border-bottom: 1px solid #000;
-                padding-bottom: 3px;
+                margin-bottom: 6px;
+                border-bottom: 1px solid #bbb;
+                padding-bottom: 6px;
+                line-height: 1.3;
+                overflow-wrap: anywhere;
+                word-break: break-word;
               }
               table {
                 width: 100%;
@@ -385,13 +388,13 @@ const FurnitureCalculator: React.FC = () => {
                 margin-bottom: 10px;
               }
               th, td {
-                border-bottom: 1px solid #ccc;
+                border-bottom: 1px solid #d0d0d0;
                 padding: 4px 5px;
                 line-height: 1.4;
                 vertical-align: middle;
               }
               th {
-                border-bottom: 1px solid #000;
+                border-bottom: 1px solid #bbb;
                 font-weight: bold;
               }
               th:first-child, td:first-child {
@@ -430,13 +433,13 @@ const FurnitureCalculator: React.FC = () => {
     
     meubleGroups.forEach((groupe, index) => {
       content += `
-        <div class="print-section" style="margin-bottom: 15px; ${index > 0 ? 'border-top: 2px solid #000; padding-top: 8px;' : ''}">
-          <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; border-bottom: 1px solid #000; padding-bottom: 3px;">
+        <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? 'border-top: 1px solid #bbb; padding-top: 6px;' : ''}">
+          <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
             ${groupe.nom} (${groupe.config.hauteur}×${groupe.config.largeur}×${groupe.config.profondeur}mm)
           </div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
             <thead>
-              <tr style="border-bottom: 1px solid #000;">
+              <tr style="border-bottom: 1px solid #bbb;">
                 <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Pièce</th>
                 <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Qté</th>
                 <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
@@ -446,7 +449,7 @@ const FurnitureCalculator: React.FC = () => {
             </thead>
             <tbody>
               ${groupe.items.map(item => `
-                <tr style="border-bottom: 1px solid #ccc;">
+                <tr style="border-bottom: 1px solid #ddd;">
                   <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${item.nom}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.longueur}</td>
@@ -462,13 +465,13 @@ const FurnitureCalculator: React.FC = () => {
 
     if (customItems.length > 0) {
       content += `
-        <div class="print-section" style="margin-top: 15px; border-top: 2px solid #000; padding-top: 8px;">
-          <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; border-bottom: 1px solid #000; padding-bottom: 3px;">
+        <div class="print-section" style="margin-top: 12px; border-top: 1px solid #bbb; padding-top: 6px;">
+          <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
             Pièces personnalisées
           </div>
           <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
             <thead>
-              <tr style="border-bottom: 1px solid #000;">
+              <tr style="border-bottom: 1px solid #bbb;">
                 <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Pièce</th>
                 <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Qté</th>
                 <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
@@ -478,7 +481,7 @@ const FurnitureCalculator: React.FC = () => {
             </thead>
             <tbody>
               ${customItems.map(item => `
-                <tr style="border-bottom: 1px solid #ccc;">
+                <tr style="border-bottom: 1px solid #ddd;">
                   <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${item.nom}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.longueur}</td>
@@ -503,7 +506,7 @@ const FurnitureCalculator: React.FC = () => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = `
       <div style="padding: 15px; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.2; background: #ffffff; color: #000;">
-        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #bbb; padding-bottom: 10px;">
           <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 5px 0;">FEUILLE DE DÉBIT</h1>
           <p style="font-size: 11px; margin: 0;">${new Date().toLocaleDateString('fr-FR')}</p>
         </div>
