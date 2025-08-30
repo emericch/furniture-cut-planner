@@ -73,6 +73,7 @@ const FurnitureCalculator: React.FC = () => {
 
   const epaisseurs = [8, 16, 19];
   const epaisseursDos = [3, 8, 16, 19];
+  const epaisseursPortes = [16, 19];
 
   const calculateCutSheet = () => {
     const items: CutSheetItem[] = [];
@@ -430,7 +431,7 @@ const FurnitureCalculator: React.FC = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {epaisseurs.map(ep => (
+                        {epaisseursPortes.map(ep => (
                           <SelectItem key={ep} value={ep.toString()}>{ep}</SelectItem>
                         ))}
                       </SelectContent>
