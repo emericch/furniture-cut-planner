@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calculator, FileText, Plus, X } from 'lucide-react';
+import { Calculator, FileText, Plus, X, Trash2 } from 'lucide-react';
 import { AssemblyIllustration } from './FurnitureIllustrations';
 
 export interface FurnitureConfig {
@@ -48,6 +48,14 @@ interface CutSheetItem {
   quantite: number;
 }
 
+interface MeubleGroup {
+  id: string;
+  nom: string;
+  config: FurnitureConfig;
+  items: CutSheetItem[];
+  dateAjout: Date;
+}
+
 const FurnitureCalculator: React.FC = () => {
   const [config, setConfig] = useState<FurnitureConfig>({
     hauteur: 2000,
@@ -68,7 +76,7 @@ const FurnitureCalculator: React.FC = () => {
     decalageDos: 0
   });
 
-  const [cutSheet, setCutSheet] = useState<CutSheetItem[]>([]);
+  const [meubleGroups, setMeubleGroups] = useState<MeubleGroup[]>([]);
   const [customItems, setCustomItems] = useState<CutSheetItem[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState<Partial<CutSheetItem>>({
@@ -78,12 +86,13 @@ const FurnitureCalculator: React.FC = () => {
     epaisseur: 19,
     quantite: 1
   });
+  const [meubleCounter, setMeubleCounter] = useState(1);
 
   const epaisseurs = [8, 16, 19, 22];
   const epaisseursDos = [3, 8, 16, 19, 22];
   const epaisseursPortes = [16, 19, 22];
 
-  const calculateCutSheet = () => {
+  const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => {
     const items: CutSheetItem[] = [];
     
     // Calcul des profondeurs utiles (mesures totales, portes et dos compris)
@@ -241,8 +250,25 @@ const FurnitureCalculator: React.FC = () => {
       }
     }
 
-    // Combiner les éléments du meuble avec les pièces personnalisées
-    setCutSheet([...items, ...customItems]);
+    return items;
+  };
+
+  const addMeubleToSheet = () => {
+    const items = generateMeubleItems(config);
+    const newMeuble: MeubleGroup = {
+      id: `meuble-${Date.now()}`,
+      nom: `Meuble ${meubleCounter}`,
+      config: { ...config },
+      items: items,
+      dateAjout: new Date()
+    };
+    
+    setMeubleGroups([...meubleGroups, newMeuble]);
+    setMeubleCounter(meubleCounter + 1);
+  };
+
+  const removeMeubleGroup = (meubleId: string) => {
+    setMeubleGroups(meubleGroups.filter(group => group.id !== meubleId));
   };
 
   const addCustomItem = () => {
@@ -268,6 +294,15 @@ const FurnitureCalculator: React.FC = () => {
 
   const removeCustomItem = (index: number) => {
     setCustomItems(customItems.filter((_, i) => i !== index));
+  };
+
+  const getAllItems = () => {
+    const allItems: CutSheetItem[] = [];
+    meubleGroups.forEach(group => {
+      allItems.push(...group.items);
+    });
+    allItems.push(...customItems);
+    return allItems;
   };
 
   return (
@@ -563,9 +598,9 @@ const FurnitureCalculator: React.FC = () => {
                   )}
                 </div>
 
-                <Button onClick={calculateCutSheet} className="w-full" size="lg">
-                  <Calculator className="mr-2 h-4 w-4" />
-                  Générer la feuille de débit
+                <Button onClick={addMeubleToSheet} className="w-full" size="lg">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Ajouter à la feuille de débit
                 </Button>
               </CardContent>
             </Card>
@@ -676,42 +711,80 @@ const FurnitureCalculator: React.FC = () => {
                   </Card>
                 )}
 
-                {cutSheet.length > 0 ? (
-                  <div className="space-y-3">
-                    {cutSheet.map((item, index) => {
-                      const isCustom = index >= cutSheet.length - customItems.length;
-                      return (
-                        <div key={index} className="border border-border rounded-lg p-3">
-                          <div className="flex justify-between items-center">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h4 className="font-medium text-base">{item.nom}</h4>
-                                {isCustom && (
-                                  <Button
-                                    onClick={() => removeCustomItem(index - (cutSheet.length - customItems.length))}
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </div>
-                              <div className="grid grid-cols-4 gap-2 text-sm text-muted-foreground">
-                                <div>L: {item.longueur}mm</div>
-                                <div>l: {item.largeur}mm</div>
-                                <div>Ép: {item.epaisseur}mm</div>
-                                <div>Qté: {item.quantite}</div>
+                {(meubleGroups.length > 0 || customItems.length > 0) ? (
+                  <div className="space-y-4">
+                    {/* Groupes de meubles */}
+                    {meubleGroups.map((groupe) => (
+                      <Card key={groupe.id} className="border-l-4 border-l-primary">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-base">{groupe.nom}</CardTitle>
+                            <Button
+                              onClick={() => removeMeubleGroup(groupe.id)}
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {groupe.config.hauteur} × {groupe.config.largeur} × {groupe.config.profondeur}mm
+                          </p>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          {groupe.items.map((item, index) => (
+                            <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
+                              <div className="flex-1">
+                                <h5 className="font-medium text-sm">{item.nom}</h5>
+                                <div className="grid grid-cols-4 gap-2 text-xs text-muted-foreground">
+                                  <div>L: {item.longueur}mm</div>
+                                  <div>l: {item.largeur}mm</div>
+                                  <div>Ép: {item.epaisseur}mm</div>
+                                  <div>Qté: {item.quantite}</div>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                          ))}
+                        </CardContent>
+                      </Card>
+                    ))}
+
+                    {/* Pièces personnalisées */}
+                    {customItems.length > 0 && (
+                      <Card className="border-l-4 border-l-secondary">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-base">Pièces personnalisées</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          {customItems.map((item, index) => (
+                            <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
+                              <div className="flex-1">
+                                <h5 className="font-medium text-sm">{item.nom}</h5>
+                                <div className="grid grid-cols-4 gap-2 text-xs text-muted-foreground">
+                                  <div>L: {item.longueur}mm</div>
+                                  <div>l: {item.largeur}mm</div>
+                                  <div>Ép: {item.epaisseur}mm</div>
+                                  <div>Qté: {item.quantite}</div>
+                                </div>
+                              </div>
+                              <Button
+                                onClick={() => removeCustomItem(index)}
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center py-8">
-                    Configurez votre meuble et cliquez sur "Générer la feuille de débit"
+                    Configurez votre meuble et cliquez sur "Ajouter à la feuille de débit"
                   </p>
                 )}
               </CardContent>
