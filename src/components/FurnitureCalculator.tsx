@@ -141,13 +141,16 @@ const FurnitureCalculator: React.FC = () => {
       : config.largeur - (2 * config.epaisseurMontants);
     
     // Chants visibles des traverses selon la configuration
-    let chantsVisiblesTraverses = ['face avant'];
+    let chantsVisiblesTraverses: string[] = [];
     if (config.traversesTouteLargeur) {
-      chantsVisiblesTraverses.push('côté gauche', 'côté droit');
-    }
-    // Si pas de dos en applique, le côté arrière est visible
-    if (config.dosType !== 'en-applique') {
-      chantsVisiblesTraverses.push('arrière');
+      // Traverses traversantes: plaqués 4 côtés
+      chantsVisiblesTraverses = ['côté gauche', 'côté droit', 'face avant', 'arrière'];
+    } else {
+      // Traverses entre montants: façade visible, arrière si visible
+      chantsVisiblesTraverses = ['face avant'];
+      if (config.dosType !== 'en-applique') {
+        chantsVisiblesTraverses.push('arrière');
+      }
     }
     
     items.push({
@@ -156,7 +159,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurTraverses,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
-      chantsVisible: config.traversesTouteLargeur ? chantsVisiblesTraverses : ['haut']
+      chantsVisible: [...chantsVisiblesTraverses, 'haut']
     });
     
     items.push({
