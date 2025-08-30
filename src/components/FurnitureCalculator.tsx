@@ -122,7 +122,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
-      chantsVisible: [...chantsVisiblesMontants, 'côté gauche']
+      chantsVisible: [...chantsVisiblesMontants, 'face avant']
     });
     
     items.push({
@@ -131,7 +131,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
-      chantsVisible: [...chantsVisiblesMontants, 'côté droit']
+      chantsVisible: [...chantsVisiblesMontants, 'face avant']
     });
 
     // Calcul des traverses
