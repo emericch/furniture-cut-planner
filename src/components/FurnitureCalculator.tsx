@@ -96,7 +96,7 @@ const FurnitureCalculator: React.FC = () => {
     // Profondeur des rayons
     const profondeurRayons = 
       profondeurBase 
-      - ((config.dosType !== 'aucun' && config.dosType !== 'en-applique') ? config.epaisseurDos + config.decalageDos : 0)
+      - (config.dosType === 'toute-hauteur' || config.dosType === 'toute-largeur' || config.dosType === 'entre-montants-traverses' ? config.epaisseurDos + config.decalageDos : 0)
       - (config.retraitRayons || 0)
       - (config.nombrePortes > 0 && config.typePorte === 'interieur' ? config.epaisseurPortes : 0);
     
