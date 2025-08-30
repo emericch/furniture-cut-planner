@@ -567,7 +567,7 @@ const FurnitureCalculator: React.FC = () => {
                   <div className="space-y-2">
                     {cutSheet.map((item, index) => (
                       <div key={index} className="border border-border rounded-lg p-2 space-y-1">
-                        <div className="flex justify-between items-start gap-2">
+                        <div className="flex justify-between items-center gap-2">
                           <div className="flex-1">
                             <div className="flex justify-between items-center mb-1">
                               <h4 className="font-semibold text-sm">{item.nom}</h4>
