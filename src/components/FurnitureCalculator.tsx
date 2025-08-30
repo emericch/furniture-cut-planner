@@ -104,13 +104,13 @@ const FurnitureCalculator: React.FC = () => {
       ? config.hauteur 
       : config.hauteur - (2 * config.epaisseurTraverses);
     
-    // Chants visibles des montants
-    let chantsVisiblesMontants: string[] = ['face avant']; // Toujours plaqués devant
+    // Chants visibles des montants (face avant toujours plaquée)
+    let chantsVisiblesMontants: string[] = ['face avant'];
     if (config.montantsTouteHauteur) {
       // Montants traversants: plaqués 4 côtés
       chantsVisiblesMontants.push('haut', 'bas', 'côté gauche', 'côté droit');
     } else {
-      // Montants entre traverses: façade visible, arrière si visible
+      // Montants entre traverses: arrière si visible
       if (config.dosType !== 'en-applique') {
         chantsVisiblesMontants.push('arrière');
       }
@@ -122,7 +122,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
-      chantsVisible: [...chantsVisiblesMontants, 'face avant']
+      chantsVisible: chantsVisiblesMontants
     });
     
     items.push({
@@ -131,7 +131,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
-      chantsVisible: [...chantsVisiblesMontants, 'face avant']
+      chantsVisible: chantsVisiblesMontants
     });
 
     // Calcul des traverses
