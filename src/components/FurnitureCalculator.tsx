@@ -33,7 +33,6 @@ export interface FurnitureConfig {
   
   // Portes
   nombrePortes: 0 | 1 | 2;
-  sensOuverture: 'gauche' | 'droite';
   typePorte: 'applique' | 'interieur';
 
   // Options
@@ -65,7 +64,6 @@ const FurnitureCalculator: React.FC = () => {
     nombreRayons: 2,
     dosType: 'aucun',
     nombrePortes: 0,
-    sensOuverture: 'droite',
     typePorte: 'interieur',
     retraitRayons: 0,
     decalageDos: 0
@@ -603,26 +601,6 @@ const FurnitureCalculator: React.FC = () => {
                     </div>
                   )}
                 </div>
-
-                {config.nombrePortes === 1 && (
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <Label className="text-sm">Sens d'ouverture</Label>
-                      <Select 
-                        value={config.sensOuverture} 
-                        onValueChange={(value: any) => setConfig({...config, sensOuverture: value})}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gauche">Gauche</SelectItem>
-                          <SelectItem value="droite">Droite</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
 
                 <Button onClick={calculateCutSheet} className="w-full" size="lg">
                   <Calculator className="mr-2 h-4 w-4" />
