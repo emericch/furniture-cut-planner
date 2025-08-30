@@ -78,12 +78,22 @@ const FurnitureCalculator: React.FC = () => {
     
     // Calcul des profondeurs utiles (mesures totales, portes et dos compris)
     const hasDoor = config.nombrePortes > 0;
-    const profondeurPanneaux = 
+    const profondeurBase = 
       config.profondeur 
       - (hasDoor ? config.epaisseurPortes : 0) 
       - (config.dosType === 'en-applique' ? config.epaisseurDos : 0);
+    
+    // Profondeur des montants (réduite si dos toute largeur)
+    const profondeurMontants = profondeurBase - 
+      (config.dosType === 'toute-largeur' ? config.epaisseurDos + config.decalageDos : 0);
+    
+    // Profondeur des traverses (réduite si dos toute hauteur)
+    const profondeurTraverses = profondeurBase - 
+      (config.dosType === 'toute-hauteur' ? config.epaisseurDos + config.decalageDos : 0);
+    
+    // Profondeur des rayons
     const profondeurRayons = 
-      profondeurPanneaux 
+      profondeurBase 
       - ((config.dosType !== 'aucun' && config.dosType !== 'en-applique') ? config.epaisseurDos + config.decalageDos : 0)
       - (config.retraitRayons || 0);
     
@@ -95,7 +105,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Montant gauche',
       longueur: hauteurMontants,
-      largeur: profondeurPanneaux,
+      largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
       chantsVisible: ['face avant', 'côté gauche']
@@ -104,7 +114,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Montant droit',
       longueur: hauteurMontants,
-      largeur: profondeurPanneaux,
+      largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
       chantsVisible: ['face avant', 'côté droit']
@@ -118,7 +128,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Traverse haute',
       longueur: largeurTraverses,
-      largeur: profondeurPanneaux,
+      largeur: profondeurTraverses,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
       chantsVisible: ['face avant']
@@ -127,7 +137,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Traverse basse',
       longueur: largeurTraverses,
-      largeur: profondeurPanneaux,
+      largeur: profondeurTraverses,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
       chantsVisible: ['face avant']
