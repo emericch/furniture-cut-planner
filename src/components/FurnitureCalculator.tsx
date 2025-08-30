@@ -567,14 +567,14 @@ const FurnitureCalculator: React.FC = () => {
                   <div className="space-y-2">
                     {cutSheet.map((item, index) => (
                       <div key={index} className="border border-border rounded-lg p-2 space-y-1">
-                        <div className="flex justify-end items-start gap-2">
+                        <div className="flex justify-between items-center gap-2">
+                          <h4 className="font-semibold text-sm">{item.nom}</h4>
                           <span className="text-xs text-muted-foreground">
                             Qté: {item.quantite}
                           </span>
                         </div>
                         <div className="flex justify-between items-center gap-2">
                           <div className="flex-1">
-                            <h4 className="font-semibold text-sm mb-1">{item.nom}</h4>
                             <div className="grid grid-cols-3 gap-1 text-xs">
                               <div>L: {item.longueur}</div>
                               <div>l: {item.largeur}</div>
