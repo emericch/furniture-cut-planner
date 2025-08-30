@@ -114,6 +114,10 @@ const FurnitureCalculator: React.FC = () => {
     if (config.dosType === 'aucun' || config.dosType === 'entre-montants-traverses') {
       chantsVisiblesMontants.push('arrière');
     }
+    // Cas traverses toute largeur sans dos: montants plaqués sur les 2 longueurs
+    if (!config.montantsTouteHauteur && config.traversesTouteLargeur && config.dosType === 'aucun') {
+      chantsVisiblesMontants.push('haut', 'bas');
+    }
     
     items.push({
       nom: 'Montant gauche',
@@ -121,7 +125,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
-      chantsVisible: chantsVisiblesMontants
+      chantsVisible: Array.from(new Set(chantsVisiblesMontants))
     });
     
     items.push({
@@ -130,7 +134,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
-      chantsVisible: chantsVisiblesMontants
+      chantsVisible: Array.from(new Set(chantsVisiblesMontants))
     });
 
     // Calcul des traverses
@@ -149,23 +153,55 @@ const FurnitureCalculator: React.FC = () => {
       chantsVisiblesTraverses.push('arrière');
     }
     
-    items.push({
-      nom: 'Traverse haute',
-      longueur: largeurTraverses,
-      largeur: profondeurTraverses,
-      epaisseur: config.epaisseurTraverses,
-      quantite: 1,
-      chantsVisible: [...chantsVisiblesTraverses, 'haut']
-    });
-    
-    items.push({
-      nom: 'Traverse basse',
-      longueur: largeurTraverses,
-      largeur: profondeurTraverses,
-      epaisseur: config.epaisseurTraverses,
-      quantite: 1,
-      chantsVisible: [...chantsVisiblesTraverses, 'bas']
-    });
+    // Déterminer les chants communs pour les traverses selon les cas
+    const baseTraverses = Array.from(new Set(chantsVisiblesTraverses));
+    const needBothLongs = config.montantsTouteHauteur && config.dosType === 'aucun';
+    const fullFourSides = config.traversesTouteLargeur && config.dosType === 'aucun';
+
+    if (fullFourSides || needBothLongs) {
+      const traversesChants = Array.from(new Set([
+        ...baseTraverses,
+        'haut',
+        'bas',
+        ...(fullFourSides ? ['côté gauche', 'côté droit'] : []),
+      ]));
+
+      items.push({
+        nom: 'Traverse haute',
+        longueur: largeurTraverses,
+        largeur: profondeurTraverses,
+        epaisseur: config.epaisseurTraverses,
+        quantite: 1,
+        chantsVisible: traversesChants
+      });
+
+      items.push({
+        nom: 'Traverse basse',
+        longueur: largeurTraverses,
+        largeur: profondeurTraverses,
+        epaisseur: config.epaisseurTraverses,
+        quantite: 1,
+        chantsVisible: traversesChants
+      });
+    } else {
+      items.push({
+        nom: 'Traverse haute',
+        longueur: largeurTraverses,
+        largeur: profondeurTraverses,
+        epaisseur: config.epaisseurTraverses,
+        quantite: 1,
+        chantsVisible: [...baseTraverses, 'haut']
+      });
+      
+      items.push({
+        nom: 'Traverse basse',
+        longueur: largeurTraverses,
+        largeur: profondeurTraverses,
+        epaisseur: config.epaisseurTraverses,
+        quantite: 1,
+        chantsVisible: [...baseTraverses, 'bas']
+      });
+    }
 
     // Calcul des rayons
     if (config.nombreRayons > 0) {
