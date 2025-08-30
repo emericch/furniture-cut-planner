@@ -580,14 +580,6 @@ const FurnitureCalculator: React.FC = () => {
                               <div>l: {item.largeur}</div>
                               <div>Ép: {item.epaisseur}</div>
                             </div>
-                            {item.chantsVisible.length > 0 && (
-                              <div>
-                                <span className="text-xs font-medium text-accent">Chants:</span>
-                                <div className="text-xs text-muted-foreground">
-                                  {item.chantsVisible.join(', ')}
-                                </div>
-                              </div>
-                            )}
                           </div>
                           <PieceIllustration 
                             longueur={item.longueur}
