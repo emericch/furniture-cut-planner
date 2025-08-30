@@ -79,10 +79,10 @@ const FurnitureCalculator: React.FC = () => {
     const items: CutSheetItem[] = [];
     
     // Calcul des profondeurs utiles (mesures totales, portes et dos compris)
-    const hasDoor = config.nombrePortes > 0;
+    const hasDoorApplique = config.nombrePortes > 0 && config.typePorte === 'applique';
     const profondeurBase = 
       config.profondeur 
-      - (hasDoor ? config.epaisseurPortes : 0) 
+      - (hasDoorApplique ? config.epaisseurPortes : 0) 
       - (config.dosType === 'en-applique' ? config.epaisseurDos : 0);
     
     // Profondeur des montants (réduite si dos toute largeur)
