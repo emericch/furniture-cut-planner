@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Calculator, FileText, Ruler } from 'lucide-react';
-import { FurnitureIcon, DimensionIcon } from './FurnitureIcons';
+import Furniture3DView from './Furniture3DView';
 
-interface FurnitureConfig {
+export interface FurnitureConfig {
   // Dimensions générales
   hauteur: number;
   largeur: number;
@@ -246,9 +246,9 @@ const FurnitureCalculator: React.FC = () => {
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 xl:grid-cols-3 gap-3 lg:gap-4">
-          {/* Configuration - Plus large sur écrans larges */}
-          <div className="lg:col-span-3 xl:col-span-2 space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
+          {/* Configuration */}
+          <div className="space-y-3">
             {/* Dimensions et épaisseurs dans une seule carte */}
             <Card className="form-section">
               <CardHeader className="py-3">
@@ -263,44 +263,39 @@ const FurnitureCalculator: React.FC = () => {
                 </div>
                 
                 {/* Dimensions générales */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
-                    <Label className="text-sm font-medium mb-2 block">Dimensions (mm)</Label>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <Label htmlFor="hauteur" className="text-xs">Hauteur</Label>
-                        <Input
-                          id="hauteur"
-                          type="number"
-                          value={config.hauteur}
-                          onChange={(e) => setConfig({...config, hauteur: Number(e.target.value)})}
-                          className="h-8"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="largeur" className="text-xs">Largeur</Label>
-                        <Input
-                          id="largeur"
-                          type="number"
-                          value={config.largeur}
-                          onChange={(e) => setConfig({...config, largeur: Number(e.target.value)})}
-                          className="h-8"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="profondeur" className="text-xs">Profondeur</Label>
-                        <Input
-                          id="profondeur"
-                          type="number"
-                          value={config.profondeur}
-                          onChange={(e) => setConfig({...config, profondeur: Number(e.target.value)})}
-                          className="h-8"
-                        />
-                      </div>
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Dimensions (mm)</Label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <Label htmlFor="hauteur" className="text-xs">Hauteur</Label>
+                      <Input
+                        id="hauteur"
+                        type="number"
+                        value={config.hauteur}
+                        onChange={(e) => setConfig({...config, hauteur: Number(e.target.value)})}
+                        className="h-8"
+                      />
                     </div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <DimensionIcon className="max-w-[120px]" />
+                    <div>
+                      <Label htmlFor="largeur" className="text-xs">Largeur</Label>
+                      <Input
+                        id="largeur"
+                        type="number"
+                        value={config.largeur}
+                        onChange={(e) => setConfig({...config, largeur: Number(e.target.value)})}
+                        className="h-8"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="profondeur" className="text-xs">Profondeur</Label>
+                      <Input
+                        id="profondeur"
+                        type="number"
+                        value={config.profondeur}
+                        onChange={(e) => setConfig({...config, profondeur: Number(e.target.value)})}
+                        className="h-8"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -396,85 +391,60 @@ const FurnitureCalculator: React.FC = () => {
                 <Separator />
 
                 {/* Options de montage */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
-                    <Label className="text-sm font-medium mb-2 block">Options de montage</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="montants-toute-hauteur"
-                          checked={config.montantsTouteHauteur}
-                          disabled={config.traversesTouteLargeur}
-                          onCheckedChange={(checked) => setConfig({...config, montantsTouteHauteur: checked as boolean})}
-                        />
-                        <Label htmlFor="montants-toute-hauteur" className={`text-xs ${config.traversesTouteLargeur ? 'text-muted-foreground' : ''}`}>
-                          Montants toute hauteur
-                        </Label>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="traverses-toute-largeur"
-                          checked={config.traversesTouteLargeur}
-                          disabled={config.montantsTouteHauteur}
-                          onCheckedChange={(checked) => setConfig({...config, traversesTouteLargeur: checked as boolean})}
-                        />
-                        <Label htmlFor="traverses-toute-largeur" className={`text-xs ${config.montantsTouteHauteur ? 'text-muted-foreground' : ''}`}>
-                          Traverses toute largeur
-                        </Label>
-                      </div>
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Options de montage</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="montants-toute-hauteur"
+                        checked={config.montantsTouteHauteur}
+                        disabled={config.traversesTouteLargeur}
+                        onCheckedChange={(checked) => setConfig({...config, montantsTouteHauteur: checked as boolean})}
+                      />
+                      <Label htmlFor="montants-toute-hauteur" className={`text-xs ${config.traversesTouteLargeur ? 'text-muted-foreground' : ''}`}>
+                        Montants toute hauteur
+                      </Label>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <FurnitureIcon 
-                      highlighted={config.montantsTouteHauteur ? 'montants' : config.traversesTouteLargeur ? 'traverses' : 'all'}
-                      dosType={config.dosType}
-                      nombrePortes={config.nombrePortes}
-                      nombreRayons={config.nombreRayons}
-                      className="max-w-[120px]" 
-                    />
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="traverses-toute-largeur"
+                        checked={config.traversesTouteLargeur}
+                        disabled={config.montantsTouteHauteur}
+                        onCheckedChange={(checked) => setConfig({...config, traversesTouteLargeur: checked as boolean})}
+                      />
+                      <Label htmlFor="traverses-toute-largeur" className={`text-xs ${config.montantsTouteHauteur ? 'text-muted-foreground' : ''}`}>
+                        Traverses toute largeur
+                      </Label>
+                    </div>
                   </div>
                 </div>
 
                 <Separator />
 
                 {/* Rayons et options */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
-                    <Label className="text-sm font-medium mb-2 block">Rayons</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="nombre-rayons" className="text-xs">Nombre de rayons</Label>
-                        <Input
-                          id="nombre-rayons"
-                          type="number"
-                          min="0"
-                          value={config.nombreRayons}
-                          onChange={(e) => setConfig({...config, nombreRayons: Number(e.target.value)})}
-                          className="h-8"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="retrait-rayons" className="text-xs">Retrait rayons (mm)</Label>
-                        <Input
-                          id="retrait-rayons"
-                          type="number"
-                          min="0"
-                          value={config.retraitRayons}
-                          onChange={(e) => setConfig({...config, retraitRayons: Number(e.target.value)})}
-                          className="h-8"
-                        />
-                      </div>
-                    </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="nombre-rayons" className="text-xs">Nombre de rayons</Label>
+                    <Input
+                      id="nombre-rayons"
+                      type="number"
+                      min="0"
+                      value={config.nombreRayons}
+                      onChange={(e) => setConfig({...config, nombreRayons: Number(e.target.value)})}
+                      className="h-8"
+                    />
                   </div>
-                  <div className="flex items-center justify-center">
-                    <FurnitureIcon 
-                      highlighted="rayons"
-                      dosType={config.dosType}
-                      nombrePortes={config.nombrePortes}
-                      nombreRayons={config.nombreRayons}
-                      className="max-w-[120px]" 
+
+                  <div>
+                    <Label htmlFor="retrait-rayons" className="text-xs">Retrait rayons (mm)</Label>
+                    <Input
+                      id="retrait-rayons"
+                      type="number"
+                      min="0"
+                      value={config.retraitRayons}
+                      onChange={(e) => setConfig({...config, retraitRayons: Number(e.target.value)})}
+                      className="h-8"
                     />
                   </div>
                 </div>
@@ -482,114 +452,86 @@ const FurnitureCalculator: React.FC = () => {
                 <Separator />
 
                 {/* Dos */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
-                    <Label className="text-sm font-medium mb-2 block">Configuration du dos</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs">Type de dos</Label>
-                        <Select 
-                          value={config.dosType} 
-                          onValueChange={(value: any) => {
-                            const newConfig = {...config, dosType: value};
-                            if (value === 'en-applique') {
-                              newConfig.decalageDos = 0;
-                            }
-                            setConfig(newConfig);
-                          }}
-                        >
-                          <SelectTrigger className="h-8">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="aucun">Aucun</SelectItem>
-                            <SelectItem value="toute-hauteur">Toute hauteur</SelectItem>
-                            <SelectItem value="toute-largeur">Toute largeur</SelectItem>
-                            <SelectItem value="en-applique">En applique</SelectItem>
-                            <SelectItem value="entre-montants-traverses">Entre montants et traverses</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Type de dos</Label>
+                    <Select 
+                      value={config.dosType} 
+                      onValueChange={(value: any) => {
+                        const newConfig = {...config, dosType: value};
+                        if (value === 'en-applique') {
+                          newConfig.decalageDos = 0;
+                        }
+                        setConfig(newConfig);
+                      }}
+                    >
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="aucun">Aucun</SelectItem>
+                        <SelectItem value="toute-hauteur">Toute hauteur</SelectItem>
+                        <SelectItem value="toute-largeur">Toute largeur</SelectItem>
+                        <SelectItem value="en-applique">En applique</SelectItem>
+                        <SelectItem value="entre-montants-traverses">Entre montants et traverses</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                      {config.dosType !== 'aucun' && config.dosType !== 'en-applique' && (
-                        <div>
-                          <Label htmlFor="decalage-dos" className="text-xs">Décalage dos (mm)</Label>
-                          <Input
-                            id="decalage-dos"
-                            type="number"
-                            min="0"
-                            max={config.profondeur - config.epaisseurDos}
-                            value={config.decalageDos}
-                            onChange={(e) => setConfig({...config, decalageDos: Number(e.target.value)})}
-                            className="h-8"
-                          />
-                        </div>
-                      )}
+                  {config.dosType !== 'aucun' && config.dosType !== 'en-applique' && (
+                    <div>
+                      <Label htmlFor="decalage-dos" className="text-xs">Décalage dos (mm)</Label>
+                      <Input
+                        id="decalage-dos"
+                        type="number"
+                        min="0"
+                        max={config.profondeur - config.epaisseurDos}
+                        value={config.decalageDos}
+                        onChange={(e) => setConfig({...config, decalageDos: Number(e.target.value)})}
+                        className="h-8"
+                      />
                     </div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <FurnitureIcon 
-                      highlighted="dos"
-                      dosType={config.dosType}
-                      nombrePortes={config.nombrePortes}
-                      nombreRayons={config.nombreRayons}
-                      className="max-w-[120px]" 
-                    />
-                  </div>
+                  )}
                 </div>
 
                 <Separator />
 
                 {/* Portes */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
-                    <Label className="text-sm font-medium mb-2 block">Configuration des portes</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs">Nombre de portes</Label>
-                        <Select 
-                          value={config.nombrePortes.toString()} 
-                          onValueChange={(value) => setConfig({...config, nombrePortes: Number(value) as 0 | 1 | 2})}
-                        >
-                          <SelectTrigger className="h-8">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">Aucune</SelectItem>
-                            <SelectItem value="1">1 porte</SelectItem>
-                            <SelectItem value="2">2 portes</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      {config.nombrePortes === 1 && (
-                        <div>
-                          <Label className="text-xs">Sens d'ouverture</Label>
-                          <Select 
-                            value={config.sensOuverture} 
-                            onValueChange={(value: any) => setConfig({...config, sensOuverture: value})}
-                          >
-                            <SelectTrigger className="h-8">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="gauche">Gauche</SelectItem>
-                              <SelectItem value="droite">Droite</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Nombre de portes</Label>
+                    <Select 
+                      value={config.nombrePortes.toString()} 
+                      onValueChange={(value) => setConfig({...config, nombrePortes: Number(value) as 0 | 1 | 2})}
+                    >
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">Aucune</SelectItem>
+                        <SelectItem value="1">1 porte</SelectItem>
+                        <SelectItem value="2">2 portes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {config.nombrePortes === 1 && (
+                    <div>
+                      <Label className="text-xs">Sens d'ouverture</Label>
+                      <Select 
+                        value={config.sensOuverture} 
+                        onValueChange={(value: any) => setConfig({...config, sensOuverture: value})}
+                      >
+                        <SelectTrigger className="h-8">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="gauche">Gauche</SelectItem>
+                          <SelectItem value="droite">Droite</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <FurnitureIcon 
-                      highlighted="portes"
-                      dosType={config.dosType}
-                      nombrePortes={config.nombrePortes}
-                      nombreRayons={config.nombreRayons}
-                      className="max-w-[120px]" 
-                    />
-                  </div>
+                  )}
                 </div>
 
                 <Button onClick={calculateCutSheet} className="w-full mt-4" size="lg">
@@ -600,9 +542,21 @@ const FurnitureCalculator: React.FC = () => {
             </Card>
           </div>
 
-          {/* Feuille de débit */}
-          <div className="lg:col-span-2 xl:col-span-1">
-            <Card className="cut-sheet h-fit sticky top-4">
+          <div className="space-y-3">
+            {/* Vue 3D */}
+            <Card>
+              <CardHeader className="py-3">
+                <CardTitle className="text-lg">Aperçu 3D</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="h-64 w-full">
+                  <Furniture3DView config={config} />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Feuille de débit */}
+            <Card className="cut-sheet">
               <CardHeader className="py-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <FileText className="h-4 w-4 text-accent" />
