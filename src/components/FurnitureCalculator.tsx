@@ -5,10 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
-import { Calculator, FileText, Ruler } from 'lucide-react';
-import { DimensionIllustration, AssemblyIllustration, PieceIllustration } from './FurnitureIllustrations';
-
+import { Calculator, FileText } from 'lucide-react';
+import { AssemblyIllustration, PieceIllustration } from './FurnitureIllustrations';
 
 export interface FurnitureConfig {
   // Dimensions générales
@@ -299,232 +297,222 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-2 sm:p-4">
-      <div className="max-w-7xl mx-auto space-y-3">
-        {/* En-tête compact */}
-        <Card className="interactive-hover">
-          <CardHeader className="text-center py-3">
-            <CardTitle className="flex items-center justify-center gap-2 text-lg sm:text-xl">
-              <Calculator className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
-              Générateur de Débit Meuble
-            </CardTitle>
-          </CardHeader>
-        </Card>
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* En-tête simplifié */}
+        <div className="text-center">
+          <h1 className="text-2xl font-bold flex items-center justify-center gap-2">
+            <Calculator className="h-6 w-6 text-primary" />
+            Générateur de Débit Meuble
+          </h1>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Configuration */}
-          <div className="space-y-3">
-            {/* Dimensions et épaisseurs dans une seule carte */}
-            <Card className="form-section">
-              <CardHeader className="py-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Ruler className="h-4 w-4 text-accent" />
-                  Configuration du meuble
-                </CardTitle>
+          <div className="space-y-4">
+            {/* Dimensions principales */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Dimensions hors-tout (mm)</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Dimensions générales */}
-                <div>
-                  <div className="mb-2">
-                    <Label className="text-sm font-medium">Dimensions hors-tout (mm)</Label>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <Label htmlFor="hauteur" className="text-xs">Hauteur</Label>
-                      <Input
-                        id="hauteur"
-                        type="number"
-                        value={config.hauteur}
-                        onChange={(e) => setConfig({...config, hauteur: Number(e.target.value)})}
-                        className="h-8"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="largeur" className="text-xs">Largeur</Label>
-                      <Input
-                        id="largeur"
-                        type="number"
-                        value={config.largeur}
-                        onChange={(e) => setConfig({...config, largeur: Number(e.target.value)})}
-                        className="h-8"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="profondeur" className="text-xs">Profondeur</Label>
-                      <Input
-                        id="profondeur"
-                        type="number"
-                        value={config.profondeur}
-                        onChange={(e) => setConfig({...config, profondeur: Number(e.target.value)})}
-                        className="h-8"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Épaisseurs */}
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Épaisseurs (mm)</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                    <div>
-                      <Label className="text-xs">Montants</Label>
-                      <Select 
-                        value={config.epaisseurMontants.toString()} 
-                        onValueChange={(value) => setConfig({...config, epaisseurMontants: Number(value)})}
-                      >
-                        <SelectTrigger className="h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {epaisseurs.map(ep => (
-                            <SelectItem key={ep} value={ep.toString()}>{ep}mm</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="text-xs">Traverses</Label>
-                      <Select 
-                        value={config.epaisseurTraverses.toString()} 
-                        onValueChange={(value) => setConfig({...config, epaisseurTraverses: Number(value)})}
-                      >
-                        <SelectTrigger className="h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {epaisseurs.map(ep => (
-                            <SelectItem key={ep} value={ep.toString()}>{ep}mm</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="text-xs">Rayons</Label>
-                      <Select 
-                        value={config.epaisseurRayons.toString()} 
-                        onValueChange={(value) => setConfig({...config, epaisseurRayons: Number(value)})}
-                      >
-                        <SelectTrigger className="h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {epaisseurs.map(ep => (
-                            <SelectItem key={ep} value={ep.toString()}>{ep}mm</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="text-xs">Dos</Label>
-                      <Select 
-                        value={config.epaisseurDos.toString()} 
-                        onValueChange={(value) => setConfig({...config, epaisseurDos: Number(value)})}
-                      >
-                        <SelectTrigger className="h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {epaisseurs.map(ep => (
-                            <SelectItem key={ep} value={ep.toString()}>{ep}mm</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="text-xs">Portes</Label>
-                      <Select 
-                        value={config.epaisseurPortes.toString()} 
-                        onValueChange={(value) => setConfig({...config, epaisseurPortes: Number(value)})}
-                      >
-                        <SelectTrigger className="h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {epaisseurs.map(ep => (
-                            <SelectItem key={ep} value={ep.toString()}>{ep}mm</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Options de montage */}
-                <div>
-                  <div className="flex items-center gap-4 mb-2">
-                    <Label className="text-sm font-medium">Options de montage</Label>
-                    <AssemblyIllustration 
-                      montantsTouteHauteur={config.montantsTouteHauteur}
-                      traversesTouteLargeur={config.traversesTouteLargeur}
-                      className="flex-shrink-0" 
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="hauteur" className="text-sm">Hauteur</Label>
+                    <Input
+                      id="hauteur"
+                      type="number"
+                      value={config.hauteur}
+                      onChange={(e) => setConfig({...config, hauteur: Number(e.target.value)})}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="montants-toute-hauteur"
-                        checked={config.montantsTouteHauteur}
-                        disabled={config.traversesTouteLargeur}
-                        onCheckedChange={(checked) => setConfig({...config, montantsTouteHauteur: checked as boolean})}
-                      />
-                      <Label htmlFor="montants-toute-hauteur" className={`text-xs ${config.traversesTouteLargeur ? 'text-muted-foreground' : ''}`}>
-                        Montants toute hauteur
-                      </Label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="traverses-toute-largeur"
-                        checked={config.traversesTouteLargeur}
-                        disabled={config.montantsTouteHauteur}
-                        onCheckedChange={(checked) => setConfig({...config, traversesTouteLargeur: checked as boolean})}
-                      />
-                      <Label htmlFor="traverses-toute-largeur" className={`text-xs ${config.montantsTouteHauteur ? 'text-muted-foreground' : ''}`}>
-                        Traverses toute largeur
-                      </Label>
-                    </div>
+                  <div>
+                    <Label htmlFor="largeur" className="text-sm">Largeur</Label>
+                    <Input
+                      id="largeur"
+                      type="number"
+                      value={config.largeur}
+                      onChange={(e) => setConfig({...config, largeur: Number(e.target.value)})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="profondeur" className="text-sm">Profondeur</Label>
+                    <Input
+                      id="profondeur"
+                      type="number"
+                      value={config.profondeur}
+                      onChange={(e) => setConfig({...config, profondeur: Number(e.target.value)})}
+                    />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                <Separator />
-
-                {/* Rayons et options */}
-                <div className="grid grid-cols-2 gap-3">
+            {/* Épaisseurs */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Épaisseurs (mm)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-5 gap-3">
                   <div>
-                    <Label htmlFor="nombre-rayons" className="text-xs">Nombre de rayons</Label>
+                    <Label className="text-xs">Montants</Label>
+                    <Select 
+                      value={config.epaisseurMontants.toString()} 
+                      onValueChange={(value) => setConfig({...config, epaisseurMontants: Number(value)})}
+                    >
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {epaisseurs.map(ep => (
+                          <SelectItem key={ep} value={ep.toString()}>{ep}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Traverses</Label>
+                    <Select 
+                      value={config.epaisseurTraverses.toString()} 
+                      onValueChange={(value) => setConfig({...config, epaisseurTraverses: Number(value)})}
+                    >
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {epaisseurs.map(ep => (
+                          <SelectItem key={ep} value={ep.toString()}>{ep}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Rayons</Label>
+                    <Select 
+                      value={config.epaisseurRayons.toString()} 
+                      onValueChange={(value) => setConfig({...config, epaisseurRayons: Number(value)})}
+                    >
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {epaisseurs.map(ep => (
+                          <SelectItem key={ep} value={ep.toString()}>{ep}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Dos</Label>
+                    <Select 
+                      value={config.epaisseurDos.toString()} 
+                      onValueChange={(value) => setConfig({...config, epaisseurDos: Number(value)})}
+                    >
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {epaisseurs.map(ep => (
+                          <SelectItem key={ep} value={ep.toString()}>{ep}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Portes</Label>
+                    <Select 
+                      value={config.epaisseurPortes.toString()} 
+                      onValueChange={(value) => setConfig({...config, epaisseurPortes: Number(value)})}
+                    >
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {epaisseurs.map(ep => (
+                          <SelectItem key={ep} value={ep.toString()}>{ep}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Options de montage */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-3">
+                  Options de montage
+                  <AssemblyIllustration 
+                    montantsTouteHauteur={config.montantsTouteHauteur}
+                    traversesTouteLargeur={config.traversesTouteLargeur}
+                  />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="montants-toute-hauteur"
+                      checked={config.montantsTouteHauteur}
+                      disabled={config.traversesTouteLargeur}
+                      onCheckedChange={(checked) => setConfig({...config, montantsTouteHauteur: checked as boolean})}
+                    />
+                    <Label htmlFor="montants-toute-hauteur" className={`text-sm ${config.traversesTouteLargeur ? 'text-muted-foreground' : ''}`}>
+                      Montants toute hauteur
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="traverses-toute-largeur"
+                      checked={config.traversesTouteLargeur}
+                      disabled={config.montantsTouteHauteur}
+                      onCheckedChange={(checked) => setConfig({...config, traversesTouteLargeur: checked as boolean})}
+                    />
+                    <Label htmlFor="traverses-toute-largeur" className={`text-sm ${config.montantsTouteHauteur ? 'text-muted-foreground' : ''}`}>
+                      Traverses toute largeur
+                    </Label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Autres options */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Autres éléments</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Rayons */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="nombre-rayons" className="text-sm">Nombre de rayons</Label>
                     <Input
                       id="nombre-rayons"
                       type="number"
                       min="0"
                       value={config.nombreRayons}
                       onChange={(e) => setConfig({...config, nombreRayons: Number(e.target.value)})}
-                      className="h-8"
                     />
                   </div>
-
                   <div>
-                    <Label htmlFor="retrait-rayons" className="text-xs">Retrait rayons (mm)</Label>
+                    <Label htmlFor="retrait-rayons" className="text-sm">Retrait rayons (mm)</Label>
                     <Input
                       id="retrait-rayons"
                       type="number"
                       min="0"
                       value={config.retraitRayons}
                       onChange={(e) => setConfig({...config, retraitRayons: Number(e.target.value)})}
-                      className="h-8"
                     />
                   </div>
                 </div>
 
-                <Separator />
-
                 {/* Dos */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs">Type de dos</Label>
+                    <Label className="text-sm">Type de dos</Label>
                     <Select 
                       value={config.dosType} 
                       onValueChange={(value: any) => {
@@ -535,7 +523,7 @@ const FurnitureCalculator: React.FC = () => {
                         setConfig(newConfig);
                       }}
                     >
-                      <SelectTrigger className="h-8">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -550,7 +538,7 @@ const FurnitureCalculator: React.FC = () => {
 
                   {config.dosType !== 'aucun' && config.dosType !== 'en-applique' && (
                     <div>
-                      <Label htmlFor="decalage-dos" className="text-xs">Décalage dos (mm)</Label>
+                      <Label htmlFor="decalage-dos" className="text-sm">Décalage dos (mm)</Label>
                       <Input
                         id="decalage-dos"
                         type="number"
@@ -558,23 +546,20 @@ const FurnitureCalculator: React.FC = () => {
                         max={config.profondeur - config.epaisseurDos}
                         value={config.decalageDos}
                         onChange={(e) => setConfig({...config, decalageDos: Number(e.target.value)})}
-                        className="h-8"
                       />
                     </div>
                   )}
                 </div>
 
-                <Separator />
-
                 {/* Portes */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs">Nombre de portes</Label>
+                    <Label className="text-sm">Nombre de portes</Label>
                     <Select 
                       value={config.nombrePortes.toString()} 
                       onValueChange={(value) => setConfig({...config, nombrePortes: Number(value) as 0 | 1 | 2})}
                     >
-                      <SelectTrigger className="h-8">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -587,12 +572,12 @@ const FurnitureCalculator: React.FC = () => {
                   
                   {config.nombrePortes === 1 && (
                     <div>
-                      <Label className="text-xs">Sens d'ouverture</Label>
+                      <Label className="text-sm">Sens d'ouverture</Label>
                       <Select 
                         value={config.sensOuverture} 
                         onValueChange={(value: any) => setConfig({...config, sensOuverture: value})}
                       >
-                        <SelectTrigger className="h-8">
+                        <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -604,7 +589,7 @@ const FurnitureCalculator: React.FC = () => {
                   )}
                 </div>
 
-                <Button onClick={calculateCutSheet} className="w-full mt-4" size="lg">
+                <Button onClick={calculateCutSheet} className="w-full" size="lg">
                   <Calculator className="mr-2 h-4 w-4" />
                   Générer la feuille de débit
                 </Button>
@@ -612,47 +597,42 @@ const FurnitureCalculator: React.FC = () => {
             </Card>
           </div>
 
-          <div className="space-y-3">
-            {/* Feuille de débit */}
-            <Card className="cut-sheet">
-              <CardHeader className="py-3">
+          {/* Feuille de débit */}
+          <div>
+            <Card>
+              <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <FileText className="h-4 w-4 text-accent" />
+                  <FileText className="h-4 w-4 text-primary" />
                   Feuille de débit
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {cutSheet.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {cutSheet.map((item, index) => (
-                      <div key={index} className="border border-border rounded-lg p-2 space-y-1">
-                        <div className="flex justify-between items-center gap-2">
-                          <h4 className="font-semibold text-sm">{item.nom}</h4>
-                          <span className="text-xs text-muted-foreground">
-                            Qté: {item.quantite}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center gap-2">
+                      <div key={index} className="border border-border rounded-lg p-3">
+                        <div className="flex justify-between items-start gap-3">
                           <div className="flex-1">
-                            <div className="grid grid-cols-3 gap-1 text-xs">
+                            <h4 className="font-medium text-base mb-2">{item.nom}</h4>
+                            <div className="grid grid-cols-4 gap-2 text-sm text-muted-foreground">
                               <div>L: {item.longueur}</div>
                               <div>l: {item.largeur}</div>
                               <div>Ép: {item.epaisseur}</div>
+                              <div>Qté: {item.quantite}</div>
                             </div>
                           </div>
                           <PieceIllustration 
                             longueur={item.longueur}
                             largeur={item.largeur}
                             chantsVisible={item.chantsVisible}
-                            className="flex-shrink-0"
                           />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-center py-4 text-sm">
-                    Configurez votre meuble et cliquez sur "Générer"
+                  <p className="text-muted-foreground text-center py-8">
+                    Configurez votre meuble et cliquez sur "Générer la feuille de débit"
                   </p>
                 )}
               </CardContent>
