@@ -218,17 +218,37 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
       right: '-1px',
       width: '3px',
     },
-    dimensions: {
+    dimensionLabelH: {
       position: 'absolute' as const,
+      right: '-25px',
       top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
+      transform: 'translateY(-50%)',
       fontSize: '8px',
-      color: 'hsl(var(--muted-foreground))',
-      fontWeight: '500',
+      color: 'hsl(var(--foreground))',
+      fontWeight: '600',
       textAlign: 'center' as const,
       lineHeight: '1',
-      pointerEvents: 'none' as const,
+      background: 'hsl(var(--background))',
+      padding: '1px 3px',
+      borderRadius: '2px',
+      border: '1px solid hsl(var(--border))',
+      whiteSpace: 'nowrap' as const,
+    },
+    dimensionLabelL: {
+      position: 'absolute' as const,
+      bottom: '-18px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      fontSize: '8px',
+      color: 'hsl(var(--foreground))',
+      fontWeight: '600',
+      textAlign: 'center' as const,
+      lineHeight: '1',
+      background: 'hsl(var(--background))',
+      padding: '1px 3px',
+      borderRadius: '2px',
+      border: '1px solid hsl(var(--border))',
+      whiteSpace: 'nowrap' as const,
     },
   };
 
@@ -257,9 +277,12 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
           ...(highlightRight ? {} : styles.edgeInactive)
         }} />
         
-        {/* Dimensions */}
-        <div style={styles.dimensions}>
-          {longueur}×{largeur}
+        {/* Dimensions extérieures */}
+        <div style={styles.dimensionLabelH}>
+          {largeur}
+        </div>
+        <div style={styles.dimensionLabelL}>
+          {longueur}
         </div>
       </div>
     </div>
