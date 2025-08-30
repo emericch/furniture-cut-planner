@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calculator, FileText, Plus, X, Trash2, Printer, Download } from 'lucide-react';
+import { Calculator, FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
 import { AssemblyIllustration } from './FurnitureIllustrations';
 
 export interface FurnitureConfig {
@@ -87,6 +87,9 @@ const FurnitureCalculator: React.FC = () => {
     quantite: 1
   });
   const [meubleCounter, setMeubleCounter] = useState(1);
+  const [meubleNom, setMeubleNom] = useState('');
+  const [editingMeubleId, setEditingMeubleId] = useState<string | null>(null);
+  const [editingNom, setEditingNom] = useState('');
 
   const epaisseurs = [8, 16, 19, 22];
   const epaisseursDos = [3, 8, 16, 19, 22];
@@ -255,9 +258,10 @@ const FurnitureCalculator: React.FC = () => {
 
   const addMeubleToSheet = () => {
     const items = generateMeubleItems(config);
+    const nomMeuble = meubleNom.trim() || `Meuble ${meubleCounter}`;
     const newMeuble: MeubleGroup = {
       id: `meuble-${Date.now()}`,
-      nom: `Meuble ${meubleCounter}`,
+      nom: nomMeuble,
       config: { ...config },
       items: items,
       dateAjout: new Date()
@@ -265,6 +269,29 @@ const FurnitureCalculator: React.FC = () => {
     
     setMeubleGroups([...meubleGroups, newMeuble]);
     setMeubleCounter(meubleCounter + 1);
+    setMeubleNom('');
+  };
+
+  const startEditingMeuble = (meubleId: string, currentNom: string) => {
+    setEditingMeubleId(meubleId);
+    setEditingNom(currentNom);
+  };
+
+  const saveEditedMeubleName = () => {
+    if (editingMeubleId && editingNom.trim()) {
+      setMeubleGroups(meubleGroups.map(groupe => 
+        groupe.id === editingMeubleId 
+          ? { ...groupe, nom: editingNom.trim() }
+          : groupe
+      ));
+      setEditingMeubleId(null);
+      setEditingNom('');
+    }
+  };
+
+  const cancelEditingMeuble = () => {
+    setEditingMeubleId(null);
+    setEditingNom('');
   };
 
   const removeMeubleGroup = (meubleId: string) => {
@@ -799,6 +826,17 @@ const FurnitureCalculator: React.FC = () => {
                   )}
                 </div>
 
+                {/* Nom du meuble */}
+                <div>
+                  <Label htmlFor="meuble-nom" className="text-sm">Nom du meuble (optionnel)</Label>
+                  <Input
+                    id="meuble-nom"
+                    value={meubleNom}
+                    onChange={(e) => setMeubleNom(e.target.value)}
+                    placeholder="Ex: Bibliothèque salon, Placard chambre..."
+                  />
+                </div>
+
                 <Button onClick={addMeubleToSheet} className="w-full" size="lg">
                   <Plus className="mr-2 h-4 w-4" />
                   Ajouter à la feuille de débit
@@ -940,23 +978,66 @@ const FurnitureCalculator: React.FC = () => {
                   <div className="space-y-4">
                     {/* Groupes de meubles */}
                     {meubleGroups.map((groupe) => (
-                      <Card key={groupe.id} className="border-l-4 border-l-primary">
-                        <CardHeader className="pb-2">
-                          <div className="flex items-center justify-between">
-                            <CardTitle className="text-base">{groupe.nom}</CardTitle>
-                            <Button
-                              onClick={() => removeMeubleGroup(groupe.id)}
-                              size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {groupe.config.hauteur} × {groupe.config.largeur} × {groupe.config.profondeur}mm
-                          </p>
-                        </CardHeader>
+                       <Card key={groupe.id} className="border-l-4 border-l-primary">
+                         <CardHeader className="pb-2">
+                           <div className="flex items-center justify-between">
+                             {editingMeubleId === groupe.id ? (
+                               <div className="flex items-center gap-2 flex-1">
+                                 <Input
+                                   value={editingNom}
+                                   onChange={(e) => setEditingNom(e.target.value)}
+                                   className="h-8"
+                                   onKeyDown={(e) => {
+                                     if (e.key === 'Enter') saveEditedMeubleName();
+                                     if (e.key === 'Escape') cancelEditingMeuble();
+                                   }}
+                                   autoFocus
+                                 />
+                                 <Button
+                                   onClick={saveEditedMeubleName}
+                                   size="sm"
+                                   variant="ghost"
+                                   className="h-6 w-6 p-0 text-green-600 hover:text-green-700"
+                                 >
+                                   <Check className="h-3 w-3" />
+                                 </Button>
+                                 <Button
+                                   onClick={cancelEditingMeuble}
+                                   size="sm"
+                                   variant="ghost"
+                                   className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700"
+                                 >
+                                   <X className="h-3 w-3" />
+                                 </Button>
+                               </div>
+                             ) : (
+                               <>
+                                 <div className="flex items-center gap-2 flex-1">
+                                   <CardTitle className="text-base">{groupe.nom}</CardTitle>
+                                   <Button
+                                     onClick={() => startEditingMeuble(groupe.id, groupe.nom)}
+                                     size="sm"
+                                     variant="ghost"
+                                     className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700"
+                                   >
+                                     <Edit2 className="h-3 w-3" />
+                                   </Button>
+                                 </div>
+                                 <Button
+                                   onClick={() => removeMeubleGroup(groupe.id)}
+                                   size="sm"
+                                   variant="ghost"
+                                   className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                 >
+                                   <Trash2 className="h-3 w-3" />
+                                 </Button>
+                               </>
+                             )}
+                           </div>
+                           <p className="text-xs text-muted-foreground">
+                             {groupe.config.hauteur} × {groupe.config.largeur} × {groupe.config.profondeur}mm
+                           </p>
+                         </CardHeader>
                         <CardContent className="space-y-2">
                           {groupe.items.map((item, index) => (
                             <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
