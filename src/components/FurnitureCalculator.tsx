@@ -109,11 +109,10 @@ const FurnitureCalculator: React.FC = () => {
     if (config.montantsTouteHauteur) {
       // Montants traversants: plaqués 4 côtés
       chantsVisiblesMontants.push('haut', 'bas', 'côté gauche', 'côté droit');
-    } else {
-      // Montants entre traverses: arrière si visible
-      if (config.dosType !== 'en-applique') {
-        chantsVisiblesMontants.push('arrière');
-      }
+    }
+    // Longueur arrière plaquée si pas de dos ou dos entre montants/traverses
+    if (config.dosType === 'aucun' || config.dosType === 'entre-montants-traverses') {
+      chantsVisiblesMontants.push('arrière');
     }
     
     items.push({
@@ -140,15 +139,14 @@ const FurnitureCalculator: React.FC = () => {
       : config.largeur - (2 * config.epaisseurMontants);
     
     // Chants visibles des traverses selon la configuration
-    let chantsVisiblesTraverses: string[] = ['face avant']; // Toujours plaqués devant
+    let chantsVisiblesTraverses: string[] = ['face avant'];
     if (config.traversesTouteLargeur) {
       // Traverses traversantes: plaqués 4 côtés
-      chantsVisiblesTraverses.push('côté gauche', 'côté droit', 'arrière');
-    } else {
-      // Traverses entre montants: façade visible, arrière si visible
-      if (config.dosType !== 'en-applique') {
-        chantsVisiblesTraverses.push('arrière');
-      }
+      chantsVisiblesTraverses.push('côté gauche', 'côté droit');
+    }
+    // Longueur arrière plaquée si pas de dos ou dos entre montants/traverses
+    if (config.dosType === 'aucun' || config.dosType === 'entre-montants-traverses') {
+      chantsVisiblesTraverses.push('arrière');
     }
     
     items.push({
@@ -173,8 +171,11 @@ const FurnitureCalculator: React.FC = () => {
     if (config.nombreRayons > 0) {
       const largeurRayons = config.largeur - (2 * config.epaisseurMontants);
       
-      // Chants visibles des rayons: toujours plaqués devant + haut et bas
+      // Chants visibles des rayons: toujours plaqués devant + haut et bas + arrière si pas de dos
       let chantsVisiblesRayons = ['face avant', 'haut', 'bas'];
+      if (config.dosType === 'aucun' || config.dosType === 'entre-montants-traverses') {
+        chantsVisiblesRayons.push('arrière');
+      }
       
       items.push({
         nom: 'Rayon',
