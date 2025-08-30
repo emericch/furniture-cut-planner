@@ -29,10 +29,10 @@ interface FurnitureConfig {
   nombreRayons: number;
   
   // Dos
-  dosType: 'toute-hauteur' | 'toute-largeur' | 'toute-hauteur-toute-largeur' | 'entre-montants-traverses';
+  dosType: 'aucun' | 'toute-hauteur' | 'toute-largeur' | 'en-applique' | 'entre-montants-traverses';
   
   // Portes
-  nombrePortes: 1 | 2;
+  nombrePortes: 0 | 1 | 2;
   sensOuverture: 'gauche' | 'droite';
 }
 
@@ -58,8 +58,8 @@ const FurnitureCalculator: React.FC = () => {
     montantsTouteHauteur: true,
     traversesTouteLargeur: false,
     nombreRayons: 2,
-    dosType: 'entre-montants-traverses',
-    nombrePortes: 2,
+    dosType: 'aucun',
+    nombrePortes: 0,
     sensOuverture: 'droite'
   });
 
@@ -70,6 +70,12 @@ const FurnitureCalculator: React.FC = () => {
   const calculateCutSheet = () => {
     const items: CutSheetItem[] = [];
     
+    // Calcul de la profondeur utilisable (en tenant compte du dos)
+    let profondeurUtile = config.profondeur;
+    if (config.dosType !== 'aucun' && config.dosType !== 'en-applique') {
+      profondeurUtile -= config.epaisseurDos;
+    }
+    
     // Calcul des montants
     const hauteurMontants = config.montantsTouteHauteur 
       ? config.hauteur 
@@ -78,7 +84,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Montant gauche',
       longueur: hauteurMontants,
-      largeur: config.profondeur,
+      largeur: profondeurUtile,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
       chantsVisible: ['face avant', 'côté gauche']
@@ -87,7 +93,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Montant droit',
       longueur: hauteurMontants,
-      largeur: config.profondeur,
+      largeur: profondeurUtile,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
       chantsVisible: ['face avant', 'côté droit']
@@ -101,7 +107,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Traverse haute',
       longueur: largeurTraverses,
-      largeur: config.profondeur,
+      largeur: profondeurUtile,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
       chantsVisible: ['face avant']
@@ -110,7 +116,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Traverse basse',
       longueur: largeurTraverses,
-      largeur: config.profondeur,
+      largeur: profondeurUtile,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
       chantsVisible: ['face avant']
@@ -123,76 +129,83 @@ const FurnitureCalculator: React.FC = () => {
       items.push({
         nom: 'Rayon',
         longueur: largeurRayons,
-        largeur: config.profondeur,
+        largeur: profondeurUtile,
         epaisseur: config.epaisseurRayons,
         quantite: config.nombreRayons,
         chantsVisible: ['face avant']
       });
     }
 
-    // Calcul du dos
-    let hauteurDos = config.hauteur;
-    let largeurDos = config.largeur;
-    
-    switch (config.dosType) {
-      case 'toute-hauteur':
-        largeurDos = config.largeur - (2 * config.epaisseurMontants);
-        break;
-      case 'toute-largeur':
-        hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
-        break;
-      case 'toute-hauteur-toute-largeur':
-        // Aucune déduction, dimensions complètes
-        break;
-      case 'entre-montants-traverses':
-        hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
-        largeurDos = config.largeur - (2 * config.epaisseurMontants);
-        break;
+    // Calcul du dos (si présent)
+    if (config.dosType !== 'aucun') {
+      let hauteurDos = config.hauteur;
+      let largeurDos = config.largeur;
+      
+      switch (config.dosType) {
+        case 'toute-hauteur':
+          largeurDos = config.largeur - (2 * config.epaisseurMontants);
+          break;
+        case 'toute-largeur':
+          hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
+          break;
+        case 'en-applique':
+          // Aucune déduction, dimensions complètes
+          break;
+        case 'entre-montants-traverses':
+          hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
+          largeurDos = config.largeur - (2 * config.epaisseurMontants);
+          break;
+      }
+      
+      items.push({
+        nom: 'Dos',
+        longueur: largeurDos,
+        largeur: hauteurDos,
+        epaisseur: config.epaisseurDos,
+        quantite: 1,
+        chantsVisible: []
+      });
     }
-    
-    items.push({
-      nom: 'Dos',
-      longueur: largeurDos,
-      largeur: hauteurDos,
-      epaisseur: config.epaisseurDos,
-      quantite: 1,
-      chantsVisible: []
-    });
 
-    // Calcul des portes
-    const jeuPeripherique = 3;
-    const hauteurUtile = config.hauteur - (2 * config.epaisseurTraverses) - (2 * jeuPeripherique);
-    const largeurUtile = config.largeur - (2 * config.epaisseurMontants) - (2 * jeuPeripherique);
-    
-    if (config.nombrePortes === 1) {
-      items.push({
-        nom: 'Porte',
-        longueur: largeurUtile,
-        largeur: hauteurUtile,
-        epaisseur: config.epaisseurPortes,
-        quantite: 1,
-        chantsVisible: ['face avant', 'côté ' + config.sensOuverture, 'haut', 'bas']
-      });
-    } else {
-      const largeurPorte = (largeurUtile / 2) - jeuPeripherique;
+    // Calcul des portes (si présentes)
+    if (config.nombrePortes > 0) {
+      const jeuPeripherique = 3;
+      const hauteurUtile = config.hauteur - (2 * config.epaisseurTraverses) - (2 * jeuPeripherique);
+      const largeurUtile = config.largeur - (2 * config.epaisseurMontants) - (2 * jeuPeripherique);
       
-      items.push({
-        nom: 'Porte gauche',
-        longueur: largeurPorte,
-        largeur: hauteurUtile,
-        epaisseur: config.epaisseurPortes,
-        quantite: 1,
-        chantsVisible: ['face avant', 'côté gauche', 'haut', 'bas']
-      });
+      // Profondeur des portes (en tenant compte de l'espace nécessaire)
+      let profondeurPortes = config.epaisseurPortes;
       
-      items.push({
-        nom: 'Porte droite',
-        longueur: largeurPorte,
-        largeur: hauteurUtile,
-        epaisseur: config.epaisseurPortes,
-        quantite: 1,
-        chantsVisible: ['face avant', 'côté droit', 'haut', 'bas']
-      });
+      if (config.nombrePortes === 1) {
+        items.push({
+          nom: 'Porte',
+          longueur: largeurUtile,
+          largeur: hauteurUtile,
+          epaisseur: profondeurPortes,
+          quantite: 1,
+          chantsVisible: ['face avant', 'côté ' + config.sensOuverture, 'haut', 'bas']
+        });
+      } else if (config.nombrePortes === 2) {
+        const largeurPorte = (largeurUtile / 2) - jeuPeripherique;
+        
+        items.push({
+          nom: 'Porte gauche',
+          longueur: largeurPorte,
+          largeur: hauteurUtile,
+          epaisseur: profondeurPortes,
+          quantite: 1,
+          chantsVisible: ['face avant', 'côté gauche', 'haut', 'bas']
+        });
+        
+        items.push({
+          nom: 'Porte droite',
+          longueur: largeurPorte,
+          largeur: hauteurUtile,
+          epaisseur: profondeurPortes,
+          quantite: 1,
+          chantsVisible: ['face avant', 'côté droit', 'haut', 'bas']
+        });
+      }
     }
 
     setCutSheet(items);
@@ -226,6 +239,9 @@ const FurnitureCalculator: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-accent font-medium">⚠️ Mesures totales, portes et dos compris</p>
+                </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="hauteur">Hauteur</Label>
@@ -403,9 +419,10 @@ const FurnitureCalculator: React.FC = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="aucun">Aucun</SelectItem>
                       <SelectItem value="toute-hauteur">Toute hauteur</SelectItem>
                       <SelectItem value="toute-largeur">Toute largeur</SelectItem>
-                      <SelectItem value="toute-hauteur-toute-largeur">Toute hauteur toute largeur</SelectItem>
+                      <SelectItem value="en-applique">En applique</SelectItem>
                       <SelectItem value="entre-montants-traverses">Entre montants et traverses</SelectItem>
                     </SelectContent>
                   </Select>
@@ -416,12 +433,13 @@ const FurnitureCalculator: React.FC = () => {
                     <Label>Nombre de portes</Label>
                     <Select 
                       value={config.nombrePortes.toString()} 
-                      onValueChange={(value) => setConfig({...config, nombrePortes: Number(value) as 1 | 2})}
+                      onValueChange={(value) => setConfig({...config, nombrePortes: Number(value) as 0 | 1 | 2})}
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="0">Aucune porte</SelectItem>
                         <SelectItem value="1">1 porte</SelectItem>
                         <SelectItem value="2">2 portes</SelectItem>
                       </SelectContent>
