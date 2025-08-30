@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calculator, FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { AssemblyIllustration } from './FurnitureIllustrations';
 
 export interface FurnitureConfig {
@@ -725,30 +726,33 @@ const FurnitureCalculator: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="montants-toute-hauteur"
-                      checked={config.montantsTouteHauteur}
-                      disabled={config.traversesTouteLargeur}
-                      onCheckedChange={(checked) => setConfig({...config, montantsTouteHauteur: checked as boolean})}
-                    />
-                    <Label htmlFor="montants-toute-hauteur" className={`text-sm ${config.traversesTouteLargeur ? 'text-muted-foreground' : ''}`}>
-                      Montants toute hauteur
-                    </Label>
-                  </div>
+                <div className="flex items-center justify-center space-x-4">
+                  <Label 
+                    htmlFor="assembly-toggle" 
+                    className={`text-sm font-medium transition-colors ${config.montantsTouteHauteur ? 'text-foreground' : 'text-muted-foreground'}`}
+                  >
+                    Montants toute hauteur
+                  </Label>
                   
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="traverses-toute-largeur"
-                      checked={config.traversesTouteLargeur}
-                      disabled={config.montantsTouteHauteur}
-                      onCheckedChange={(checked) => setConfig({...config, traversesTouteLargeur: checked as boolean})}
-                    />
-                    <Label htmlFor="traverses-toute-largeur" className={`text-sm ${config.montantsTouteHauteur ? 'text-muted-foreground' : ''}`}>
-                      Traverses toute largeur
-                    </Label>
-                  </div>
+                  <Switch 
+                    id="assembly-toggle"
+                    checked={config.traversesTouteLargeur}
+                    onCheckedChange={(checked) => {
+                      setConfig({
+                        ...config, 
+                        montantsTouteHauteur: !checked,
+                        traversesTouteLargeur: checked
+                      });
+                    }}
+                    className="data-[state=checked]:bg-primary"
+                  />
+                  
+                  <Label 
+                    htmlFor="assembly-toggle" 
+                    className={`text-sm font-medium transition-colors ${config.traversesTouteLargeur ? 'text-foreground' : 'text-muted-foreground'}`}
+                  >
+                    Traverses toute largeur
+                  </Label>
                 </div>
               </CardContent>
             </Card>
