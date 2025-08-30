@@ -220,7 +220,7 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
     },
     dimensionLabelH: {
       position: 'absolute' as const,
-      right: '-25px',
+      right: '2px',
       top: '50%',
       transform: 'translateY(-50%)',
       fontSize: '8px',
@@ -236,7 +236,7 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
     },
     dimensionLabelL: {
       position: 'absolute' as const,
-      bottom: '-18px',
+      bottom: '2px',
       left: '50%',
       transform: 'translateX(-50%)',
       fontSize: '8px',
