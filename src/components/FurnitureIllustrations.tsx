@@ -220,9 +220,9 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
     },
     dimensionLabelH: {
       position: 'absolute' as const,
-      right: '2px',
+      right: '-30px',
       top: '50%',
-      transform: 'translateY(-50%)',
+      transform: 'translateY(-50%) rotate(90deg)',
       fontSize: '7px',
       color: 'hsl(var(--foreground))',
       fontWeight: '600',
@@ -237,7 +237,7 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
     },
     dimensionLabelL: {
       position: 'absolute' as const,
-      top: '2px',
+      top: '-15px',
       left: '50%',
       transform: 'translateX(-50%)',
       fontSize: '7px',
@@ -255,7 +255,7 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
   };
 
   return (
-    <div className={cn("relative inline-block", className)}>
+    <div className={cn("relative inline-block", className)} style={{ paddingRight: '35px', paddingTop: '20px' }}>
       <div style={styles.container}>
         {/* Chants */}
         <div style={{
