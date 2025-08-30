@@ -1119,6 +1119,21 @@ const FurnitureCalculator: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Footer avec signature professionnelle */}
+      <footer className="mt-8 pt-6 border-t border-border">
+        <div className="text-center text-sm text-muted-foreground">
+          <p className="flex items-center justify-center gap-2">
+            <span>Développé par</span>
+            <span className="font-semibold text-foreground">Emeric Chenay</span>
+            <span>•</span>
+            <span>2025</span>
+          </p>
+          <p className="mt-1 text-xs">
+            Outil professionnel d'ébénisterie pour la génération de feuilles de débit
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
