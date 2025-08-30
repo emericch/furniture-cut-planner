@@ -34,6 +34,7 @@ export interface FurnitureConfig {
   // Portes
   nombrePortes: 0 | 1 | 2;
   sensOuverture: 'gauche' | 'droite';
+  typePorte: 'applique' | 'interieur';
 
   // Options
   retraitRayons: number;
@@ -65,6 +66,7 @@ const FurnitureCalculator: React.FC = () => {
     dosType: 'aucun',
     nombrePortes: 0,
     sensOuverture: 'droite',
+    typePorte: 'interieur',
     retraitRayons: 0,
     decalageDos: 0
   });
@@ -257,15 +259,24 @@ const FurnitureCalculator: React.FC = () => {
     // Calcul des portes (si présentes)
     if (config.nombrePortes > 0) {
       const jeuPeripherique = 3;
-      const hauteurUtile = config.hauteur - (2 * config.epaisseurTraverses) - (2 * jeuPeripherique);
-      const largeurUtile = config.largeur - (2 * config.epaisseurMontants) - (2 * jeuPeripherique);
+      let hauteurUtile, largeurUtile;
       
-      // Profondeur des portes (en tenant compte de l'espace nécessaire)
+      if (config.typePorte === 'applique') {
+        // Porte en applique: dimensions extérieures du meuble
+        hauteurUtile = config.hauteur;
+        largeurUtile = config.largeur;
+      } else {
+        // Porte en intérieur: dimensions réduites par les montants/traverses
+        hauteurUtile = config.hauteur - (2 * config.epaisseurTraverses) - (2 * jeuPeripherique);
+        largeurUtile = config.largeur - (2 * config.epaisseurMontants) - (2 * jeuPeripherique);
+      }
+      
+      // Profondeur des portes
       let profondeurPortes = config.epaisseurPortes;
       
       if (config.nombrePortes === 1) {
         items.push({
-          nom: 'Porte',
+          nom: config.typePorte === 'applique' ? 'Porte (applique)' : 'Porte (intérieur)',
           longueur: largeurUtile,
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
@@ -273,10 +284,12 @@ const FurnitureCalculator: React.FC = () => {
           chantsVisible: ['haut', 'bas', 'côté gauche', 'côté droit']
         });
       } else if (config.nombrePortes === 2) {
-        const largeurPorte = (largeurUtile / 2) - jeuPeripherique;
+        const largeurPorte = config.typePorte === 'applique' 
+          ? largeurUtile / 2 
+          : (largeurUtile / 2) - jeuPeripherique;
         
         items.push({
-          nom: 'Porte gauche',
+          nom: config.typePorte === 'applique' ? 'Porte gauche (applique)' : 'Porte gauche (intérieur)',
           longueur: largeurPorte,
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
@@ -285,7 +298,7 @@ const FurnitureCalculator: React.FC = () => {
         });
         
         items.push({
-          nom: 'Porte droite',
+          nom: config.typePorte === 'applique' ? 'Porte droite (applique)' : 'Porte droite (intérieur)',
           longueur: largeurPorte,
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
@@ -572,7 +585,27 @@ const FurnitureCalculator: React.FC = () => {
                     </Select>
                   </div>
                   
-                  {config.nombrePortes === 1 && (
+                  {config.nombrePortes > 0 && (
+                    <div>
+                      <Label className="text-sm">Type de pose</Label>
+                      <Select 
+                        value={config.typePorte} 
+                        onValueChange={(value: any) => setConfig({...config, typePorte: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="interieur">En intérieur</SelectItem>
+                          <SelectItem value="applique">En applique</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+
+                {config.nombrePortes === 1 && (
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label className="text-sm">Sens d'ouverture</Label>
                       <Select 
@@ -588,8 +621,8 @@ const FurnitureCalculator: React.FC = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 <Button onClick={calculateCutSheet} className="w-full" size="lg">
                   <Calculator className="mr-2 h-4 w-4" />
