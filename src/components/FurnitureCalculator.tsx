@@ -29,7 +29,7 @@ interface FurnitureConfig {
   nombreRayons: number;
   
   // Dos
-  dosType: 'toute-hauteur' | 'toute-largeur' | 'entre-montants-traverses';
+  dosType: 'toute-hauteur' | 'toute-largeur' | 'toute-hauteur-toute-largeur' | 'entre-montants-traverses';
   
   // Portes
   nombrePortes: 1 | 2;
@@ -140,6 +140,9 @@ const FurnitureCalculator: React.FC = () => {
         break;
       case 'toute-largeur':
         hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
+        break;
+      case 'toute-hauteur-toute-largeur':
+        // Aucune déduction, dimensions complètes
         break;
       case 'entre-montants-traverses':
         hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
@@ -359,18 +362,24 @@ const FurnitureCalculator: React.FC = () => {
                   <Checkbox 
                     id="montants-toute-hauteur"
                     checked={config.montantsTouteHauteur}
+                    disabled={config.traversesTouteLargeur}
                     onCheckedChange={(checked) => setConfig({...config, montantsTouteHauteur: checked as boolean})}
                   />
-                  <Label htmlFor="montants-toute-hauteur">Montants toute hauteur</Label>
+                  <Label htmlFor="montants-toute-hauteur" className={config.traversesTouteLargeur ? 'text-muted-foreground' : ''}>
+                    Montants toute hauteur {config.traversesTouteLargeur && '(incompatible avec traverses toute largeur)'}
+                  </Label>
                 </div>
                 
                 <div className="flex items-center space-x-2">
                   <Checkbox 
                     id="traverses-toute-largeur"
                     checked={config.traversesTouteLargeur}
+                    disabled={config.montantsTouteHauteur}
                     onCheckedChange={(checked) => setConfig({...config, traversesTouteLargeur: checked as boolean})}
                   />
-                  <Label htmlFor="traverses-toute-largeur">Traverses toute largeur</Label>
+                  <Label htmlFor="traverses-toute-largeur" className={config.montantsTouteHauteur ? 'text-muted-foreground' : ''}>
+                    Traverses toute largeur {config.montantsTouteHauteur && '(incompatible avec montants toute hauteur)'}
+                  </Label>
                 </div>
 
                 <div>
@@ -396,6 +405,7 @@ const FurnitureCalculator: React.FC = () => {
                     <SelectContent>
                       <SelectItem value="toute-hauteur">Toute hauteur</SelectItem>
                       <SelectItem value="toute-largeur">Toute largeur</SelectItem>
+                      <SelectItem value="toute-hauteur-toute-largeur">Toute hauteur toute largeur</SelectItem>
                       <SelectItem value="entre-montants-traverses">Entre montants et traverses</SelectItem>
                     </SelectContent>
                   </Select>
