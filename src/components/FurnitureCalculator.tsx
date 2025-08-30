@@ -104,14 +104,17 @@ const FurnitureCalculator: React.FC = () => {
       ? config.hauteur 
       : config.hauteur - (2 * config.epaisseurTraverses);
     
-    // Chants visibles des montants selon la configuration
-    let chantsVisiblesMontants = ['côté extérieur', 'face avant'];
+    // Chants visibles des montants
+    let chantsVisiblesMontants: string[] = [];
     if (config.montantsTouteHauteur) {
-      chantsVisiblesMontants.push('haut', 'bas');
-    }
-    // Si pas de dos en applique, le côté arrière est visible
-    if (config.dosType !== 'en-applique') {
-      chantsVisiblesMontants.push('arrière');
+      // Montants traversants: plaqués 4 côtés
+      chantsVisiblesMontants = ['haut', 'bas', 'face avant', 'arrière'];
+    } else {
+      // Montants entre traverses: façade visible, arrière si visible
+      chantsVisiblesMontants = ['face avant'];
+      if (config.dosType !== 'en-applique') {
+        chantsVisiblesMontants.push('arrière');
+      }
     }
     
     items.push({
@@ -153,7 +156,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurTraverses,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
-      chantsVisible: chantsVisiblesTraverses
+      chantsVisible: config.traversesTouteLargeur ? chantsVisiblesTraverses : ['face avant']
     });
     
     items.push({
@@ -169,12 +172,8 @@ const FurnitureCalculator: React.FC = () => {
     if (config.nombreRayons > 0) {
       const largeurRayons = config.largeur - (2 * config.epaisseurMontants);
       
-      // Chants visibles des rayons selon la configuration
-      let chantsVisiblesRayons = ['face avant'];
-      // Si pas de dos en applique, le côté arrière est visible
-      if (config.dosType !== 'en-applique') {
-        chantsVisiblesRayons.push('arrière');
-      }
+      // Chants visibles des rayons: plaqués dans la longueur (gauche et droite)
+      let chantsVisiblesRayons = ['côté gauche', 'côté droit'];
       
       items.push({
         nom: 'Rayon',
