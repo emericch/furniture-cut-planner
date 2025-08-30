@@ -105,13 +105,12 @@ const FurnitureCalculator: React.FC = () => {
       : config.hauteur - (2 * config.epaisseurTraverses);
     
     // Chants visibles des montants
-    let chantsVisiblesMontants: string[] = [];
+    let chantsVisiblesMontants: string[] = ['face avant']; // Toujours plaqués devant
     if (config.montantsTouteHauteur) {
       // Montants traversants: plaqués 4 côtés
-      chantsVisiblesMontants = ['haut', 'bas', 'côté gauche', 'côté droit'];
+      chantsVisiblesMontants.push('haut', 'bas', 'côté gauche', 'côté droit');
     } else {
       // Montants entre traverses: façade visible, arrière si visible
-      chantsVisiblesMontants = ['face avant'];
       if (config.dosType !== 'en-applique') {
         chantsVisiblesMontants.push('arrière');
       }
@@ -141,13 +140,12 @@ const FurnitureCalculator: React.FC = () => {
       : config.largeur - (2 * config.epaisseurMontants);
     
     // Chants visibles des traverses selon la configuration
-    let chantsVisiblesTraverses: string[] = [];
+    let chantsVisiblesTraverses: string[] = ['face avant']; // Toujours plaqués devant
     if (config.traversesTouteLargeur) {
       // Traverses traversantes: plaqués 4 côtés
-      chantsVisiblesTraverses = ['côté gauche', 'côté droit', 'face avant', 'arrière'];
+      chantsVisiblesTraverses.push('côté gauche', 'côté droit', 'arrière');
     } else {
       // Traverses entre montants: façade visible, arrière si visible
-      chantsVisiblesTraverses = ['face avant'];
       if (config.dosType !== 'en-applique') {
         chantsVisiblesTraverses.push('arrière');
       }
@@ -175,8 +173,8 @@ const FurnitureCalculator: React.FC = () => {
     if (config.nombreRayons > 0) {
       const largeurRayons = config.largeur - (2 * config.epaisseurMontants);
       
-      // Chants visibles des rayons: plaqués dans la longueur (haut et bas)
-      let chantsVisiblesRayons = ['haut', 'bas'];
+      // Chants visibles des rayons: toujours plaqués devant + haut et bas
+      let chantsVisiblesRayons = ['face avant', 'haut', 'bas'];
       
       items.push({
         nom: 'Rayon',
