@@ -294,7 +294,11 @@ const FurnitureCalculator: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-4 mb-2">
                     <Label className="text-sm font-medium">Dimensions (mm)</Label>
-                    <DimensionIllustration className="flex-shrink-0" />
+                    <img 
+                      src="/lovable-uploads/c338fd19-a865-43a2-80e1-658e9e0be5a4.png" 
+                      alt="Schéma technique du meuble" 
+                      className="flex-shrink-0 h-16 w-auto"
+                    />
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div>
