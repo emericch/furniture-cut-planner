@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Calculator, FileText, Ruler } from 'lucide-react';
+import { DimensionIllustration, AssemblyIllustration } from './FurnitureIllustrations';
 
 
 export interface FurnitureConfig {
@@ -264,7 +265,10 @@ const FurnitureCalculator: React.FC = () => {
                 
                 {/* Dimensions générales */}
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Dimensions (mm)</Label>
+                  <div className="flex items-center gap-4 mb-2">
+                    <Label className="text-sm font-medium">Dimensions (mm)</Label>
+                    <DimensionIllustration className="flex-shrink-0" />
+                  </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <Label htmlFor="hauteur" className="text-xs">Hauteur</Label>
@@ -392,7 +396,14 @@ const FurnitureCalculator: React.FC = () => {
 
                 {/* Options de montage */}
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Options de montage</Label>
+                  <div className="flex items-center gap-4 mb-2">
+                    <Label className="text-sm font-medium">Options de montage</Label>
+                    <AssemblyIllustration 
+                      montantsTouteHauteur={config.montantsTouteHauteur}
+                      traversesTouteLargeur={config.traversesTouteLargeur}
+                      className="flex-shrink-0" 
+                    />
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex items-center space-x-2">
                       <Checkbox 
