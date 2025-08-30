@@ -440,34 +440,54 @@ const FurnitureCalculator: React.FC = () => {
   const generatePrintContent = () => {
     let content = '';
     
-    meubleGroups.forEach(groupe => {
+    meubleGroups.forEach((groupe, index) => {
       content += `
-        <div class="print-section">
-          <div class="print-section-title">${groupe.nom} - ${groupe.config.hauteur} × ${groupe.config.largeur} × ${groupe.config.profondeur}mm</div>
-          ${groupe.items.map(item => `
-            <div class="print-item">
-              <div class="print-item-name">${item.nom}</div>
-              <div class="print-dimensions">
-                Longueur: ${item.longueur}mm | Largeur: ${item.largeur}mm | Épaisseur: ${item.epaisseur}mm | Quantité: ${item.quantite}
+        <div class="print-section" style="margin-bottom: 40px; ${index > 0 ? 'border-top: 3px solid #333; padding-top: 25px;' : ''}">
+          <div class="print-section-title" style="background: #2563eb; color: white; padding: 15px; font-size: 18px; margin-bottom: 15px; border-radius: 5px;">
+            ${groupe.nom}
+          </div>
+          <div class="meuble-info" style="background: #f8fafc; padding: 12px; margin-bottom: 15px; border-left: 4px solid #2563eb; font-size: 14px;">
+            <strong>Dimensions:</strong> ${groupe.config.hauteur} × ${groupe.config.largeur} × ${groupe.config.profondeur} mm<br>
+            <strong>Ajouté le:</strong> ${groupe.dateAjout.toLocaleDateString('fr-FR')}
+          </div>
+          <div class="items-grid" style="display: grid; gap: 10px;">
+            ${groupe.items.map(item => `
+              <div class="print-item" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div class="print-item-name" style="font-weight: bold; font-size: 16px; color: #1e293b; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+                  ${item.nom} ${item.quantite > 1 ? `(×${item.quantite})` : ''}
+                </div>
+                <div class="print-dimensions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; font-size: 13px; color: #64748b;">
+                  <div><strong>L:</strong> ${item.longueur} mm</div>
+                  <div><strong>l:</strong> ${item.largeur} mm</div>
+                  <div><strong>e:</strong> ${item.epaisseur} mm</div>
+                </div>
               </div>
-            </div>
-          `).join('')}
+            `).join('')}
+          </div>
         </div>
       `;
     });
 
     if (customItems.length > 0) {
       content += `
-        <div class="print-section">
-          <div class="print-section-title">Pièces personnalisées</div>
-          ${customItems.map(item => `
-            <div class="print-item">
-              <div class="print-item-name">${item.nom}</div>
-              <div class="print-dimensions">
-                Longueur: ${item.longueur}mm | Largeur: ${item.largeur}mm | Épaisseur: ${item.epaisseur}mm | Quantité: ${item.quantite}
+        <div class="print-section" style="margin-top: 40px; border-top: 3px solid #333; padding-top: 25px;">
+          <div class="print-section-title" style="background: #dc2626; color: white; padding: 15px; font-size: 18px; margin-bottom: 15px; border-radius: 5px;">
+            Pièces personnalisées
+          </div>
+          <div class="items-grid" style="display: grid; gap: 10px;">
+            ${customItems.map(item => `
+              <div class="print-item" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div class="print-item-name" style="font-weight: bold; font-size: 16px; color: #1e293b; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+                  ${item.nom} ${item.quantite > 1 ? `(×${item.quantite})` : ''}
+                </div>
+                <div class="print-dimensions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; font-size: 13px; color: #64748b;">
+                  <div><strong>L:</strong> ${item.longueur} mm</div>
+                  <div><strong>l:</strong> ${item.largeur} mm</div>
+                  <div><strong>e:</strong> ${item.epaisseur} mm</div>
+                </div>
               </div>
-            </div>
-          `).join('')}
+            `).join('')}
+          </div>
         </div>
       `;
     }
@@ -482,13 +502,24 @@ const FurnitureCalculator: React.FC = () => {
     // Créer un élément temporaire avec le contenu à exporter
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = `
-      <div style="padding: 20px; font-family: Arial, sans-serif;">
-        <h1 style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-          Feuille de Débit
-        </h1>
-        <p style="text-align: center; margin-bottom: 30px; color: #666;">
-          Générée le ${new Date().toLocaleDateString('fr-FR')}
-        </p>
+      <div style="padding: 30px; font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.4; background: #ffffff;">
+        <div style="text-align: center; margin-bottom: 40px; border-bottom: 4px solid #2563eb; padding-bottom: 20px;">
+          <h1 style="font-size: 32px; font-weight: bold; color: #1e293b; margin: 0 0 15px 0; letter-spacing: -0.5px;">
+            Feuille de Débit
+          </h1>
+          <p style="font-size: 16px; color: #64748b; margin: 0;">
+            Générée le ${new Date().toLocaleDateString('fr-FR', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+          <div style="margin-top: 15px; font-size: 14px; color: #64748b;">
+            Total: ${meubleGroups.length} meuble${meubleGroups.length > 1 ? 's' : ''} 
+            ${customItems.length > 0 ? `+ ${customItems.length} pièce${customItems.length > 1 ? 's' : ''} personnalisée${customItems.length > 1 ? 's' : ''}` : ''}
+          </div>
+        </div>
         ${generatePrintContent()}
       </div>
     `;
