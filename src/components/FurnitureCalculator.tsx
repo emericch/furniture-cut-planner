@@ -34,6 +34,9 @@ interface FurnitureConfig {
   // Portes
   nombrePortes: 0 | 1 | 2;
   sensOuverture: 'gauche' | 'droite';
+
+  // Options
+  retraitRayons: number;
 }
 
 interface CutSheetItem {
@@ -60,7 +63,8 @@ const FurnitureCalculator: React.FC = () => {
     nombreRayons: 2,
     dosType: 'aucun',
     nombrePortes: 0,
-    sensOuverture: 'droite'
+    sensOuverture: 'droite',
+    retraitRayons: 0
   });
 
   const [cutSheet, setCutSheet] = useState<CutSheetItem[]>([]);
@@ -70,11 +74,16 @@ const FurnitureCalculator: React.FC = () => {
   const calculateCutSheet = () => {
     const items: CutSheetItem[] = [];
     
-    // Calcul de la profondeur utilisable (en tenant compte du dos)
-    let profondeurUtile = config.profondeur;
-    if (config.dosType !== 'aucun' && config.dosType !== 'en-applique') {
-      profondeurUtile -= config.epaisseurDos;
-    }
+    // Calcul des profondeurs utiles (mesures totales, portes et dos compris)
+    const hasDoor = config.nombrePortes > 0;
+    const profondeurPanneaux = 
+      config.profondeur 
+      - (hasDoor ? config.epaisseurPortes : 0) 
+      - (config.dosType === 'en-applique' ? config.epaisseurDos : 0);
+    const profondeurRayons = 
+      profondeurPanneaux 
+      - ((config.dosType !== 'aucun' && config.dosType !== 'en-applique') ? config.epaisseurDos : 0)
+      - (config.retraitRayons || 0);
     
     // Calcul des montants
     const hauteurMontants = config.montantsTouteHauteur 
@@ -84,7 +93,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Montant gauche',
       longueur: hauteurMontants,
-      largeur: profondeurUtile,
+      largeur: profondeurPanneaux,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
       chantsVisible: ['face avant', 'côté gauche']
@@ -93,7 +102,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Montant droit',
       longueur: hauteurMontants,
-      largeur: profondeurUtile,
+      largeur: profondeurPanneaux,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
       chantsVisible: ['face avant', 'côté droit']
@@ -107,7 +116,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Traverse haute',
       longueur: largeurTraverses,
-      largeur: profondeurUtile,
+      largeur: profondeurPanneaux,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
       chantsVisible: ['face avant']
@@ -116,7 +125,7 @@ const FurnitureCalculator: React.FC = () => {
     items.push({
       nom: 'Traverse basse',
       longueur: largeurTraverses,
-      largeur: profondeurUtile,
+      largeur: profondeurPanneaux,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
       chantsVisible: ['face avant']
@@ -129,7 +138,7 @@ const FurnitureCalculator: React.FC = () => {
       items.push({
         nom: 'Rayon',
         longueur: largeurRayons,
-        largeur: profondeurUtile,
+        largeur: profondeurRayons,
         epaisseur: config.epaisseurRayons,
         quantite: config.nombreRayons,
         chantsVisible: ['face avant']
@@ -406,6 +415,17 @@ const FurnitureCalculator: React.FC = () => {
                     min="0"
                     value={config.nombreRayons}
                     onChange={(e) => setConfig({...config, nombreRayons: Number(e.target.value)})}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="retrait-rayons">Retrait profondeur des rayons (mm)</Label>
+                  <Input
+                    id="retrait-rayons"
+                    type="number"
+                    min="0"
+                    value={config.retraitRayons}
+                    onChange={(e) => setConfig({...config, retraitRayons: Number(e.target.value)})}
                   />
                 </div>
 
