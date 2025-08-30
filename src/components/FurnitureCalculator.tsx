@@ -71,9 +71,9 @@ const FurnitureCalculator: React.FC = () => {
 
   const [cutSheet, setCutSheet] = useState<CutSheetItem[]>([]);
 
-  const epaisseurs = [8, 16, 19];
-  const epaisseursDos = [3, 8, 16, 19];
-  const epaisseursPortes = [16, 19];
+  const epaisseurs = [8, 16, 19, 22];
+  const epaisseursDos = [3, 8, 16, 19, 22];
+  const epaisseursPortes = [16, 19, 22];
 
   const calculateCutSheet = () => {
     const items: CutSheetItem[] = [];
