@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Calculator, FileText, Ruler } from 'lucide-react';
-import Furniture3DView from './Furniture3DView';
+
 
 export interface FurnitureConfig {
   // Dimensions générales
@@ -543,18 +543,6 @@ const FurnitureCalculator: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {/* Vue 3D */}
-            <Card>
-              <CardHeader className="py-3">
-                <CardTitle className="text-lg">Aperçu 3D</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-64 w-full">
-                  <Furniture3DView config={config} />
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Feuille de débit */}
             <Card className="cut-sheet">
               <CardHeader className="py-3">
