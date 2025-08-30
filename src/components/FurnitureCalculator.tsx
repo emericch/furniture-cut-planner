@@ -104,13 +104,23 @@ const FurnitureCalculator: React.FC = () => {
       ? config.hauteur 
       : config.hauteur - (2 * config.epaisseurTraverses);
     
+    // Chants visibles des montants selon la configuration
+    let chantsVisiblesMontants = ['côté extérieur', 'face avant'];
+    if (config.montantsTouteHauteur) {
+      chantsVisiblesMontants.push('haut', 'bas');
+    }
+    // Si pas de dos en applique, le côté arrière est visible
+    if (config.dosType !== 'en-applique') {
+      chantsVisiblesMontants.push('arrière');
+    }
+    
     items.push({
       nom: 'Montant gauche',
       longueur: hauteurMontants,
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
-      chantsVisible: ['face avant', 'côté gauche']
+      chantsVisible: chantsVisiblesMontants.map(c => c === 'côté extérieur' ? 'côté gauche' : c)
     });
     
     items.push({
@@ -119,7 +129,7 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
       quantite: 1,
-      chantsVisible: ['face avant', 'côté droit']
+      chantsVisible: chantsVisiblesMontants.map(c => c === 'côté extérieur' ? 'côté droit' : c)
     });
 
     // Calcul des traverses
@@ -127,13 +137,23 @@ const FurnitureCalculator: React.FC = () => {
       ? config.largeur 
       : config.largeur - (2 * config.epaisseurMontants);
     
+    // Chants visibles des traverses selon la configuration
+    let chantsVisiblesTraverses = ['face avant'];
+    if (config.traversesTouteLargeur) {
+      chantsVisiblesTraverses.push('côté gauche', 'côté droit');
+    }
+    // Si pas de dos en applique, le côté arrière est visible
+    if (config.dosType !== 'en-applique') {
+      chantsVisiblesTraverses.push('arrière');
+    }
+    
     items.push({
       nom: 'Traverse haute',
       longueur: largeurTraverses,
       largeur: profondeurTraverses,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
-      chantsVisible: ['face avant']
+      chantsVisible: chantsVisiblesTraverses
     });
     
     items.push({
@@ -142,12 +162,19 @@ const FurnitureCalculator: React.FC = () => {
       largeur: profondeurTraverses,
       epaisseur: config.epaisseurTraverses,
       quantite: 1,
-      chantsVisible: ['face avant']
+      chantsVisible: chantsVisiblesTraverses
     });
 
     // Calcul des rayons
     if (config.nombreRayons > 0) {
       const largeurRayons = config.largeur - (2 * config.epaisseurMontants);
+      
+      // Chants visibles des rayons selon la configuration
+      let chantsVisiblesRayons = ['face avant'];
+      // Si pas de dos en applique, le côté arrière est visible
+      if (config.dosType !== 'en-applique') {
+        chantsVisiblesRayons.push('arrière');
+      }
       
       items.push({
         nom: 'Rayon',
@@ -155,7 +182,7 @@ const FurnitureCalculator: React.FC = () => {
         largeur: profondeurRayons,
         epaisseur: config.epaisseurRayons,
         quantite: config.nombreRayons,
-        chantsVisible: ['face avant']
+        chantsVisible: chantsVisiblesRayons
       });
     }
 
@@ -206,7 +233,7 @@ const FurnitureCalculator: React.FC = () => {
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
           quantite: 1,
-          chantsVisible: ['face avant', 'côté ' + config.sensOuverture, 'haut', 'bas']
+          chantsVisible: ['haut', 'bas', 'côté gauche', 'côté droit']
         });
       } else if (config.nombrePortes === 2) {
         const largeurPorte = (largeurUtile / 2) - jeuPeripherique;
@@ -217,7 +244,7 @@ const FurnitureCalculator: React.FC = () => {
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
           quantite: 1,
-          chantsVisible: ['face avant', 'côté gauche', 'haut', 'bas']
+          chantsVisible: ['haut', 'bas', 'côté gauche', 'côté droit']
         });
         
         items.push({
@@ -226,7 +253,7 @@ const FurnitureCalculator: React.FC = () => {
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
           quantite: 1,
-          chantsVisible: ['face avant', 'côté droit', 'haut', 'bas']
+          chantsVisible: ['haut', 'bas', 'côté gauche', 'côté droit']
         });
       }
     }
