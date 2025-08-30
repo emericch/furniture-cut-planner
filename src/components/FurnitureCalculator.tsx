@@ -285,14 +285,10 @@ const FurnitureCalculator: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-accent/10 border border-accent/20 rounded-lg p-2">
-                  <p className="text-xs text-accent font-medium">⚠️ Mesures totales, portes et dos compris</p>
-                </div>
-                
                 {/* Dimensions générales */}
                 <div>
                   <div className="mb-2">
-                    <Label className="text-sm font-medium">Dimensions (mm)</Label>
+                    <Label className="text-sm font-medium">Dimensions hors-tout (mm)</Label>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div>
