@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calculator, FileText } from 'lucide-react';
+import { Calculator, FileText, Plus, X } from 'lucide-react';
 import { AssemblyIllustration, PieceIllustration } from './FurnitureIllustrations';
 
 export interface FurnitureConfig {
@@ -70,6 +70,16 @@ const FurnitureCalculator: React.FC = () => {
   });
 
   const [cutSheet, setCutSheet] = useState<CutSheetItem[]>([]);
+  const [customItems, setCustomItems] = useState<CutSheetItem[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newItem, setNewItem] = useState<Partial<CutSheetItem>>({
+    nom: '',
+    longueur: 0,
+    largeur: 0,
+    epaisseur: 19,
+    quantite: 1,
+    chantsVisible: []
+  });
 
   const epaisseurs = [8, 16, 19, 22];
   const epaisseursDos = [3, 8, 16, 19, 22];
@@ -306,7 +316,45 @@ const FurnitureCalculator: React.FC = () => {
       }
     }
 
-    setCutSheet(items);
+    // Combiner les éléments du meuble avec les pièces personnalisées
+    setCutSheet([...items, ...customItems]);
+  };
+
+  const addCustomItem = () => {
+    if (newItem.nom && newItem.longueur && newItem.largeur && newItem.epaisseur && newItem.quantite) {
+      const item: CutSheetItem = {
+        nom: newItem.nom,
+        longueur: newItem.longueur,
+        largeur: newItem.largeur,
+        epaisseur: newItem.epaisseur,
+        quantite: newItem.quantite,
+        chantsVisible: newItem.chantsVisible || []
+      };
+      setCustomItems([...customItems, item]);
+      setNewItem({
+        nom: '',
+        longueur: 0,
+        largeur: 0,
+        epaisseur: 19,
+        quantite: 1,
+        chantsVisible: []
+      });
+      setShowAddForm(false);
+    }
+  };
+
+  const removeCustomItem = (index: number) => {
+    setCustomItems(customItems.filter((_, i) => i !== index));
+  };
+
+  const chantsOptions = ['haut', 'bas', 'côté gauche', 'côté droit', 'face avant', 'arrière'];
+
+  const toggleChant = (chant: string) => {
+    const current = newItem.chantsVisible || [];
+    const updated = current.includes(chant)
+      ? current.filter(c => c !== chant)
+      : [...current, chant];
+    setNewItem({ ...newItem, chantsVisible: updated });
   };
 
   return (
@@ -614,34 +662,159 @@ const FurnitureCalculator: React.FC = () => {
           <div>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <FileText className="h-4 w-4 text-primary" />
-                  Feuille de débit
+                <CardTitle className="flex items-center justify-between text-lg">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Feuille de débit
+                  </div>
+                  <Button
+                    onClick={() => setShowAddForm(true)}
+                    size="sm"
+                    variant="outline"
+                    className="flex items-center gap-1"
+                  >
+                    <Plus className="h-3 w-3" />
+                    Ajouter une pièce
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {cutSheet.length > 0 ? (
-                  <div className="space-y-3">
-                    {cutSheet.map((item, index) => (
-                      <div key={index} className="border border-border rounded-lg p-3">
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-base mb-2">{item.nom}</h4>
-                            <div className="grid grid-cols-4 gap-2 text-sm text-muted-foreground">
-                              <div>L: {item.longueur}</div>
-                              <div>l: {item.largeur}</div>
-                              <div>Ép: {item.epaisseur}</div>
-                              <div>Qté: {item.quantite}</div>
-                            </div>
-                          </div>
-                          <PieceIllustration 
-                            longueur={item.longueur}
-                            largeur={item.largeur}
-                            chantsVisible={item.chantsVisible}
+                {showAddForm && (
+                  <Card className="mb-4 border-primary/20">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center justify-between">
+                        Ajouter une pièce personnalisée
+                        <Button
+                          onClick={() => setShowAddForm(false)}
+                          size="sm"
+                          variant="ghost"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <Label className="text-sm">Nom de la pièce</Label>
+                        <Input
+                          value={newItem.nom || ''}
+                          onChange={(e) => setNewItem({ ...newItem, nom: e.target.value })}
+                          placeholder="Ex: Tablette, Tiroir..."
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-4 gap-3">
+                        <div>
+                          <Label className="text-xs">Longueur (mm)</Label>
+                          <Input
+                            type="number"
+                            value={newItem.longueur || ''}
+                            onChange={(e) => setNewItem({ ...newItem, longueur: Number(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Largeur (mm)</Label>
+                          <Input
+                            type="number"
+                            value={newItem.largeur || ''}
+                            onChange={(e) => setNewItem({ ...newItem, largeur: Number(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Épaisseur</Label>
+                          <Select 
+                            value={newItem.epaisseur?.toString() || '19'} 
+                            onValueChange={(value) => setNewItem({ ...newItem, epaisseur: Number(value) })}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {epaisseursDos.map(ep => (
+                                <SelectItem key={ep} value={ep.toString()}>{ep}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Quantité</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={newItem.quantite || 1}
+                            onChange={(e) => setNewItem({ ...newItem, quantite: Number(e.target.value) })}
                           />
                         </div>
                       </div>
-                    ))}
+
+                      <div>
+                        <Label className="text-sm mb-2 block">Chants visibles</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {chantsOptions.map(chant => (
+                            <div key={chant} className="flex items-center space-x-2">
+                              <Checkbox
+                                checked={(newItem.chantsVisible || []).includes(chant)}
+                                onCheckedChange={() => toggleChant(chant)}
+                              />
+                              <Label className="text-xs">{chant}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button onClick={addCustomItem} className="flex-1">
+                          Ajouter
+                        </Button>
+                        <Button 
+                          onClick={() => setShowAddForm(false)} 
+                          variant="outline" 
+                          className="flex-1"
+                        >
+                          Annuler
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {cutSheet.length > 0 ? (
+                  <div className="space-y-3">
+                    {cutSheet.map((item, index) => {
+                      const isCustom = index >= cutSheet.length - customItems.length;
+                      return (
+                        <div key={index} className="border border-border rounded-lg p-3">
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-medium text-base">{item.nom}</h4>
+                                {isCustom && (
+                                  <Button
+                                    onClick={() => removeCustomItem(index - (cutSheet.length - customItems.length))}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-4 gap-2 text-sm text-muted-foreground">
+                                <div>L: {item.longueur}</div>
+                                <div>l: {item.largeur}</div>
+                                <div>Ép: {item.epaisseur}</div>
+                                <div>Qté: {item.quantite}</div>
+                              </div>
+                            </div>
+                            <PieceIllustration 
+                              longueur={item.longueur}
+                              largeur={item.largeur}
+                              chantsVisible={item.chantsVisible}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center py-8">
