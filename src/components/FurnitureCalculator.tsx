@@ -283,9 +283,8 @@ const FurnitureCalculator: React.FC = () => {
           chantsVisible: ['haut', 'bas', 'côté gauche', 'côté droit']
         });
       } else if (config.nombrePortes === 2) {
-        const largeurPorte = config.typePorte === 'applique' 
-          ? largeurUtile / 2 
-          : (largeurUtile / 2) - jeuPeripherique;
+        const jeuEntrePortes = 3;
+        const largeurPorte = (largeurUtile - jeuEntrePortes) / 2;
         
         items.push({
           nom: config.typePorte === 'applique' ? 'Porte gauche (applique)' : 'Porte gauche (intérieur)',
