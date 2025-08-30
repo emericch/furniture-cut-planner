@@ -223,7 +223,7 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
       right: '2px',
       top: '50%',
       transform: 'translateY(-50%)',
-      fontSize: '8px',
+      fontSize: '7px',
       color: 'hsl(var(--foreground))',
       fontWeight: '600',
       textAlign: 'center' as const,
@@ -233,13 +233,14 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
       borderRadius: '2px',
       border: '1px solid hsl(var(--border))',
       whiteSpace: 'nowrap' as const,
+      pointerEvents: 'none' as const,
     },
     dimensionLabelL: {
       position: 'absolute' as const,
-      bottom: '2px',
+      top: '2px',
       left: '50%',
       transform: 'translateX(-50%)',
-      fontSize: '8px',
+      fontSize: '7px',
       color: 'hsl(var(--foreground))',
       fontWeight: '600',
       textAlign: 'center' as const,
@@ -249,6 +250,7 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
       borderRadius: '2px',
       border: '1px solid hsl(var(--border))',
       whiteSpace: 'nowrap' as const,
+      pointerEvents: 'none' as const,
     },
   };
 
