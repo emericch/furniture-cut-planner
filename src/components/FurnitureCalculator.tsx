@@ -449,21 +449,21 @@ const FurnitureCalculator: React.FC = () => {
           <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px;">
             <thead>
               <tr style="border-bottom: 1px solid #000;">
-                <th style="text-align: left; padding: 2px 5px; font-weight: bold;">Pièce</th>
-                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">Qté</th>
-                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">L (mm)</th>
-                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">l (mm)</th>
-                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">e (mm)</th>
+                <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Pièce</th>
+                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Qté</th>
+                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
+                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">l (mm)</th>
+                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">e (mm)</th>
               </tr>
             </thead>
             <tbody>
               ${groupe.items.map(item => `
                 <tr style="border-bottom: 1px solid #ccc;">
-                  <td style="padding: 2px 5px;">${item.nom}</td>
-                  <td style="padding: 2px 5px; text-align: center;">${item.quantite}</td>
-                  <td style="padding: 2px 5px; text-align: center;">${item.longueur}</td>
-                  <td style="padding: 2px 5px; text-align: center;">${item.largeur}</td>
-                  <td style="padding: 2px 5px; text-align: center;">${item.epaisseur}</td>
+                  <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${item.nom}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.longueur}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.largeur}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -481,21 +481,21 @@ const FurnitureCalculator: React.FC = () => {
           <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
             <thead>
               <tr style="border-bottom: 1px solid #000;">
-                <th style="text-align: left; padding: 2px 5px; font-weight: bold;">Pièce</th>
-                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">Qté</th>
-                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">L (mm)</th>
-                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">l (mm)</th>
-                <th style="text-align: center; padding: 2px 5px; font-weight: bold;">e (mm)</th>
+                <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Pièce</th>
+                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Qté</th>
+                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
+                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">l (mm)</th>
+                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">e (mm)</th>
               </tr>
             </thead>
             <tbody>
               ${customItems.map(item => `
                 <tr style="border-bottom: 1px solid #ccc;">
-                  <td style="padding: 2px 5px;">${item.nom}</td>
-                  <td style="padding: 2px 5px; text-align: center;">${item.quantite}</td>
-                  <td style="padding: 2px 5px; text-align: center;">${item.longueur}</td>
-                  <td style="padding: 2px 5px; text-align: center;">${item.largeur}</td>
-                  <td style="padding: 2px 5px; text-align: center;">${item.epaisseur}</td>
+                  <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${item.nom}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.longueur}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.largeur}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
                 </tr>
               `).join('')}
             </tbody>
