@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calculator, FileText, Plus, X } from 'lucide-react';
-import { AssemblyIllustration, PieceIllustration } from './FurnitureIllustrations';
+import { AssemblyIllustration } from './FurnitureIllustrations';
 
 export interface FurnitureConfig {
   // Dimensions générales
@@ -46,7 +46,6 @@ interface CutSheetItem {
   largeur: number;
   epaisseur: number;
   quantite: number;
-  chantsVisible: string[];
 }
 
 const FurnitureCalculator: React.FC = () => {
@@ -77,8 +76,7 @@ const FurnitureCalculator: React.FC = () => {
     longueur: 0,
     largeur: 0,
     epaisseur: 19,
-    quantite: 1,
-    chantsVisible: []
+    quantite: 1
   });
 
   const epaisseurs = [8, 16, 19, 22];
@@ -115,28 +113,12 @@ const FurnitureCalculator: React.FC = () => {
       ? config.hauteur 
       : config.hauteur - (2 * config.epaisseurTraverses);
     
-    // Chants visibles des montants (face avant toujours plaquée)
-    let chantsVisiblesMontants: string[] = ['face avant'];
-    if (config.montantsTouteHauteur) {
-      // Montants traversants: plaqués 4 côtés
-      chantsVisiblesMontants.push('haut', 'bas', 'côté gauche', 'côté droit');
-    }
-    // Longueur arrière plaquée si pas de dos ou dos entre montants/traverses
-    if (config.dosType === 'aucun' || config.dosType === 'entre-montants-traverses') {
-      chantsVisiblesMontants.push('arrière');
-    }
-    // Cas traverses toute largeur sans dos: montants plaqués sur les 2 longueurs
-    if (!config.montantsTouteHauteur && config.traversesTouteLargeur && config.dosType === 'aucun') {
-      chantsVisiblesMontants.push('haut', 'bas');
-    }
-    
     items.push({
       nom: 'Montant gauche',
       longueur: hauteurMontants,
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
-      quantite: 1,
-      chantsVisible: Array.from(new Set(chantsVisiblesMontants))
+      quantite: 1
     });
     
     items.push({
@@ -144,8 +126,7 @@ const FurnitureCalculator: React.FC = () => {
       longueur: hauteurMontants,
       largeur: profondeurMontants,
       epaisseur: config.epaisseurMontants,
-      quantite: 1,
-      chantsVisible: Array.from(new Set(chantsVisiblesMontants))
+      quantite: 1
     });
 
     // Calcul des traverses
@@ -153,84 +134,32 @@ const FurnitureCalculator: React.FC = () => {
       ? config.largeur 
       : config.largeur - (2 * config.epaisseurMontants);
     
-    // Chants visibles des traverses selon la configuration
-    let chantsVisiblesTraverses: string[] = ['face avant'];
-    if (config.traversesTouteLargeur) {
-      // Traverses traversantes: plaqués 4 côtés
-      chantsVisiblesTraverses.push('côté gauche', 'côté droit');
-    }
-    // Longueur arrière plaquée si pas de dos ou dos entre montants/traverses
-    if (config.dosType === 'aucun' || config.dosType === 'entre-montants-traverses') {
-      chantsVisiblesTraverses.push('arrière');
-    }
+    items.push({
+      nom: 'Traverse haute',
+      longueur: largeurTraverses,
+      largeur: profondeurTraverses,
+      epaisseur: config.epaisseurTraverses,
+      quantite: 1
+    });
     
-    // Déterminer les chants communs pour les traverses selon les cas
-    const baseTraverses = Array.from(new Set(chantsVisiblesTraverses));
-    const needBothLongs = config.montantsTouteHauteur && config.dosType === 'aucun';
-    const fullFourSides = config.traversesTouteLargeur && config.dosType === 'aucun';
-
-    if (fullFourSides || needBothLongs) {
-      const traversesChants = Array.from(new Set([
-        ...baseTraverses,
-        'haut',
-        'bas',
-        ...(fullFourSides ? ['côté gauche', 'côté droit'] : []),
-      ]));
-
-      items.push({
-        nom: 'Traverse haute',
-        longueur: largeurTraverses,
-        largeur: profondeurTraverses,
-        epaisseur: config.epaisseurTraverses,
-        quantite: 1,
-        chantsVisible: traversesChants
-      });
-
-      items.push({
-        nom: 'Traverse basse',
-        longueur: largeurTraverses,
-        largeur: profondeurTraverses,
-        epaisseur: config.epaisseurTraverses,
-        quantite: 1,
-        chantsVisible: traversesChants
-      });
-    } else {
-      items.push({
-        nom: 'Traverse haute',
-        longueur: largeurTraverses,
-        largeur: profondeurTraverses,
-        epaisseur: config.epaisseurTraverses,
-        quantite: 1,
-        chantsVisible: [...baseTraverses, 'haut']
-      });
-      
-      items.push({
-        nom: 'Traverse basse',
-        longueur: largeurTraverses,
-        largeur: profondeurTraverses,
-        epaisseur: config.epaisseurTraverses,
-        quantite: 1,
-        chantsVisible: [...baseTraverses, 'bas']
-      });
-    }
+    items.push({
+      nom: 'Traverse basse',
+      longueur: largeurTraverses,
+      largeur: profondeurTraverses,
+      epaisseur: config.epaisseurTraverses,
+      quantite: 1
+    });
 
     // Calcul des rayons
     if (config.nombreRayons > 0) {
       const largeurRayons = config.largeur - (2 * config.epaisseurMontants);
-      
-      // Chants visibles des rayons: toujours plaqués devant + haut et bas + arrière si pas de dos
-      let chantsVisiblesRayons = ['face avant', 'haut', 'bas'];
-      if (config.dosType === 'aucun' || config.dosType === 'entre-montants-traverses') {
-        chantsVisiblesRayons.push('arrière');
-      }
       
       items.push({
         nom: 'Rayon',
         longueur: largeurRayons,
         largeur: profondeurRayons,
         epaisseur: config.epaisseurRayons,
-        quantite: config.nombreRayons,
-        chantsVisible: chantsVisiblesRayons
+        quantite: config.nombreRayons
       });
     }
 
@@ -260,8 +189,7 @@ const FurnitureCalculator: React.FC = () => {
         longueur: largeurDos,
         largeur: hauteurDos,
         epaisseur: config.epaisseurDos,
-        quantite: 1,
-        chantsVisible: []
+        quantite: 1
       });
     }
 
@@ -289,8 +217,7 @@ const FurnitureCalculator: React.FC = () => {
           longueur: largeurUtile,
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
-          quantite: 1,
-          chantsVisible: ['haut', 'bas', 'côté gauche', 'côté droit']
+          quantite: 1
         });
       } else if (config.nombrePortes === 2) {
         const jeuEntrePortes = 3;
@@ -301,8 +228,7 @@ const FurnitureCalculator: React.FC = () => {
           longueur: largeurPorte,
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
-          quantite: 1,
-          chantsVisible: ['haut', 'bas', 'côté gauche', 'côté droit']
+          quantite: 1
         });
         
         items.push({
@@ -310,8 +236,7 @@ const FurnitureCalculator: React.FC = () => {
           longueur: largeurPorte,
           largeur: hauteurUtile,
           epaisseur: profondeurPortes,
-          quantite: 1,
-          chantsVisible: ['haut', 'bas', 'côté gauche', 'côté droit']
+          quantite: 1
         });
       }
     }
@@ -327,8 +252,7 @@ const FurnitureCalculator: React.FC = () => {
         longueur: newItem.longueur,
         largeur: newItem.largeur,
         epaisseur: newItem.epaisseur,
-        quantite: newItem.quantite,
-        chantsVisible: newItem.chantsVisible || []
+        quantite: newItem.quantite
       };
       setCustomItems([...customItems, item]);
       setNewItem({
@@ -336,8 +260,7 @@ const FurnitureCalculator: React.FC = () => {
         longueur: 0,
         largeur: 0,
         epaisseur: 19,
-        quantite: 1,
-        chantsVisible: []
+        quantite: 1
       });
       setShowAddForm(false);
     }
@@ -345,16 +268,6 @@ const FurnitureCalculator: React.FC = () => {
 
   const removeCustomItem = (index: number) => {
     setCustomItems(customItems.filter((_, i) => i !== index));
-  };
-
-  const chantsOptions = ['haut', 'bas', 'côté gauche', 'côté droit', 'face avant', 'arrière'];
-
-  const toggleChant = (chant: string) => {
-    const current = newItem.chantsVisible || [];
-    const updated = current.includes(chant)
-      ? current.filter(c => c !== chant)
-      : [...current, chant];
-    setNewItem({ ...newItem, chantsVisible: updated });
   };
 
   return (
@@ -747,21 +660,6 @@ const FurnitureCalculator: React.FC = () => {
                         </div>
                       </div>
 
-                      <div>
-                        <Label className="text-sm mb-2 block">Chants visibles</Label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {chantsOptions.map(chant => (
-                            <div key={chant} className="flex items-center space-x-2">
-                              <Checkbox
-                                checked={(newItem.chantsVisible || []).includes(chant)}
-                                onCheckedChange={() => toggleChant(chant)}
-                              />
-                              <Label className="text-xs">{chant}</Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
                       <div className="flex gap-2">
                         <Button onClick={addCustomItem} className="flex-1">
                           Ajouter
@@ -784,7 +682,7 @@ const FurnitureCalculator: React.FC = () => {
                       const isCustom = index >= cutSheet.length - customItems.length;
                       return (
                         <div key={index} className="border border-border rounded-lg p-3">
-                          <div className="flex justify-between items-start gap-3">
+                          <div className="flex justify-between items-center">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <h4 className="font-medium text-base">{item.nom}</h4>
@@ -800,17 +698,12 @@ const FurnitureCalculator: React.FC = () => {
                                 )}
                               </div>
                               <div className="grid grid-cols-4 gap-2 text-sm text-muted-foreground">
-                                <div>L: {item.longueur}</div>
-                                <div>l: {item.largeur}</div>
-                                <div>Ép: {item.epaisseur}</div>
+                                <div>L: {item.longueur}mm</div>
+                                <div>l: {item.largeur}mm</div>
+                                <div>Ép: {item.epaisseur}mm</div>
                                 <div>Qté: {item.quantite}</div>
                               </div>
                             </div>
-                            <PieceIllustration 
-                              longueur={item.longueur}
-                              largeur={item.largeur}
-                              chantsVisible={item.chantsVisible}
-                            />
                           </div>
                         </div>
                       );
