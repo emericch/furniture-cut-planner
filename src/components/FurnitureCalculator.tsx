@@ -37,6 +37,7 @@ interface FurnitureConfig {
 
   // Options
   retraitRayons: number;
+  decalageDos: number;
 }
 
 interface CutSheetItem {
@@ -64,7 +65,8 @@ const FurnitureCalculator: React.FC = () => {
     dosType: 'aucun',
     nombrePortes: 0,
     sensOuverture: 'droite',
-    retraitRayons: 0
+    retraitRayons: 0,
+    decalageDos: 0
   });
 
   const [cutSheet, setCutSheet] = useState<CutSheetItem[]>([]);
@@ -82,7 +84,7 @@ const FurnitureCalculator: React.FC = () => {
       - (config.dosType === 'en-applique' ? config.epaisseurDos : 0);
     const profondeurRayons = 
       profondeurPanneaux 
-      - ((config.dosType !== 'aucun' && config.dosType !== 'en-applique') ? config.epaisseurDos : 0)
+      - ((config.dosType !== 'aucun' && config.dosType !== 'en-applique') ? config.epaisseurDos + config.decalageDos : 0)
       - (config.retraitRayons || 0);
     
     // Calcul des montants
@@ -433,7 +435,14 @@ const FurnitureCalculator: React.FC = () => {
                   <Label>Type de dos</Label>
                   <Select 
                     value={config.dosType} 
-                    onValueChange={(value: any) => setConfig({...config, dosType: value})}
+                    onValueChange={(value: any) => {
+                      const newConfig = {...config, dosType: value};
+                      // Reset décalage si dos en applique
+                      if (value === 'en-applique') {
+                        newConfig.decalageDos = 0;
+                      }
+                      setConfig(newConfig);
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -447,6 +456,23 @@ const FurnitureCalculator: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {config.dosType !== 'aucun' && config.dosType !== 'en-applique' && (
+                  <div>
+                    <Label htmlFor="decalage-dos">Décalage du dos depuis l'arrière (mm)</Label>
+                    <Input
+                      id="decalage-dos"
+                      type="number"
+                      min="0"
+                      max={config.profondeur - config.epaisseurDos}
+                      value={config.decalageDos}
+                      onChange={(e) => setConfig({...config, decalageDos: Number(e.target.value)})}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Espace libre entre le dos et l'arrière du meuble
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
