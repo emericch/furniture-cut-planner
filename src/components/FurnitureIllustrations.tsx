@@ -188,11 +188,8 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
     },
     edge: {
       position: 'absolute' as const,
-      background: 'hsl(var(--primary))',
-      transition: 'all 0.2s ease',
-    },
-    edgeInactive: {
       background: 'hsl(var(--muted))',
+      transition: 'all 0.2s ease',
     },
     top: {
       top: '-1px',
@@ -260,23 +257,19 @@ export const PieceIllustration: React.FC<PieceIllustrationProps> = ({
         {/* Chants */}
         <div style={{
           ...styles.edge,
-          ...styles.top,
-          ...(highlightTop ? {} : styles.edgeInactive)
+          ...styles.top
         }} />
         <div style={{
           ...styles.edge,
-          ...styles.bottom,
-          ...(highlightBottom ? {} : styles.edgeInactive)
+          ...styles.bottom
         }} />
         <div style={{
           ...styles.edge,
-          ...styles.left,
-          ...(highlightLeft ? {} : styles.edgeInactive)
+          ...styles.left
         }} />
         <div style={{
           ...styles.edge,
-          ...styles.right,
-          ...(highlightRight ? {} : styles.edgeInactive)
+          ...styles.right
         }} />
         
         {/* Dimensions extérieures */}
