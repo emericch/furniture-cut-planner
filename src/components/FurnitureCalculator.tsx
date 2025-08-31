@@ -500,13 +500,7 @@ const FurnitureCalculator: React.FC = () => {
       `;
     }
 
-    // Ajouter la signature
-    content += `
-      <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #bbb; text-align: center; font-size: 10px; color: #666;">
-        <p style="margin: 2px 0;">Développé par <strong>Emeric Chenay</strong> • 2025</p>
-        <p style="margin: 2px 0;">Outil professionnel de menuiserie pour la génération de feuilles de débit</p>
-      </div>
-    `;
+    // La signature sera ajoutée plus tard dans le template principal
 
     return content;
   };
