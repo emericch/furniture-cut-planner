@@ -1,3 +1,9 @@
+export interface FixedBand {
+  hauteur: number;
+  remplaceTraverse: boolean;
+  faceApplique: boolean;
+}
+
 export interface FurnitureConfig {
   // Dimensions générales
   hauteur: number;
@@ -17,6 +23,10 @@ export interface FurnitureConfig {
   
   // Rayons
   nombreRayons: number;
+  nombreRayonsFixes?: number;
+  bandeauHaut?: FixedBand;
+  bandeauBas?: FixedBand;
+  tiroirs?: { position: 'haut' | 'bas'; hauteurs: number[] };
   
   // Dos
   dosType: 'aucun' | 'toute-hauteur' | 'toute-largeur' | 'en-applique' | 'entre-montants-traverses' | 'en-rainure';
@@ -46,15 +56,34 @@ export interface MeubleGroup {
   dateAjout: Date;
 }
 
+export const getFurnitureLayout = (c: FurnitureConfig) => {
+  const topPanel = !c.bandeauHaut?.remplaceTraverse;
+  const bottomPanel = !c.bandeauBas?.remplaceTraverse;
+  const topInset = topPanel ? c.epaisseurTraverses : 0;
+  const bottomInset = bottomPanel ? c.epaisseurTraverses : 0;
+  const topBandEnd = c.bandeauHaut ? topInset + c.bandeauHaut.hauteur : 0;
+  const bottomBandEnd = c.bandeauBas ? bottomInset + c.bandeauBas.hauteur : 0;
+  const overlay = (c.nombrePortes > 0 && c.typePorte === 'applique') || !!c.bandeauHaut?.faceApplique || !!c.bandeauBas?.faceApplique || !!c.tiroirs?.hauteurs.length;
+  const depth = c.profondeur - (overlay ? c.epaisseurPortes + 2 : 0) - (c.dosType === 'en-applique' ? c.epaisseurDos : 0);
+  const drawerHeights = c.tiroirs?.hauteurs ?? [];
+  const drawerSpace = drawerHeights.reduce((sum,h) => sum+h+2,0);
+  // A covered band shares the 2 mm joint symmetrically with the next front.
+  const topOverlay = topBandEnd ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1.5;
+  const bottomOverlay = bottomBandEnd ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1.5;
+  const doorTop = c.typePorte === 'applique' ? topOverlay : Math.max(topInset + 3, topBandEnd + (topBandEnd ? 3 : 0));
+  const doorBottom = c.typePorte === 'applique' ? bottomOverlay : Math.max(bottomInset + 3, bottomBandEnd + (bottomBandEnd ? 3 : 0));
+  return {topPanel,bottomPanel,topInset,bottomInset,topBandEnd,bottomBandEnd,depth,overlay,drawerSpace,
+    doorHeight: c.hauteur - doorTop - doorBottom - drawerSpace,
+    frontFreeHeight: c.hauteur - topOverlay - bottomOverlay - drawerSpace,
+    openingHeight: c.hauteur - topInset - bottomInset - (c.bandeauHaut?.hauteur ?? 0) - (c.bandeauBas?.hauteur ?? 0)};
+};
+
 export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => {
     const items: CutSheetItem[] = [];
     
     // Calcul des profondeurs utiles (mesures totales, portes et dos compris)
-    const hasDoorApplique = config.nombrePortes > 0 && config.typePorte === 'applique';
-    const profondeurBase = 
-      config.profondeur 
-      - (hasDoorApplique ? config.epaisseurPortes + 2 : 0) 
-      - (config.dosType === 'en-applique' ? config.epaisseurDos : 0);
+    const layout = getFurnitureLayout(config);
+    const profondeurBase = layout.depth;
     
     // Profondeur des montants (réduite si dos toute largeur)
     const profondeurMontants = profondeurBase - 
@@ -74,7 +103,7 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
     // Calcul des montants
     const hauteurMontants = config.montantsTouteHauteur 
       ? config.hauteur 
-      : config.hauteur - (2 * config.epaisseurTraverses);
+      : config.hauteur - layout.topInset - layout.bottomInset;
     
     items.push({
       nom: 'Montant gauche',
@@ -97,7 +126,7 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
       ? config.largeur 
       : config.largeur - (2 * config.epaisseurMontants);
     
-    items.push({
+    if (layout.topPanel) items.push({
       nom: 'Traverse haute',
       longueur: largeurTraverses,
       largeur: profondeurTraverses,
@@ -105,7 +134,7 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
       quantite: 1
     });
     
-    items.push({
+    if (layout.bottomPanel) items.push({
       nom: 'Traverse basse',
       longueur: largeurTraverses,
       largeur: profondeurTraverses,
@@ -115,7 +144,7 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
 
     // Calcul des rayons
     if (config.nombreRayons > 0) {
-      const largeurRayons = config.largeur - (2 * config.epaisseurMontants);
+      const largeurRayons = config.largeur - (2 * config.epaisseurMontants) - 1;
       
       items.push({
         nom: 'Rayon',
@@ -125,6 +154,15 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
         quantite: config.nombreRayons
       });
     }
+
+    if ((config.nombreRayonsFixes ?? 0) > 0) items.push({nom:'Rayon fixe',longueur:config.largeur-2*config.epaisseurMontants,largeur:profondeurRayons,epaisseur:config.epaisseurRayons,quantite:config.nombreRayonsFixes ?? 0});
+
+    for (const [label,band,span] of [['haut',config.bandeauHaut,layout.topBandEnd],['bas',config.bandeauBas,layout.bottomBandEnd]] as const) {
+      if (!band) continue;
+      items.push({nom:`Bandeau ${label}`,longueur:config.largeur-2*config.epaisseurMontants,largeur:band.hauteur,epaisseur:config.epaisseurTraverses,quantite:1});
+      if (band.faceApplique) items.push({nom:`Face fixe ${label} (applique)`,longueur:config.largeur-3,largeur:span-2.5,epaisseur:config.epaisseurPortes,quantite:1});
+    }
+    config.tiroirs?.hauteurs.forEach((height,index) => items.push({nom:`Face tiroir ${index+1} (${config.tiroirs?.position === 'haut' ? 'haut' : 'bas'})`,longueur:config.largeur-3,largeur:height,epaisseur:config.epaisseurPortes,quantite:1}));
 
     // Calcul du dos (si présent)
     if (config.dosType !== 'aucun') {
@@ -136,17 +174,17 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
           largeurDos = config.largeur - (2 * config.epaisseurMontants);
           break;
         case 'toute-largeur':
-          hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
+          hauteurDos = config.hauteur - layout.topInset - layout.bottomInset;
           break;
         case 'en-applique':
           // Aucune déduction, dimensions complètes
           break;
         case 'en-rainure':
-          hauteurDos = config.hauteur - 2 * config.epaisseurTraverses + 20;
+          hauteurDos = config.hauteur - layout.topInset - layout.bottomInset + 20;
           largeurDos = config.largeur - 2 * config.epaisseurMontants + 20;
           break;
         case 'entre-montants-traverses':
-          hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
+          hauteurDos = config.hauteur - layout.topInset - layout.bottomInset;
           largeurDos = config.largeur - (2 * config.epaisseurMontants);
           break;
       }
@@ -167,11 +205,11 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
       
       if (config.typePorte === 'applique') {
         // Porte en applique: dimensions extérieures du meuble
-        hauteurUtile = config.hauteur - 3;
+        hauteurUtile = layout.doorHeight;
         largeurUtile = config.largeur - 3;
       } else {
         // Porte en intérieur: dimensions réduites par les montants/traverses
-        hauteurUtile = config.hauteur - (2 * config.epaisseurTraverses) - (2 * jeuPeripherique);
+        hauteurUtile = layout.doorHeight;
         largeurUtile = config.largeur - (2 * config.epaisseurMontants) - (2 * jeuPeripherique);
       }
       
@@ -214,20 +252,29 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
 
 export const validateConfig = (c: FurnitureConfig): string[] => {
   const errors: string[] = [];
+  const layout = getFurnitureLayout(c);
   if (![c.hauteur, c.largeur, c.profondeur].every(n => Number.isFinite(n) && n > 0)) errors.push('Les dimensions hors-tout doivent être positives.');
   if (!Number.isInteger(c.nombreRayons) || c.nombreRayons < 0) errors.push('Le nombre de rayons doit être un entier positif ou nul.');
+  if (!Number.isInteger(c.nombreRayonsFixes ?? 0) || (c.nombreRayonsFixes ?? 0) < 0) errors.push('Le nombre de rayons fixes doit être un entier positif ou nul.');
+  for (const band of [c.bandeauHaut,c.bandeauBas]) if (band && (!Number.isFinite(band.hauteur) || band.hauteur <= 0 || typeof band.remplaceTraverse !== 'boolean' || typeof band.faceApplique !== 'boolean')) errors.push('La hauteur du bandeau doit être positive.');
+  if (c.tiroirs && (!['haut','bas'].includes(c.tiroirs.position) || !c.tiroirs.hauteurs.length || c.tiroirs.hauteurs.some(h => !Number.isFinite(h) || h <= 0))) errors.push('Saisissez une hauteur positive pour chaque face de tiroir.');
+  if (layout.openingHeight <= 0 || layout.frontFreeHeight < 0) errors.push('Les bandeaux et façades dépassent la hauteur disponible.');
+  if (c.nombrePortes > 0 && layout.doorHeight <= 0) errors.push('Les façades ne laissent plus de hauteur pour la porte.');
+  if (c.dosType === 'en-rainure' && (!layout.topPanel || !layout.bottomPanel)) errors.push('Un dos en rainure nécessite les deux traverses horizontales.');
   if (![c.retraitRayons, c.decalageDos].every(n => Number.isFinite(n) && n >= 0)) errors.push('Les retraits et décalages ne peuvent pas être négatifs.');
   if (c.montantsTouteHauteur === c.traversesTouteLargeur) errors.push('Choisissez un seul montage.');
   if (![0,1,2].includes(c.nombrePortes) || !['applique','interieur'].includes(c.typePorte) || !['aucun','toute-hauteur','toute-largeur','en-applique','entre-montants-traverses','en-rainure'].includes(c.dosType)) errors.push('Configuration de portes ou de dos non autorisée.');
   if (![8,16,19,22].includes(c.epaisseurMontants) || ![8,16,19,22].includes(c.epaisseurTraverses) || ![8,16,19,22].includes(c.epaisseurRayons) || ![3,8,16,19,22].includes(c.epaisseurDos) || ![16,19,22].includes(c.epaisseurPortes)) errors.push('Épaisseur de panneau non autorisée.');
-  if (c.largeur <= 2*c.epaisseurMontants || c.hauteur <= 2*c.epaisseurTraverses) errors.push('Les panneaux ne laissent pas une ouverture intérieure positive.');
+  if (c.largeur <= 2*c.epaisseurMontants || c.hauteur <= layout.topInset + layout.bottomInset) errors.push('Les panneaux ne laissent pas une ouverture intérieure positive.');
   if (c.dosType === 'en-rainure' && Math.min(c.epaisseurMontants,c.epaisseurTraverses) <= 10) errors.push('Une rainure de 10 mm exige des montants et traverses de plus de 10 mm.');
-  if (c.nombreRayons*c.epaisseurRayons >= c.hauteur - 2*c.epaisseurTraverses && c.nombreRayons > 0) errors.push('Les rayons ne tiennent pas dans la hauteur disponible.');
-  const profondeurCaisson = c.profondeur - (c.nombrePortes > 0 && c.typePorte === 'applique' ? c.epaisseurPortes + 2 : 0) - (c.dosType === 'en-applique' ? c.epaisseurDos : 0);
+  const shelfCount = c.nombreRayons + (c.nombreRayonsFixes ?? 0);
+  if (shelfCount*c.epaisseurRayons >= layout.openingHeight && shelfCount > 0) errors.push('Les rayons ne tiennent pas dans la hauteur disponible.');
+  const profondeurCaisson = layout.depth;
   const dosInterieur = c.dosType !== 'aucun' && c.dosType !== 'en-applique';
   const profondeurLibre = profondeurCaisson - (dosInterieur ? c.epaisseurDos + c.decalageDos : 0);
   if (dosInterieur && profondeurLibre <= 0) errors.push('Le dos et son décalage dépassent la profondeur disponible du caisson.');
   if (c.nombrePortes > 0 && c.typePorte === 'interieur' && c.epaisseurPortes > profondeurLibre) errors.push('La porte intérieure dépasse la profondeur disponible ou chevauche le dos.');
+  if ((c.bandeauHaut || c.bandeauBas) && c.epaisseurTraverses > profondeurLibre) errors.push('Le bandeau est trop épais pour la profondeur disponible.');
   if (generateMeubleItems(c).some(i => ![i.longueur,i.largeur,i.epaisseur].every(n => Number.isFinite(n) && n > 0))) errors.push('Une pièce aurait une dimension nulle ou négative : réduisez les retraits ou augmentez le meuble.');
   return errors;
 };
