@@ -11,6 +11,7 @@ interface Props { config: FurnitureConfig; onChange: (config: FurnitureConfig) =
 export function FurnitureExtras({config, onChange}: Props) {
   const layout = getFurnitureLayout(config);
   const bands = !!config.bandeauHaut || !!config.bandeauBas;
+  const nextFrontHeight = layout.frontFreeHeight - 2;
   return <div className="space-y-5 border-t border-border pt-4">
     <div className="flex items-center gap-3">
       <Checkbox id="enable-bands" checked={bands} onCheckedChange={checked => onChange({...config,bandeauHaut:checked ? {hauteur:150,remplaceTraverse:true,faceApplique:false} : undefined,bandeauBas:undefined})} />
@@ -45,12 +46,17 @@ export function FurnitureExtras({config, onChange}: Props) {
       <Label htmlFor="enable-drawers">Meuble à tiroirs</Label>
     </div>
     {config.tiroirs && <div className="space-y-3 pl-1">
-      <div><Label htmlFor="drawer-position">Position des tiroirs</Label><Select value={config.tiroirs.position} onValueChange={(position:'haut'|'bas') => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,position}});}}><SelectTrigger id="drawer-position"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="haut">Au-dessus de la porte</SelectItem><SelectItem value="bas">Au-dessous de la porte</SelectItem></SelectContent></Select></div>
+      <div className="flex items-center gap-3"><Checkbox id="drawers-with-door" checked={config.nombrePortes > 0} onCheckedChange={checked => onChange({...config,nombrePortes:checked ? 1 : 0})} /><Label htmlFor="drawers-with-door">Avec porte</Label></div>
+      <div><Label htmlFor="drawer-position">Position des tiroirs</Label><Select value={config.tiroirs.position} onValueChange={(position:'haut'|'bas') => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,position}});}}><SelectTrigger id="drawer-position"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="haut">{config.nombrePortes > 0 ? 'Au-dessus de la porte' : 'En haut'}</SelectItem><SelectItem value="bas">{config.nombrePortes > 0 ? 'Au-dessous de la porte' : 'En bas'}</SelectItem></SelectContent></Select></div>
       {config.tiroirs.hauteurs.map((height,index) => <div key={index} className="flex items-end gap-2">
         <div className="min-w-0 flex-1"><Label htmlFor={`drawer-height-${index}`}>Hauteur face tiroir {index+1} (mm)</Label><Input id={`drawer-height-${index}`} type="number" min="1" value={height} onChange={e => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,hauteurs:config.tiroirs.hauteurs.map((h,i) => i === index ? Number(e.target.value) : h)}});}} /></div>
         <Button variant="ghost" size="icon" title={`Supprimer la face tiroir ${index+1}`} aria-label={`Supprimer la face tiroir ${index+1}`} onClick={() => {if (!config.tiroirs) return; const heights=config.tiroirs.hauteurs.filter((_,i) => i !== index); onChange({...config,tiroirs:heights.length ? {...config.tiroirs,hauteurs:heights} : undefined});}}><Trash2 className="h-4 w-4" /></Button>
       </div>)}
-      <Button variant="outline" size="sm" onClick={() => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,hauteurs:[...config.tiroirs.hauteurs,150]}});}}><Plus className="mr-2 h-4 w-4" />Ajouter une face de tiroir</Button>
+      <p aria-live="polite" className="text-sm text-muted-foreground">Hauteur restante, jeux déduits : <span className="font-medium text-foreground">{formatMm(layout.frontFreeHeight)} mm</span></p>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" disabled={nextFrontHeight <= 0} onClick={() => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,hauteurs:[...config.tiroirs.hauteurs,Math.min(150,nextFrontHeight)]}});}}><Plus className="mr-2 h-4 w-4" />Ajouter une face de tiroir</Button>
+        {config.nombrePortes === 0 && layout.frontFreeHeight > 0 && <Button variant="outline" size="sm" onClick={() => {if (!config.tiroirs) return; const last=config.tiroirs.hauteurs.length-1; onChange({...config,tiroirs:{...config.tiroirs,hauteurs:config.tiroirs.hauteurs.map((h,i) => i === last ? h+layout.frontFreeHeight : h)}});}}>Compléter avec la dernière face</Button>}
+      </div>
     </div>}
     {(bands || config.tiroirs) && config.nombrePortes > 0 && <p className="text-sm text-muted-foreground">Hauteur de porte : <span className="font-medium text-foreground">{formatMm(Math.max(0,layout.doorHeight))} mm</span></p>}
   </div>;
