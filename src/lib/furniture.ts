@@ -71,9 +71,8 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   const depth = c.profondeur - (overlay ? c.epaisseurPortes + 2 : 0) - (c.dosType === 'en-applique' ? c.epaisseurDos : 0);
   const stacks = c.tiroirsCompartiments ? [c.tiroirsCompartiments.gauche,c.tiroirsCompartiments.droite] : [c.tiroirs?.hauteurs ?? []];
   const drawerHeights = stacks.reduce((largest,stack) => stack.reduce((s,h) => s+h+2,0) > largest.reduce((s,h) => s+h+2,0) ? stack : largest, [] as number[]);
-  const drawerSpace = drawerHeights.reduce((sum,h) => sum+h,0)
-    + Math.max(0,drawerHeights.length-1)*2
-    + (drawerHeights.length > 0 && c.nombrePortes > 0 ? 2 : 0);
+  const stackSpace = (heights:number[]) => heights.reduce((sum,h) => sum+h,0) + Math.max(0,heights.length-1)*2 + (heights.length > 0 && c.nombrePortes > 0 ? 2 : 0);
+  const drawerSpace = stackSpace(drawerHeights);
   // A covered band shares the 2 mm joint symmetrically with the next front.
   const topOverlay = topBandEnd ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1.5;
   const bottomOverlay = bottomBandEnd ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1.5;
@@ -88,6 +87,7 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   return {topPanel,bottomPanel,topInset,bottomInset,topBandEnd,bottomBandEnd,depth,overlay,drawerSpace,bayWidth,dividerDepth:depth-(c.dosParCompartiment && c.dosType === 'en-rainure' ? c.decalageDos : innerBack)-dividerFront,
     doorHeight: c.hauteur - doorTop - doorBottom,
     frontFreeHeight: c.hauteur - topOverlay - bottomOverlay - drawerSpace,
+    drawerRemaining: {gauche:c.hauteur-topOverlay-bottomOverlay-stackSpace(c.tiroirsCompartiments?.gauche ?? []),droite:c.hauteur-topOverlay-bottomOverlay-stackSpace(c.tiroirsCompartiments?.droite ?? [])},
     openingHeight: c.hauteur - topInset - bottomInset - (c.bandeauHaut?.hauteur ?? 0) - (c.bandeauBas?.hauteur ?? 0)};
 };
 
