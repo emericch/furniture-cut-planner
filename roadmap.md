@@ -1,5 +1,7 @@
 # Optimisation
 
+- [ ] Simplify the cabinet drawing and option labels; verify text containment at narrow, tablet and desktop widths without changing calculations.
+
 - [x] Add centered intermediate upright, continuous/split backs with 5 mm grooves and compartment shelves without panel intersections.
 - [x] Support common fronts and separate left/right drawer fronts; replace accumulated controls with clickable drawing and short steps.
 - [x] Test dimensions, clearances and actual addition/export across new combinations and screen sizes.
