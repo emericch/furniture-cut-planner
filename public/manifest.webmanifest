@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "Générateur de Débit Meuble",
+  "short_name": "Débit Meuble",
+  "description": "Outil de menuiserie par Emeric Chenay",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#815f31",
+  "background_color": "#f9f7f5",
+  "icons": [
+    {"src": "/app-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}
