@@ -1,5 +1,9 @@
 # Optimisation
 
+- [x] Add centered intermediate upright, continuous/split backs with 5 mm grooves and compartment shelves without panel intersections.
+- [x] Support common fronts and separate left/right drawer fronts; replace accumulated controls with clickable drawing and short steps.
+- [x] Test dimensions, clearances and actual addition/export across new combinations and screen sizes.
+
 - [x] Clarify dimensional rules for fixed bands, overlay fronts, drawer fronts only and fixed/mobile shelves.
 - [x] Add conditional band/drawer controls, fixed-shelf counts and shared layout calculations; prevent unsupported grooved backs without horizontal panels.
 - [x] Pass 40 regression tests including 240 new-option combinations; verify sink/hood additions, PDF parts and layouts at 320/390/820/1280 px in Chromium.
