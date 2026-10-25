@@ -1,6 +1,6 @@
 # Optimisation
 
-- [ ] Simplify the cabinet drawing and option labels; verify text containment at narrow, tablet and desktop widths without changing calculations.
+- [x] Simplify the cabinet drawing and option labels; verify all four steps and furniture addition at 320/390/820/1280 px without changing calculations (49 regression tests pass).
 
 - [x] Add centered intermediate upright, continuous/split backs with 5 mm grooves and compartment shelves without panel intersections.
 - [x] Support common fronts and separate left/right drawer fronts; replace accumulated controls with clickable drawing and short steps.
