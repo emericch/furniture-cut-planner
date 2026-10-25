@@ -1,6 +1,7 @@
 /// <reference types="bun" />
 import { describe, expect, test } from 'bun:test';
 import { generateMeubleItems, validateConfig, compareSize, escapeHtml, type FurnitureConfig } from './furniture';
+import auditFixtures from './furniture.audit-fixtures.json';
 
 const base: FurnitureConfig = {hauteur:2000,largeur:800,profondeur:350,epaisseurMontants:19,epaisseurTraverses:19,epaisseurRayons:19,epaisseurDos:3,epaisseurPortes:19,montantsTouteHauteur:true,traversesTouteLargeur:false,nombreRayons:2,dosType:'aucun',nombrePortes:0,typePorte:'interieur',retraitRayons:0,decalageDos:0};
 const piece = (c: Partial<FurnitureConfig>, name: string) => {
@@ -43,6 +44,46 @@ describe('Concrete manufacturing rules', () => {
   test('22 mm supported on every panel', () => expect(validateConfig({...base,epaisseurMontants:22,epaisseurTraverses:22,epaisseurRayons:22,epaisseurDos:22,epaisseurPortes:22})).toEqual([]));
 });
 describe('Invalid configurations and full matrix', () => {
+  test('all 60 complete cutting lists match independently calculated numeric references', () => {
+    for (const fixture of auditFixtures) {
+      const config = fixture.config as FurnitureConfig;
+      expect(validateConfig(config)).toEqual([]);
+      expect(generateMeubleItems(config)).toEqual(fixture.expected);
+    }
+  });
+  test('all permitted panel thickness combinations reconstruct overall dimensions and door clearances', () => {
+    for (const fixture of auditFixtures) {
+      for (const epaisseurMontants of [8,16,19,22]) for (const epaisseurTraverses of [8,16,19,22])
+      for (const epaisseurRayons of [8,16,19,22]) for (const epaisseurDos of [3,8,16,19,22]) for (const epaisseurPortes of [16,19,22]) {
+        const c = {...fixture.config,epaisseurMontants,epaisseurTraverses,epaisseurRayons,epaisseurDos,epaisseurPortes} as FurnitureConfig;
+        if (c.dosType === 'en-rainure' && (epaisseurMontants <= 10 || epaisseurTraverses <= 10)) {
+          expect(validateConfig(c).length).toBeGreaterThan(0);
+          continue;
+        }
+        expect(validateConfig(c)).toEqual([]);
+        const items = generateMeubleItems(c);
+        const [side,,top,,shelf] = items;
+        expect(side.longueur + (c.montantsTouteHauteur ? 0 : 2*epaisseurTraverses)).toBe(2000);
+        expect(top.longueur + (c.traversesTouteLargeur ? 0 : 2*epaisseurMontants)).toBe(800);
+        const front = c.nombrePortes > 0 && c.typePorte === 'applique' ? epaisseurPortes + 2 : 0;
+        const rear = c.dosType === 'en-applique' ? epaisseurDos : 0;
+        const innerBack = c.dosType !== 'aucun' && c.dosType !== 'en-applique' ? epaisseurDos + 10 : 0;
+        expect(side.largeur + front + rear + (c.dosType === 'toute-largeur' ? innerBack : 0)).toBe(350);
+        expect(top.largeur + front + rear + (c.dosType === 'toute-hauteur' ? innerBack : 0)).toBe(350);
+        expect(shelf.largeur + front + rear + innerBack + 5 + (c.nombrePortes > 0 && c.typePorte === 'interieur' ? epaisseurPortes + 10 : 0)).toBe(350);
+        expect(shelf.longueur + 2*epaisseurMontants).toBe(800);
+        expect(shelf.epaisseur).toBe(epaisseurRayons);
+        const doors = items.filter(i => i.nom.startsWith('Porte'));
+        expect(doors.length).toBe(c.nombrePortes);
+        if (doors.length > 0) {
+          const overlay = c.typePorte === 'applique';
+          expect(doors.reduce((sum,d) => sum+d.longueur,0) + (doors.length === 2 ? 2 : 0) + (overlay ? 3 : 6 + 2*epaisseurMontants)).toBe(800);
+          expect(doors[0].largeur + (overlay ? 3 : 6 + 2*epaisseurTraverses)).toBe(2000);
+          expect(doors.every(d => d.epaisseur === epaisseurPortes)).toBe(true);
+        }
+      }
+    }
+  });
   test('reject nonfinite and nonpositive overall dimensions', () => {
     for (const hauteur of [0,-1,NaN,Infinity]) expect(validateConfig({...base,hauteur}).length).toBeGreaterThan(0);
   });
