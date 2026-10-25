@@ -48,7 +48,8 @@ describe('Invalid configurations and full matrix', () => {
     for (const fixture of auditFixtures) {
       const config = fixture.config as FurnitureConfig;
       expect(validateConfig(config)).toEqual([]);
-      expect(generateMeubleItems(config)).toEqual(fixture.expected);
+      // Historic references predate the confirmed 1 mm mobile-shelf clearance.
+      expect(generateMeubleItems(config)).toEqual(fixture.expected.map(i => i.nom === 'Rayon' ? {...i,longueur:i.longueur-1} : i));
     }
   });
   test('all permitted panel thickness combinations reconstruct overall dimensions and door clearances', () => {
@@ -71,7 +72,7 @@ describe('Invalid configurations and full matrix', () => {
         expect(side.largeur + front + rear + (c.dosType === 'toute-largeur' ? innerBack : 0)).toBe(350);
         expect(top.largeur + front + rear + (c.dosType === 'toute-hauteur' ? innerBack : 0)).toBe(350);
         expect(shelf.largeur + front + rear + innerBack + 5 + (c.nombrePortes > 0 && c.typePorte === 'interieur' ? epaisseurPortes + 10 : 0)).toBe(350);
-        expect(shelf.longueur + 2*epaisseurMontants).toBe(800);
+        expect(shelf.longueur + 2*epaisseurMontants + 1).toBe(800);
         expect(shelf.epaisseur).toBe(epaisseurRayons);
         const doors = items.filter(i => i.nom.startsWith('Porte'));
         expect(doors.length).toBe(c.nombrePortes);
@@ -118,4 +119,75 @@ describe('Invalid configurations and full matrix', () => {
     expect([b,a].sort(compareSize)[0]).toBe(a); expect(a.longueur).toBe(756);
   });
   test('export escapes executable names', () => expect(escapeHtml('<img src=x onerror="alert(1)">')).toBe('&lt;img src=x onerror=&quot;alert(1)&quot;&gt;'));
+});
+
+describe('Fixed bands, drawer fronts and fixed shelves', () => {
+  const band = {hauteur:150,remplaceTraverse:true,faceApplique:false};
+  test('mobile shelves deduct 1 mm total while fixed shelves have no width clearance', () => {
+    expect(piece({},'Rayon').longueur).toBe(761);
+    expect(piece({nombreRayonsFixes:1},'Rayon fixe')).toMatchObject({longueur:762,epaisseur:19,quantite:1});
+  });
+  test('top band replaces top panel and uses traverse thickness between sides', () => {
+    const c = {...base,bandeauHaut:band};
+    expect(generateMeubleItems(c).some(i => i.nom === 'Traverse haute')).toBe(false);
+    expect(piece(c,'Bandeau haut')).toMatchObject({longueur:762,largeur:150,epaisseur:19});
+    expect(piece({...c,montantsTouteHauteur:false,traversesTouteLargeur:true},'Montant gauche').longueur).toBe(1981);
+    expect(piece({...c,nombrePortes:1},'Porte (intérieur)').largeur).toBe(1825);
+  });
+  test('bottom band replaces bottom panel and lengthens sides when full-width panel is removed', () => {
+    const c={...base,bandeauBas:band,montantsTouteHauteur:false,traversesTouteLargeur:true};
+    expect(generateMeubleItems(c).some(i => i.nom === 'Traverse basse')).toBe(false);
+    expect(piece(c,'Montant gauche').longueur).toBe(1981);
+    expect(piece(c,'Bandeau bas').longueur).toBe(762);
+  });
+  test('additional band retains its horizontal panel and deducts panel thickness from opening', () => {
+    const c={bandeauHaut:{...band,remplaceTraverse:false},nombrePortes:1 as const};
+    expect(piece(c,'Traverse haute').longueur).toBe(762);
+    expect(piece(c,'Porte (intérieur)').largeur).toBe(1806);
+  });
+  test('covered top band respects 1.5 mm outer gap and 2 mm face-to-door joint', () => {
+    const c={bandeauHaut:{...band,faceApplique:true},nombrePortes:1 as const,typePorte:'applique' as const};
+    const face=piece(c,'Face fixe haut (applique)'); const door=piece(c,'Porte (applique)');
+    expect(face).toMatchObject({longueur:797,largeur:147.5,epaisseur:19});
+    expect(door.largeur).toBe(1847.5);
+    expect(face.largeur+door.largeur+2+3).toBe(2000);
+    expect(piece(c,'Montant gauche').largeur).toBe(329);
+  });
+  test('fixed overlay face without any doors still deducts thickness plus 2 mm in depth', () => expect(piece({bandeauBas:{...band,faceApplique:true}},'Montant gauche').largeur).toBe(329));
+  test('drawer fronts above and below overlay doors have 2 mm joints and do not change width', () => {
+    for (const position of ['haut','bas'] as const) {
+      const c={tiroirs:{position,hauteurs:[150,200]},nombrePortes:2 as const,typePorte:'applique' as const};
+      expect(piece(c,`Face tiroir 1 (${position})`)).toMatchObject({longueur:797,largeur:150,epaisseur:19});
+      expect(piece(c,'Porte gauche (applique)')).toMatchObject({longueur:397.5,largeur:1643});
+      expect(150+200+1643+2*2+3).toBe(2000);
+      expect(piece(c,'Montant gauche').largeur).toBe(329);
+    }
+  });
+  test('overlay drawer plus inset door deducts overlay depth once and inset shelf setback separately', () => {
+    const c={tiroirs:{position:'haut' as const,hauteurs:[150]},nombrePortes:1 as const};
+    expect(piece(c,'Montant gauche').largeur).toBe(329);
+    expect(piece(c,'Rayon').largeur).toBe(300);
+    expect(piece(c,'Porte (intérieur)').largeur).toBe(1804);
+  });
+  test('two covered bands and two drawers reserve all front joints exactly once', () => {
+    const c={bandeauHaut:{...band,faceApplique:true},bandeauBas:{...band,faceApplique:true},tiroirs:{position:'bas' as const,hauteurs:[100,120]},nombrePortes:1 as const,typePorte:'applique' as const};
+    const items=generateMeubleItems({...base,...c});
+    const frontHeight=items.filter(i => i.nom.startsWith('Face') || i.nom.startsWith('Porte')).reduce((sum,i) => sum+i.largeur,0);
+    expect(frontHeight+4*2+3).toBe(2000);
+  });
+  test('reject invalid bands, drawer heights, exhausted openings and unsupported open grooves', () => {
+    for (const c of [{bandeauHaut:{...band,hauteur:0}},{bandeauBas:{...band,hauteur:2000}},{tiroirs:{position:'haut' as const,hauteurs:[-1]}},{tiroirs:{position:'bas' as const,hauteurs:[2000]},nombrePortes:1 as const},{nombreRayonsFixes:1.5},{bandeauHaut:band,dosType:'en-rainure' as const}]) expect(validateConfig({...base,...c}).length).toBeGreaterThan(0);
+  });
+  test('removed panels adjust back heights without subtracting vertical band heights', () => {
+    expect(piece({bandeauHaut:band,dosType:'entre-montants-traverses'},'Dos').largeur).toBe(1981);
+    expect(piece({bandeauHaut:band,bandeauBas:band,dosType:'toute-largeur'},'Dos').largeur).toBe(2000);
+  });
+  test('combined new options remain positive across both assemblies, all back poses and door modes', () => {
+    for (const fixture of auditFixtures) for (const position of ['haut','bas'] as const) for (const replace of [false,true]) {
+      const c={...fixture.config,nombreRayonsFixes:1,bandeauHaut:{...band,remplaceTraverse:replace,faceApplique:true},bandeauBas:{...band,remplaceTraverse:replace},tiroirs:{position,hauteurs:[100,120]}} as FurnitureConfig;
+      if (c.dosType === 'en-rainure' && replace) {expect(validateConfig(c).length).toBeGreaterThan(0);continue;}
+      expect(validateConfig(c)).toEqual([]);
+      expect(generateMeubleItems(c).every(i => i.longueur>0 && i.largeur>0 && i.epaisseur>0)).toBe(true);
+    }
+  });
 });
