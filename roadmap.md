@@ -1,5 +1,9 @@
 # Optimisation
 
+- [ ] Clarify dimensional rules for fixed bands, overlay fronts, drawers and fixed shelves.
+- [ ] Add compact conditional controls and shared calculations for the confirmed new options.
+- [ ] Test clearances, invalid combinations, existing regressions and the new cutting-list flows.
+
 - [x] Generate and inspect a 60-variant cutting-list PDF/CSV; compare 422 rows with independent numeric references, test 57,600 thickness combinations, and reject impossible back/door depths even without shelves (28 tests pass).
 
 - [x] Audit calculations and clarify construction rules.
