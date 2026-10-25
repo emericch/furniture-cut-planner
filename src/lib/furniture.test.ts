@@ -1,3 +1,4 @@
+/// <reference types="bun" />
 import { describe, expect, test } from 'bun:test';
 import { generateMeubleItems, validateConfig, compareSize, escapeHtml, type FurnitureConfig } from './furniture';
 

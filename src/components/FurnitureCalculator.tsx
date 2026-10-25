@@ -4,8 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Calculator, FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
+import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { generateMeubleItems, validateConfig, compareSize, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
 import logo from '@/assets/ours-logo.png.asset.json';
@@ -227,10 +226,12 @@ const FurnitureCalculator: React.FC = () => {
           </body>
         </html>
       `);
-      printWindow.document.close();
       printWindow.onafterprint = () => printWindow.close();
-      printWindow.onload = () => printWindow.print();
-      setTimeout(() => { if (!printWindow.closed) printWindow.print(); }, 300);
+      let requested = false;
+      const requestPrint = () => { if (!requested && !printWindow.closed) { requested = true; printWindow.print(); } };
+      printWindow.onload = requestPrint;
+      printWindow.document.close();
+      setTimeout(requestPrint, 500);
     } else { toast.error('Autorisez les fenêtres d’impression dans votre navigateur.'); }
   };
 
@@ -332,7 +333,7 @@ const FurnitureCalculator: React.FC = () => {
         {/* En-tête simplifié */}
         <div className="text-center">
           <h1 className="text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
-            <img src={logo.url} alt="Logo Emeric Chenay" className="h-12 w-16 shrink-0 object-contain" />
+            <img src={logo.url} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/app-icon-192.png'; }} alt="Logo Emeric Chenay" className="h-12 w-16 shrink-0 object-contain" />
             Générateur de Débit Meuble
           </h1>
         </div>
@@ -346,7 +347,7 @@ const FurnitureCalculator: React.FC = () => {
                 <CardTitle className="text-lg">Dimensions hors-tout (mm)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="hauteur" className="text-sm">Hauteur</Label>
                     <Input
@@ -702,7 +703,7 @@ const FurnitureCalculator: React.FC = () => {
                       <CardTitle className="text-base flex items-center justify-between">
                         Ajouter une pièce personnalisée
                         <Button
-                          onClick={() => setShowAddForm(false)}
+                          aria-label="Fermer le formulaire" onClick={() => setShowAddForm(false)}
                           size="sm"
                           variant="ghost"
                         >
@@ -912,7 +913,7 @@ const FurnitureCalculator: React.FC = () => {
       <footer className="mt-8 pt-6 border-t border-border">
         <div className="text-center text-sm text-muted-foreground">
           <p className="flex flex-wrap items-center justify-center gap-2">
-            <img src={logo.url} alt="" className="h-8 w-10 object-contain" /><span>Créé par</span>
+            <img src={logo.url} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/app-icon-192.png'; }} alt="" className="h-8 w-10 object-contain" /><span>Créé par</span>
             <span className="font-semibold text-foreground">Emeric Chenay</span>
             <span>•</span>
             <span>2026</span>
