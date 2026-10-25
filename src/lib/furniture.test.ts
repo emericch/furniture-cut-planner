@@ -1,6 +1,6 @@
 /// <reference types="bun" />
 import { describe, expect, test } from 'bun:test';
-import { generateMeubleItems, validateConfig, compareSize, escapeHtml, type FurnitureConfig } from './furniture';
+import { generateMeubleItems, getFurnitureLayout, validateConfig, compareSize, escapeHtml, type FurnitureConfig } from './furniture';
 import auditFixtures from './furniture.audit-fixtures.json';
 
 const base: FurnitureConfig = {hauteur:2000,largeur:800,profondeur:350,epaisseurMontants:19,epaisseurTraverses:19,epaisseurRayons:19,epaisseurDos:3,epaisseurPortes:19,montantsTouteHauteur:true,traversesTouteLargeur:false,nombreRayons:2,dosType:'aucun',nombrePortes:0,typePorte:'interieur',retraitRayons:0,decalageDos:0};
@@ -123,6 +123,27 @@ describe('Invalid configurations and full matrix', () => {
 
 describe('Fixed bands, drawer fronts and fixed shelves', () => {
   const band = {hauteur:150,remplaceTraverse:true,faceApplique:false};
+  test('drawer-only remaining height counts 1.5 mm outer edges and only actual 2 mm joints', () => {
+    for (const position of ['haut','bas'] as const) {
+      const c={...base,nombreRayons:0,tiroirs:{position,hauteurs:[150,200]}};
+      expect(getFurnitureLayout(c).frontFreeHeight).toBe(1645);
+      expect(generateMeubleItems(c).filter(i => i.nom.startsWith('Porte'))).toHaveLength(0);
+      expect(validateConfig(c)).toEqual([]);
+      const filled={...c,tiroirs:{position,hauteurs:[150,1845]}};
+      expect(getFurnitureLayout(filled).frontFreeHeight).toBe(0);
+      expect(validateConfig(filled)).toEqual([]);
+      expect(validateConfig({...c,tiroirs:{position,hauteurs:[150,1846]}}).length).toBeGreaterThan(0);
+    }
+  });
+  test('remaining door height includes drawer joint while drawer-only bands reserve the fixed-front joint', () => {
+    expect(getFurnitureLayout({...base,nombrePortes:1,typePorte:'applique',tiroirs:{position:'haut',hauteurs:[150,200]}}).doorHeight).toBe(1643);
+    const c={...base,nombreRayons:0,bandeauHaut:{...band,faceApplique:true},tiroirs:{position:'haut' as const,hauteurs:[100,120]}};
+    expect(getFurnitureLayout(c).frontFreeHeight).toBe(1625.5);
+    const filled={...c,tiroirs:{position:'haut' as const,hauteurs:[100,1745.5]}};
+    expect(validateConfig(filled)).toEqual([]);
+    const faces=generateMeubleItems(filled).filter(i => i.nom.startsWith('Face'));
+    expect(faces.reduce((sum,i) => sum+i.largeur,0)+2*2+3).toBe(2000);
+  });
   test('mobile shelves deduct 1 mm total while fixed shelves have no width clearance', () => {
     expect(piece({},'Rayon').longueur).toBe(761);
     expect(piece({nombreRayonsFixes:1},'Rayon fixe')).toMatchObject({longueur:762,epaisseur:19,quantite:1});

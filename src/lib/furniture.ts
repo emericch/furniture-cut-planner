@@ -66,7 +66,9 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   const overlay = (c.nombrePortes > 0 && c.typePorte === 'applique') || !!c.bandeauHaut?.faceApplique || !!c.bandeauBas?.faceApplique || !!c.tiroirs?.hauteurs.length;
   const depth = c.profondeur - (overlay ? c.epaisseurPortes + 2 : 0) - (c.dosType === 'en-applique' ? c.epaisseurDos : 0);
   const drawerHeights = c.tiroirs?.hauteurs ?? [];
-  const drawerSpace = drawerHeights.reduce((sum,h) => sum+h+2,0);
+  const drawerSpace = drawerHeights.reduce((sum,h) => sum+h,0)
+    + Math.max(0,drawerHeights.length-1)*2
+    + (drawerHeights.length > 0 && c.nombrePortes > 0 ? 2 : 0);
   // A covered band shares the 2 mm joint symmetrically with the next front.
   const topOverlay = topBandEnd ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1.5;
   const bottomOverlay = bottomBandEnd ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1.5;
