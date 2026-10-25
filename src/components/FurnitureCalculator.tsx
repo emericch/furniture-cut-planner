@@ -11,6 +11,7 @@ import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
 import { AssemblyIllustration } from './FurnitureIllustrations';
+import { FurnitureExtras } from './FurnitureExtras';
 
 const FurnitureCalculator: React.FC = () => {
   const [config, setConfig] = useState<FurnitureConfig>({
@@ -25,6 +26,7 @@ const FurnitureCalculator: React.FC = () => {
     montantsTouteHauteur: true,
     traversesTouteLargeur: false,
     nombreRayons: 2,
+    nombreRayonsFixes: 0,
     dosType: 'aucun',
     nombrePortes: 0,
     typePorte: 'interieur',
@@ -478,6 +480,8 @@ const FurnitureCalculator: React.FC = () => {
                   <AssemblyIllustration 
                     montantsTouteHauteur={config.montantsTouteHauteur}
                     traversesTouteLargeur={config.traversesTouteLargeur}
+                    topPanel={!config.bandeauHaut?.remplaceTraverse}
+                    bottomPanel={!config.bandeauBas?.remplaceTraverse}
                   />
                 </CardTitle>
               </CardHeader>
@@ -521,9 +525,9 @@ const FurnitureCalculator: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Rayons */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="nombre-rayons" className="text-sm">Nombre de rayons</Label>
+    <Label htmlFor="nombre-rayons" className="text-sm">Rayons mobiles</Label>
                     <Input
                       id="nombre-rayons"
                       type="number"
@@ -545,7 +549,11 @@ const FurnitureCalculator: React.FC = () => {
                 </div>
 
                 {/* Dos */}
-                <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="nombre-rayons-fixes" className="text-sm">Rayons fixes</Label>
+                  <Input id="nombre-rayons-fixes" type="number" min="0" value={config.nombreRayonsFixes ?? 0} onChange={e => setConfig({...config,nombreRayonsFixes:Number(e.target.value)})} />
+                </div>
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="type-dos" className="text-sm">Type de dos</Label>
                     <Select 
@@ -588,7 +596,7 @@ const FurnitureCalculator: React.FC = () => {
                 </div>
 
                 {/* Portes */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="nombre-portes" className="text-sm">Nombre de portes</Label>
                     <Select 
@@ -626,6 +634,7 @@ const FurnitureCalculator: React.FC = () => {
                 </div>
 
                 {/* Nom du meuble */}
+                <FurnitureExtras config={config} onChange={setConfig} />
                 <div>
                   <Label htmlFor="meuble-nom" className="text-sm">Nom du meuble (optionnel)</Label>
                   <Input
