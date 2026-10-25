@@ -6,9 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Trash2 } from 'lucide-react';
 import { getFurnitureLayout, formatMm, type FurnitureConfig } from '@/lib/furniture';
 
-interface Props { config: FurnitureConfig; onChange: (config: FurnitureConfig) => void }
+interface Props { config: FurnitureConfig; onChange: (config: FurnitureConfig) => void; showDrawers?: boolean }
 
-export function FurnitureExtras({config, onChange}: Props) {
+export function FurnitureExtras({config, onChange, showDrawers=true}: Props) {
   const layout = getFurnitureLayout(config);
   const bands = !!config.bandeauHaut || !!config.bandeauBas;
   const nextFrontHeight = layout.frontFreeHeight - 2;
@@ -41,10 +41,10 @@ export function FurnitureExtras({config, onChange}: Props) {
         </div>;
       })}
     </div>}
-    <div className="flex items-center gap-3">
+    {showDrawers && <div className="flex items-center gap-3">
       <Checkbox id="enable-drawers" checked={!!config.tiroirs} onCheckedChange={checked => onChange({...config,tiroirs:checked ? {position:'haut',hauteurs:[150]} : undefined})} />
       <Label htmlFor="enable-drawers">Meuble à tiroirs</Label>
-    </div>
+    </div>}
     {config.tiroirs && <div className="space-y-3 pl-1">
       <div className="flex items-center gap-3"><Checkbox id="drawers-with-door" checked={config.nombrePortes > 0} onCheckedChange={checked => onChange({...config,nombrePortes:checked ? 1 : 0})} /><Label htmlFor="drawers-with-door">Avec porte</Label></div>
       <div><Label htmlFor="drawer-position">Position des tiroirs</Label><Select value={config.tiroirs.position} onValueChange={(position:'haut'|'bas') => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,position}});}}><SelectTrigger id="drawer-position"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="haut">{config.nombrePortes > 0 ? 'Au-dessus de la porte' : 'En haut'}</SelectItem><SelectItem value="bas">{config.nombrePortes > 0 ? 'Au-dessous de la porte' : 'En bas'}</SelectItem></SelectContent></Select></div>
