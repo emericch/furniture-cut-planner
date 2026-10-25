@@ -1,5 +1,7 @@
 # Optimisation
 
+- [ ] Generate a cutting-list report for all 60 assembly/back/door variants and independently verify every piece dimension and thickness combination.
+
 - [x] Audit calculations and clarify construction rules.
 - [x] Isolate and test dimensional rules; correct confirmed errors (22 tests / 60 variants).
 - [x] Improve readable layouts across phone, tablet and desktop.
