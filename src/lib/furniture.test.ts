@@ -18,7 +18,18 @@ describe('Concrete manufacturing rules', () => {
     expect(piece({nombrePortes:1},'Rayon').largeur).toBe(321);
     expect(piece({nombrePortes:1},'Montant gauche').largeur).toBe(350);
   });
-  test('overlay door and back deduct each thickness exactly once', () => expect(piece({nombrePortes:1,typePorte:'applique',dosType:'en-applique'},'Rayon').largeur).toBe(328));
+  test('overlay doors alone deduct a 2 mm operating gap from cabinet and shelf depths', () => {
+    for (const nombrePortes of [1, 2] as const) {
+      for (const nom of ['Montant gauche', 'Montant droit', 'Traverse haute', 'Traverse basse', 'Rayon']) {
+        expect(piece({nombrePortes,typePorte:'applique'},nom).largeur).toBe(329);
+      }
+    }
+    expect(piece({nombrePortes:0,typePorte:'applique'},'Montant gauche').largeur).toBe(350);
+    expect(piece({nombrePortes:0,typePorte:'applique'},'Rayon').largeur).toBe(350);
+    expect(piece({nombrePortes:1,typePorte:'interieur'},'Montant gauche').largeur).toBe(350);
+    expect(piece({nombrePortes:1,typePorte:'interieur'},'Rayon').largeur).toBe(321);
+  });
+  test('overlay door and back deduct each thickness and operating gap exactly once', () => expect(piece({nombrePortes:1,typePorte:'applique',dosType:'en-applique'},'Rayon').largeur).toBe(326));
   test('shelf setback is additional to inset-door clearance', () => expect(piece({nombrePortes:1,retraitRayons:5},'Rayon').largeur).toBe(316));
   test('full-height back shortens top/bottom by thickness plus rear offset', () => expect(piece({dosType:'toute-hauteur',decalageDos:10},'Traverse haute').largeur).toBe(337));
   test('full-width back shortens sides by thickness plus rear offset', () => expect(piece({dosType:'toute-largeur',decalageDos:10},'Montant gauche').largeur).toBe(337));
@@ -42,7 +53,7 @@ describe('Invalid configurations and full matrix', () => {
     for (const whole of [true,false]) for (const dosType of ['aucun','toute-hauteur','toute-largeur','en-applique','entre-montants-traverses','en-rainure'] as const) for (const [nombrePortes,typePorte] of [[0,'interieur'],[1,'interieur'],[2,'interieur'],[1,'applique'],[2,'applique']] as const) {
       const c = {...base,montantsTouteHauteur:whole,traversesTouteLargeur:!whole,dosType,nombrePortes,typePorte};
       expect(validateConfig(c)).toEqual([]);
-      expect(piece(c,'Rayon').largeur).toBe(350-(nombrePortes ? (typePorte === 'interieur' ? 29 : 19) : 0)-(dosType === 'aucun' ? 0 : 3));
+      expect(piece(c,'Rayon').largeur).toBe(350-(nombrePortes ? (typePorte === 'interieur' ? 29 : 21) : 0)-(dosType === 'aucun' ? 0 : 3));
     }
   });
   test('sort by largest side without rotating the piece', () => {
