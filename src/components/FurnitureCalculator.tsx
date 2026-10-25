@@ -4,58 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Calculator, FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
+import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { generateMeubleItems, validateConfig, compareSize, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
+import logo from '@/assets/ours-logo.png.asset.json';
+import { toast } from 'sonner';
+export type { FurnitureConfig } from '@/lib/furniture';
 import { AssemblyIllustration } from './FurnitureIllustrations';
-
-export interface FurnitureConfig {
-  // Dimensions générales
-  hauteur: number;
-  largeur: number;
-  profondeur: number;
-  
-  // Épaisseurs
-  epaisseurMontants: number;
-  epaisseurTraverses: number;
-  epaisseurRayons: number;
-  epaisseurDos: number;
-  epaisseurPortes: number;
-  
-  // Configuration montants/traverses
-  montantsTouteHauteur: boolean;
-  traversesTouteLargeur: boolean;
-  
-  // Rayons
-  nombreRayons: number;
-  
-  // Dos
-  dosType: 'aucun' | 'toute-hauteur' | 'toute-largeur' | 'en-applique' | 'entre-montants-traverses';
-  
-  // Portes
-  nombrePortes: 0 | 1 | 2;
-  typePorte: 'applique' | 'interieur';
-
-  // Options
-  retraitRayons: number;
-  decalageDos: number;
-}
-
-interface CutSheetItem {
-  nom: string;
-  longueur: number;
-  largeur: number;
-  epaisseur: number;
-  quantite: number;
-}
-
-interface MeubleGroup {
-  id: string;
-  nom: string;
-  config: FurnitureConfig;
-  items: CutSheetItem[];
-  dateAjout: Date;
-}
 
 const FurnitureCalculator: React.FC = () => {
   const [config, setConfig] = useState<FurnitureConfig>({
@@ -92,176 +47,20 @@ const FurnitureCalculator: React.FC = () => {
   const [editingMeubleId, setEditingMeubleId] = useState<string | null>(null);
   const [editingNom, setEditingNom] = useState('');
 
+  const [order, setOrder] = useState<'meuble' | 'taille'>('meuble');
+  const validationErrors = validateConfig(config);
+  const sortedRows = [...meubleGroups.flatMap(g => g.items.map(item => ({item, meuble: g.nom}))), ...customItems.map(item => ({item, meuble: 'Pièces personnalisées'}))].sort((a,b) => compareSize(a.item,b.item));
+
   const epaisseurs = [8, 16, 19, 22];
   const epaisseursDos = [3, 8, 16, 19, 22];
   const epaisseursPortes = [16, 19, 22];
 
-  const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => {
-    const items: CutSheetItem[] = [];
-    
-    // Calcul des profondeurs utiles (mesures totales, portes et dos compris)
-    const hasDoorApplique = config.nombrePortes > 0 && config.typePorte === 'applique';
-    const profondeurBase = 
-      config.profondeur 
-      - (hasDoorApplique ? config.epaisseurPortes : 0) 
-      - (config.dosType === 'en-applique' ? config.epaisseurDos : 0);
-    
-    // Profondeur des montants (réduite si dos toute largeur)
-    const profondeurMontants = profondeurBase - 
-      (config.dosType === 'toute-largeur' ? config.epaisseurDos + config.decalageDos : 0);
-    
-    // Profondeur des traverses (réduite si dos toute hauteur)
-    const profondeurTraverses = profondeurBase - 
-      (config.dosType === 'toute-hauteur' ? config.epaisseurDos + config.decalageDos : 0);
-    
-    // Profondeur des rayons
-    const profondeurRayons = 
-      profondeurBase 
-      - (config.dosType === 'toute-hauteur' || config.dosType === 'toute-largeur' || config.dosType === 'entre-montants-traverses' ? config.epaisseurDos + config.decalageDos : 0)
-      - (config.retraitRayons || 0)
-      - (config.nombrePortes > 0 && config.typePorte === 'interieur' ? config.epaisseurPortes : 0);
-    
-    // Calcul des montants
-    const hauteurMontants = config.montantsTouteHauteur 
-      ? config.hauteur 
-      : config.hauteur - (2 * config.epaisseurTraverses);
-    
-    items.push({
-      nom: 'Montant gauche',
-      longueur: hauteurMontants,
-      largeur: profondeurMontants,
-      epaisseur: config.epaisseurMontants,
-      quantite: 1
-    });
-    
-    items.push({
-      nom: 'Montant droit',
-      longueur: hauteurMontants,
-      largeur: profondeurMontants,
-      epaisseur: config.epaisseurMontants,
-      quantite: 1
-    });
-
-    // Calcul des traverses
-    const largeurTraverses = config.traversesTouteLargeur 
-      ? config.largeur 
-      : config.largeur - (2 * config.epaisseurMontants);
-    
-    items.push({
-      nom: 'Traverse haute',
-      longueur: largeurTraverses,
-      largeur: profondeurTraverses,
-      epaisseur: config.epaisseurTraverses,
-      quantite: 1
-    });
-    
-    items.push({
-      nom: 'Traverse basse',
-      longueur: largeurTraverses,
-      largeur: profondeurTraverses,
-      epaisseur: config.epaisseurTraverses,
-      quantite: 1
-    });
-
-    // Calcul des rayons
-    if (config.nombreRayons > 0) {
-      const largeurRayons = config.largeur - (2 * config.epaisseurMontants);
-      
-      items.push({
-        nom: 'Rayon',
-        longueur: largeurRayons,
-        largeur: profondeurRayons,
-        epaisseur: config.epaisseurRayons,
-        quantite: config.nombreRayons
-      });
-    }
-
-    // Calcul du dos (si présent)
-    if (config.dosType !== 'aucun') {
-      let hauteurDos = config.hauteur;
-      let largeurDos = config.largeur;
-      
-      switch (config.dosType) {
-        case 'toute-hauteur':
-          largeurDos = config.largeur - (2 * config.epaisseurMontants);
-          break;
-        case 'toute-largeur':
-          hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
-          break;
-        case 'en-applique':
-          // Aucune déduction, dimensions complètes
-          break;
-        case 'entre-montants-traverses':
-          hauteurDos = config.hauteur - (2 * config.epaisseurTraverses);
-          largeurDos = config.largeur - (2 * config.epaisseurMontants);
-          break;
-      }
-      
-      items.push({
-        nom: 'Dos',
-        longueur: largeurDos,
-        largeur: hauteurDos,
-        epaisseur: config.epaisseurDos,
-        quantite: 1
-      });
-    }
-
-    // Calcul des portes (si présentes)
-    if (config.nombrePortes > 0) {
-      const jeuPeripherique = 3;
-      let hauteurUtile, largeurUtile;
-      
-      if (config.typePorte === 'applique') {
-        // Porte en applique: dimensions extérieures du meuble
-        hauteurUtile = config.hauteur;
-        largeurUtile = config.largeur;
-      } else {
-        // Porte en intérieur: dimensions réduites par les montants/traverses
-        hauteurUtile = config.hauteur - (2 * config.epaisseurTraverses) - (2 * jeuPeripherique);
-        largeurUtile = config.largeur - (2 * config.epaisseurMontants) - (2 * jeuPeripherique);
-      }
-      
-      // Profondeur des portes
-      let profondeurPortes = config.epaisseurPortes;
-      
-      if (config.nombrePortes === 1) {
-        items.push({
-          nom: config.typePorte === 'applique' ? 'Porte (applique)' : 'Porte (intérieur)',
-          longueur: largeurUtile,
-          largeur: hauteurUtile,
-          epaisseur: profondeurPortes,
-          quantite: 1
-        });
-      } else if (config.nombrePortes === 2) {
-        const jeuEntrePortes = 3;
-        const largeurPorte = (largeurUtile - jeuEntrePortes) / 2;
-        
-        items.push({
-          nom: config.typePorte === 'applique' ? 'Porte gauche (applique)' : 'Porte gauche (intérieur)',
-          longueur: largeurPorte,
-          largeur: hauteurUtile,
-          epaisseur: profondeurPortes,
-          quantite: 1
-        });
-        
-        items.push({
-          nom: config.typePorte === 'applique' ? 'Porte droite (applique)' : 'Porte droite (intérieur)',
-          longueur: largeurPorte,
-          largeur: hauteurUtile,
-          epaisseur: profondeurPortes,
-          quantite: 1
-        });
-      }
-    }
-
-    return items;
-  };
-
   const addMeubleToSheet = () => {
+    if (validationErrors.length) { toast.error(validationErrors[0]); return; }
     const items = generateMeubleItems(config);
     const nomMeuble = meubleNom.trim() || `Meuble ${meubleCounter}`;
     const newMeuble: MeubleGroup = {
-      id: `meuble-${Date.now()}`,
+      id: crypto.randomUUID(),
       nom: nomMeuble,
       config: { ...config },
       items: items,
@@ -300,9 +99,9 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const addCustomItem = () => {
-    if (newItem.nom && newItem.longueur && newItem.largeur && newItem.epaisseur && newItem.quantite) {
+    if (newItem.nom?.trim() && [newItem.longueur, newItem.largeur, newItem.epaisseur].every(n => typeof n === 'number' && Number.isFinite(n) && n > 0) && typeof newItem.quantite === 'number' && Number.isInteger(newItem.quantite) && newItem.quantite > 0 && newItem.longueur && newItem.largeur && newItem.epaisseur) {
       const item: CutSheetItem = {
-        nom: newItem.nom,
+        nom: newItem.nom.trim(),
         longueur: newItem.longueur,
         largeur: newItem.largeur,
         epaisseur: newItem.epaisseur,
@@ -317,7 +116,7 @@ const FurnitureCalculator: React.FC = () => {
         quantite: 1
       });
       setShowAddForm(false);
-    }
+    } else { toast.error("Saisissez un nom, des dimensions positives et une quantité entière positive."); }
   };
 
   const removeCustomItem = (index: number) => {
@@ -338,7 +137,7 @@ const FurnitureCalculator: React.FC = () => {
     
     if (printWindow) {
       printWindow.document.write(`
-        <html>
+        <html lang="fr">
           <head>
             <title>Feuille de Débit</title>
             <style>
@@ -421,26 +220,30 @@ const FurnitureCalculator: React.FC = () => {
             </div>
             ${generatePrintContent()}
             <div class="print-footer" style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #bbb; text-align: center; font-size: 10px; color: #666;">
-              <p style="margin: 2px 0;">Développé par <strong>Emeric Chenay</strong> • 2025</p>
-              <p style="margin: 2px 0;">Outil professionnel de menuiserie pour la génération de feuilles de débit</p>
+              <img src="/favicon.png" width="24" height="24" alt="" /><p style="margin: 2px 0;">Créé par <strong>Emeric Chenay</strong> • 2026</p>
+              <p style="margin: 2px 0;">superdebitcoupe@proton.me</p>
             </div>
           </body>
         </html>
       `);
+      printWindow.onafterprint = () => printWindow.close();
+      let requested = false;
+      const requestPrint = () => { if (!requested && !printWindow.closed) { requested = true; printWindow.print(); } };
+      printWindow.onload = requestPrint;
       printWindow.document.close();
-      printWindow.print();
-      printWindow.close();
-    }
+      setTimeout(requestPrint, 500);
+    } else { toast.error('Autorisez les fenêtres d’impression dans votre navigateur.'); }
   };
 
   const generatePrintContent = () => {
+    if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sortedRows.map(({item,meuble}) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
     let content = '';
     
     meubleGroups.forEach((groupe, index) => {
       content += `
         <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? 'border-top: 1px solid #bbb; padding-top: 6px;' : ''}">
           <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
-            ${groupe.nom} (${groupe.config.hauteur}×${groupe.config.largeur}×${groupe.config.profondeur}mm)
+            ${escapeHtml(groupe.nom)} (${groupe.config.hauteur}×${groupe.config.largeur}×${groupe.config.profondeur}mm)
           </div>
           <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
             <thead>
@@ -455,7 +258,7 @@ const FurnitureCalculator: React.FC = () => {
             <tbody>
               ${groupe.items.map(item => `
                 <tr style="border-bottom: 1px solid #ddd;">
-                  <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${item.nom}</td>
+                  <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.longueur}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.largeur}</td>
@@ -487,7 +290,7 @@ const FurnitureCalculator: React.FC = () => {
             <tbody>
               ${customItems.map(item => `
                 <tr style="border-bottom: 1px solid #ddd;">
-                  <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${item.nom}</td>
+                  <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.longueur}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.largeur}</td>
@@ -506,63 +309,22 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const handleExportPDF = async () => {
-    const { jsPDF } = await import('jspdf');
-    const html2canvas = (await import('html2canvas')).default;
-    
-    // Créer un élément temporaire avec le contenu à exporter
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = `
-      <div style="padding: 15px; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.2; background: #ffffff; color: #000;">
-        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #bbb; padding-bottom: 10px;">
-          <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 5px 0;">FEUILLE DE DÉBIT</h1>
-          <p style="font-size: 11px; margin: 0;">${new Date().toLocaleDateString('fr-FR')}</p>
-        </div>
-        ${generatePrintContent()}
-        <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #bbb; text-align: center; font-size: 10px; color: #666;">
-          <p style="margin: 2px 0;">Développé par <strong>Emeric Chenay</strong> • 2025</p>
-          <p style="margin: 2px 0;">Outil professionnel de menuiserie pour la génération de feuilles de débit</p>
-        </div>
-      </div>
-    `;
-    
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.width = '750px';
-    tempDiv.style.backgroundColor = 'white';
-    document.body.appendChild(tempDiv);
-
     try {
-      const canvas = await html2canvas(tempDiv, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff'
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      const imgWidth = 190;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 10;
-
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight + 10;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
+      const { jsPDF } = await import('jspdf');
+      const { default: autoTable } = await import('jspdf-autotable');
+      const pdf = new jsPDF();
+      pdf.setFontSize(16); pdf.text('FEUILLE DE DÉBIT', 14, 15);
+      pdf.setFontSize(9); pdf.text(new Date().toLocaleDateString('fr-FR'), 14, 21);
+      const sections = order === 'taille'
+        ? [{title: 'Pièces par taille décroissante', rows: sortedRows.map(({item,meuble}) => [meuble+' · '+item.nom,item.quantite,formatMm(item.longueur),formatMm(item.largeur),item.epaisseur])}]
+        : [...meubleGroups.map(g => ({title: g.nom+' — '+g.config.hauteur+' × '+g.config.largeur+' × '+g.config.profondeur+' mm',rows: g.items.map(i => [i.nom,i.quantite,formatMm(i.longueur),formatMm(i.largeur),i.epaisseur])})), ...(customItems.length ? [{title:'Pièces personnalisées',rows:customItems.map(i => [i.nom,i.quantite,formatMm(i.longueur),formatMm(i.largeur),i.epaisseur])}] : [])];
+      const body = sections.flatMap(section => [[{content:section.title,colSpan:5,styles:{fontStyle:'bold' as const,fillColor:255}}], ...section.rows]);
+      autoTable(pdf, {startY:27, margin:{left:14,right:14,bottom:24}, head:[['Pièce','Qté','L (mm)','l (mm)','e (mm)']], body, theme:'plain', styles:{fontSize:9,cellPadding:2,textColor:0,lineColor:210,lineWidth:0.1,overflow:'linebreak'}, headStyles:{fillColor:255,textColor:0,fontStyle:'bold'}, rowPageBreak:'avoid'});
+      const page = pdf.getNumberOfPages(); pdf.setPage(page);
+      pdf.setFontSize(8); pdf.text('Emeric Chenay · 2026 · superdebitcoupe@proton.me',14,285);
+      pdf.addImage('/favicon.png','PNG',183,278,10,10);
       pdf.save(`feuille-debit-${new Date().toISOString().split('T')[0]}.pdf`);
-    } catch (error) {
-      console.error('Erreur lors de la génération du PDF:', error);
-    } finally {
-      document.body.removeChild(tempDiv);
-    }
+    } catch { toast.error('Impossible de créer le PDF. Réessayez ou utilisez Imprimer.'); }
   };
 
   return (
@@ -570,13 +332,13 @@ const FurnitureCalculator: React.FC = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* En-tête simplifié */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold flex items-center justify-center gap-2">
-            <Calculator className="h-6 w-6 text-primary" />
+          <h1 className="text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
+            <img src={logo.url} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/app-icon-192.png'; }} alt="Logo Emeric Chenay" className="h-12 w-16 shrink-0 object-contain" />
             Générateur de Débit Meuble
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* Configuration */}
           <div className="space-y-4">
             {/* Dimensions principales */}
@@ -585,7 +347,7 @@ const FurnitureCalculator: React.FC = () => {
                 <CardTitle className="text-lg">Dimensions hors-tout (mm)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="hauteur" className="text-sm">Hauteur</Label>
                     <Input
@@ -623,14 +385,14 @@ const FurnitureCalculator: React.FC = () => {
                 <CardTitle className="text-lg">Épaisseurs (mm)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   <div>
-                    <Label className="text-xs">Montants</Label>
+                    <Label htmlFor="epaisseur-montants" className="text-xs">Montants</Label>
                     <Select 
                       value={config.epaisseurMontants.toString()} 
                       onValueChange={(value) => setConfig({...config, epaisseurMontants: Number(value)})}
                     >
-                      <SelectTrigger className="h-9">
+                      <SelectTrigger id="epaisseur-montants" className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -641,12 +403,12 @@ const FurnitureCalculator: React.FC = () => {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs">Traverses</Label>
+                    <Label htmlFor="epaisseur-traverses" className="text-xs">Traverses</Label>
                     <Select 
                       value={config.epaisseurTraverses.toString()} 
                       onValueChange={(value) => setConfig({...config, epaisseurTraverses: Number(value)})}
                     >
-                      <SelectTrigger className="h-9">
+                      <SelectTrigger id="epaisseur-traverses" className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -657,12 +419,12 @@ const FurnitureCalculator: React.FC = () => {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs">Rayons</Label>
+                    <Label htmlFor="epaisseur-rayons" className="text-xs">Rayons</Label>
                     <Select 
                       value={config.epaisseurRayons.toString()} 
                       onValueChange={(value) => setConfig({...config, epaisseurRayons: Number(value)})}
                     >
-                      <SelectTrigger className="h-9">
+                      <SelectTrigger id="epaisseur-rayons" className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -673,12 +435,12 @@ const FurnitureCalculator: React.FC = () => {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs">Dos</Label>
+                    <Label htmlFor="epaisseur-dos" className="text-xs">Dos</Label>
                     <Select 
                       value={config.epaisseurDos.toString()} 
                       onValueChange={(value) => setConfig({...config, epaisseurDos: Number(value)})}
                     >
-                      <SelectTrigger className="h-9">
+                      <SelectTrigger id="epaisseur-dos" className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -689,12 +451,12 @@ const FurnitureCalculator: React.FC = () => {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs">Portes</Label>
+                    <Label htmlFor="epaisseur-portes" className="text-xs">Portes</Label>
                     <Select 
                       value={config.epaisseurPortes.toString()} 
                       onValueChange={(value) => setConfig({...config, epaisseurPortes: Number(value)})}
                     >
-                      <SelectTrigger className="h-9">
+                      <SelectTrigger id="epaisseur-portes" className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -720,7 +482,7 @@ const FurnitureCalculator: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-center space-x-4">
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
                   <Label 
                     htmlFor="assembly-toggle" 
                     className={`text-sm font-medium transition-colors ${config.montantsTouteHauteur ? 'text-foreground' : 'text-muted-foreground'}`}
@@ -730,6 +492,7 @@ const FurnitureCalculator: React.FC = () => {
                   
                   <Switch 
                     id="assembly-toggle"
+                    aria-label="Traverses toute largeur"
                     checked={config.traversesTouteLargeur}
                     onCheckedChange={(checked) => {
                       setConfig({
@@ -784,7 +547,7 @@ const FurnitureCalculator: React.FC = () => {
                 {/* Dos */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm">Type de dos</Label>
+                    <Label htmlFor="type-dos" className="text-sm">Type de dos</Label>
                     <Select 
                       value={config.dosType} 
                       onValueChange={(value: any) => {
@@ -795,7 +558,7 @@ const FurnitureCalculator: React.FC = () => {
                         setConfig(newConfig);
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="type-dos">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -804,6 +567,7 @@ const FurnitureCalculator: React.FC = () => {
                         <SelectItem value="toute-largeur">Toute largeur</SelectItem>
                         <SelectItem value="en-applique">En applique</SelectItem>
                         <SelectItem value="entre-montants-traverses">Entre montants et traverses</SelectItem>
+                        <SelectItem value="en-rainure">Entre montants et traverses · rainure 10 mm</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -826,12 +590,12 @@ const FurnitureCalculator: React.FC = () => {
                 {/* Portes */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm">Nombre de portes</Label>
+                    <Label htmlFor="nombre-portes" className="text-sm">Nombre de portes</Label>
                     <Select 
                       value={config.nombrePortes.toString()} 
                       onValueChange={(value) => setConfig({...config, nombrePortes: Number(value) as 0 | 1 | 2})}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="nombre-portes">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -844,12 +608,12 @@ const FurnitureCalculator: React.FC = () => {
                   
                   {config.nombrePortes > 0 && (
                     <div>
-                      <Label className="text-sm">Type de pose</Label>
+                      <Label htmlFor="type-pose" className="text-sm">Type de pose</Label>
                       <Select 
                         value={config.typePorte} 
                         onValueChange={(value: any) => setConfig({...config, typePorte: value})}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="type-pose">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -872,7 +636,8 @@ const FurnitureCalculator: React.FC = () => {
                   />
                 </div>
 
-                <Button onClick={addMeubleToSheet} className="w-full" size="lg">
+                {validationErrors.length > 0 && <p role="alert" className="text-sm text-destructive">{validationErrors[0]}</p>}
+                <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="w-full" size="lg">
                   <Plus className="mr-2 h-4 w-4" />
                   Ajouter à la feuille de débit
                 </Button>
@@ -884,12 +649,12 @@ const FurnitureCalculator: React.FC = () => {
           <div>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center justify-between text-lg">
+                <CardTitle className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between text-lg">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-primary" />
                     Feuille de débit
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {(meubleGroups.length > 0 || customItems.length > 0) && (
                       <>
                         <Button
@@ -924,14 +689,21 @@ const FurnitureCalculator: React.FC = () => {
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="min-w-0">
+                <div className="mb-4 max-w-xs">
+                  <Label htmlFor="sheet-order">Classement</Label>
+                  <Select value={order} onValueChange={v => setOrder(v as 'meuble' | 'taille')}>
+                    <SelectTrigger id="sheet-order"><SelectValue /></SelectTrigger>
+                    <SelectContent><SelectItem value="meuble">Par meuble</SelectItem><SelectItem value="taille">Par taille · grande dimension décroissante</SelectItem></SelectContent>
+                  </Select>
+                </div>
                 {showAddForm && (
                   <Card className="mb-4 border-primary/20">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-base flex items-center justify-between">
                         Ajouter une pièce personnalisée
                         <Button
-                          onClick={() => setShowAddForm(false)}
+                          aria-label="Fermer le formulaire" onClick={() => setShowAddForm(false)}
                           size="sm"
                           variant="ghost"
                         >
@@ -949,7 +721,7 @@ const FurnitureCalculator: React.FC = () => {
                         />
                       </div>
                       
-                      <div className="grid grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div>
                           <Label className="text-xs">Longueur (mm)</Label>
                           <Input
@@ -987,7 +759,7 @@ const FurnitureCalculator: React.FC = () => {
                           <Input
                             type="number"
                             min="1"
-                            value={newItem.quantite || 1}
+                            value={newItem.quantite ?? ''}
                             onChange={(e) => setNewItem({ ...newItem, quantite: Number(e.target.value) })}
                           />
                         </div>
@@ -1011,13 +783,14 @@ const FurnitureCalculator: React.FC = () => {
 
                 {(meubleGroups.length > 0 || customItems.length > 0) ? (
                   <div className="space-y-4">
+                    {order === 'taille' && <div className="divide-y divide-border">{sortedRows.map(({item,meuble},index) => <div key={index} className="py-3"><p className="text-sm text-muted-foreground break-words">{meuble}</p><p className="font-medium break-words">{item.nom}</p><p className="text-sm">{formatMm(item.longueur)} × {formatMm(item.largeur)} × {item.epaisseur} mm · Qté {item.quantite}</p></div>)}</div>}
                     {/* Groupes de meubles */}
-                    {meubleGroups.map((groupe) => (
+                    {order === 'meuble' && meubleGroups.map((groupe) => (
                        <Card key={groupe.id} className="border-l-4 border-l-primary">
                          <CardHeader className="pb-2">
                            <div className="flex items-center justify-between">
                              {editingMeubleId === groupe.id ? (
-                               <div className="flex items-center gap-2 flex-1">
+                               <div className="flex min-w-0 items-center gap-2 flex-1">
                                  <Input
                                    value={editingNom}
                                    onChange={(e) => setEditingNom(e.target.value)}
@@ -1029,40 +802,42 @@ const FurnitureCalculator: React.FC = () => {
                                    autoFocus
                                  />
                                  <Button
-                                   onClick={saveEditedMeubleName}
+                                   aria-label="Enregistrer le nom" onClick={saveEditedMeubleName}
                                    size="sm"
                                    variant="ghost"
-                                   className="h-6 w-6 p-0 text-green-600 hover:text-green-700"
+                                   className="h-11 w-11 shrink-0 p-0 text-primary"
                                  >
                                    <Check className="h-3 w-3" />
                                  </Button>
                                  <Button
-                                   onClick={cancelEditingMeuble}
+                                   aria-label="Annuler le renommage" onClick={cancelEditingMeuble}
                                    size="sm"
                                    variant="ghost"
-                                   className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700"
+                                   className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
                                  >
                                    <X className="h-3 w-3" />
                                  </Button>
                                </div>
                              ) : (
                                <>
-                                 <div className="flex items-center gap-2 flex-1">
-                                   <CardTitle className="text-base">{groupe.nom}</CardTitle>
+                                 <div className="flex min-w-0 items-center gap-2 flex-1">
+                                   <CardTitle className="min-w-0 break-all text-base">{groupe.nom}</CardTitle>
                                    <Button
+                                     aria-label={`Renommer ${groupe.nom}`} title="Renommer"
                                      onClick={() => startEditingMeuble(groupe.id, groupe.nom)}
                                      size="sm"
                                      variant="ghost"
-                                     className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700"
+                                     className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
                                    >
                                      <Edit2 className="h-3 w-3" />
                                    </Button>
                                  </div>
                                  <Button
+                                   aria-label={`Supprimer ${groupe.nom}`} title={`Supprimer ${groupe.nom}`}
                                    onClick={() => removeMeubleGroup(groupe.id)}
                                    size="sm"
                                    variant="ghost"
-                                   className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                   className="h-11 w-11 shrink-0 p-0 text-destructive"
                                  >
                                    <Trash2 className="h-3 w-3" />
                                  </Button>
@@ -1078,7 +853,7 @@ const FurnitureCalculator: React.FC = () => {
                             <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
                               <div className="flex-1">
                                 <h5 className="font-medium text-sm">{item.nom}</h5>
-                                <div className="grid grid-cols-4 gap-2 text-xs text-muted-foreground">
+                                <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-4">
                                   <div>L: {item.longueur}mm</div>
                                   <div>l: {item.largeur}mm</div>
                                   <div>Ép: {item.epaisseur}mm</div>
@@ -1092,7 +867,7 @@ const FurnitureCalculator: React.FC = () => {
                     ))}
 
                     {/* Pièces personnalisées */}
-                    {customItems.length > 0 && (
+                    {order === 'meuble' && customItems.length > 0 && (
                       <Card className="border-l-4 border-l-secondary">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-base">Pièces personnalisées</CardTitle>
@@ -1102,7 +877,7 @@ const FurnitureCalculator: React.FC = () => {
                             <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
                               <div className="flex-1">
                                 <h5 className="font-medium text-sm">{item.nom}</h5>
-                                <div className="grid grid-cols-4 gap-2 text-xs text-muted-foreground">
+                                <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-4">
                                   <div>L: {item.longueur}mm</div>
                                   <div>l: {item.largeur}mm</div>
                                   <div>Ép: {item.epaisseur}mm</div>
@@ -1110,10 +885,10 @@ const FurnitureCalculator: React.FC = () => {
                                 </div>
                               </div>
                               <Button
-                                onClick={() => removeCustomItem(index)}
+                                aria-label={`Supprimer ${item.nom}`} onClick={() => removeCustomItem(index)}
                                 size="sm"
                                 variant="ghost"
-                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                className="h-11 w-11 shrink-0 p-0 text-destructive"
                               >
                                 <X className="h-3 w-3" />
                               </Button>
@@ -1137,15 +912,13 @@ const FurnitureCalculator: React.FC = () => {
       {/* Footer avec signature professionnelle */}
       <footer className="mt-8 pt-6 border-t border-border">
         <div className="text-center text-sm text-muted-foreground">
-          <p className="flex items-center justify-center gap-2">
-            <span>Développé par</span>
+          <p className="flex flex-wrap items-center justify-center gap-2">
+            <img src={logo.url} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/app-icon-192.png'; }} alt="" className="h-8 w-10 object-contain" /><span>Créé par</span>
             <span className="font-semibold text-foreground">Emeric Chenay</span>
             <span>•</span>
-            <span>2025</span>
+            <span>2026</span>
           </p>
-          <p className="mt-1 text-xs">
-            Outil professionnel de menuiserie pour la génération de feuilles de débit
-          </p>
+          <a className="mt-2 inline-block underline text-sm" href="mailto:superdebitcoupe@proton.me">superdebitcoupe@proton.me</a>
         </div>
       </footer>
     </div>
