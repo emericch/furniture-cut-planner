@@ -345,7 +345,6 @@ const FurnitureCalculator: React.FC = () => {
           <div className="space-y-4">
             <Card>
               <CardContent className="pt-6 space-y-4">
-                <FurnitureDesigner config={config} onChange={setConfig} />
                 {/* Nom du meuble */}
                 <div>
                   <Label htmlFor="meuble-nom" className="text-sm">Nom du meuble (optionnel)</Label>
@@ -356,6 +355,8 @@ const FurnitureCalculator: React.FC = () => {
                     placeholder="Ex: Bibliothèque salon, Placard chambre..."
                   />
                 </div>
+                <FurnitureDesigner config={config} onChange={setConfig} />
+
 
                 {validationErrors.length > 0 && <p role="alert" className="text-sm text-destructive">{validationErrors[0]}</p>}
                 <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="w-full" size="lg">
