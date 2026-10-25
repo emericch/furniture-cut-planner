@@ -44,7 +44,7 @@ export function FurnitureDesigner({config:c,onChange}:Props) {
  {drawer[side].map((h,i)=><div key={i} className="flex items-end gap-2"><Numeric label={`Face ${i+1} · hauteur (mm)`} value={h} onChange={v=>setHeights(drawer[side].map((x,j)=>j===i?v:x))}/><Button variant="ghost" size="icon" aria-label={`Supprimer tiroir ${side} ${i+1}`} onClick={()=>setHeights(drawer[side].filter((_,j)=>j!==i))}><Trash2 className="h-4 w-4"/></Button></div>)}
  <Button variant="outline" className="h-auto min-h-11 whitespace-normal" onClick={()=>setHeights([...drawer[side],150])}><Plus className="h-4 w-4 mr-2"/>Ajouter un tiroir {side}</Button><p className="text-sm text-muted-foreground">Hauteur restante commune : {formatMm(l.frontFreeHeight)} mm</p><p aria-live="polite" className="text-sm text-muted-foreground">Hauteur restante {side} : {formatMm(l.drawerRemaining[side])} mm</p>
  {c.nombrePortes===0 && drawer[side].length>0 && <Button variant="outline" className="h-auto min-h-11 whitespace-normal" disabled={l.drawerRemaining[side]<=0} onClick={()=>setHeights(drawer[side].map((h,i)=>i===drawer[side].length-1?h+l.drawerRemaining[side]:h))}>Compléter la dernière face {side}</Button>}
- </>
+ </>}
  </>
  </section></div></div></div>;
 }
