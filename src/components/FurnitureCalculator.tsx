@@ -480,6 +480,8 @@ const FurnitureCalculator: React.FC = () => {
                   <AssemblyIllustration 
                     montantsTouteHauteur={config.montantsTouteHauteur}
                     traversesTouteLargeur={config.traversesTouteLargeur}
+                    topPanel={!config.bandeauHaut?.remplaceTraverse}
+                    bottomPanel={!config.bandeauBas?.remplaceTraverse}
                   />
                 </CardTitle>
               </CardHeader>
@@ -523,7 +525,7 @@ const FurnitureCalculator: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Rayons */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-4">
                   <div>
     <Label htmlFor="nombre-rayons" className="text-sm">Rayons mobiles</Label>
                     <Input
@@ -551,7 +553,7 @@ const FurnitureCalculator: React.FC = () => {
                   <Label htmlFor="nombre-rayons-fixes" className="text-sm">Rayons fixes</Label>
                   <Input id="nombre-rayons-fixes" type="number" min="0" value={config.nombreRayonsFixes ?? 0} onChange={e => setConfig({...config,nombreRayonsFixes:Number(e.target.value)})} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="type-dos" className="text-sm">Type de dos</Label>
                     <Select 
@@ -594,7 +596,7 @@ const FurnitureCalculator: React.FC = () => {
                 </div>
 
                 {/* Portes */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="nombre-portes" className="text-sm">Nombre de portes</Label>
                     <Select 

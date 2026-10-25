@@ -70,10 +70,12 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   // A covered band shares the 2 mm joint symmetrically with the next front.
   const topOverlay = topBandEnd ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1.5;
   const bottomOverlay = bottomBandEnd ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1.5;
-  const doorTop = c.typePorte === 'applique' ? topOverlay : Math.max(topInset + 3, topBandEnd + (topBandEnd ? 3 : 0));
-  const doorBottom = c.typePorte === 'applique' ? bottomOverlay : Math.max(bottomInset + 3, bottomBandEnd + (bottomBandEnd ? 3 : 0));
+  const topDrawers = c.tiroirs?.position === 'haut' ? drawerSpace : 0;
+  const bottomDrawers = c.tiroirs?.position === 'bas' ? drawerSpace : 0;
+  const doorTop = c.typePorte === 'applique' ? topOverlay + topDrawers : Math.max(topInset + 3, topBandEnd + (topBandEnd ? 3 : 0), topDrawers ? topOverlay + topDrawers : 0);
+  const doorBottom = c.typePorte === 'applique' ? bottomOverlay + bottomDrawers : Math.max(bottomInset + 3, bottomBandEnd + (bottomBandEnd ? 3 : 0), bottomDrawers ? bottomOverlay + bottomDrawers : 0);
   return {topPanel,bottomPanel,topInset,bottomInset,topBandEnd,bottomBandEnd,depth,overlay,drawerSpace,
-    doorHeight: c.hauteur - doorTop - doorBottom - drawerSpace,
+    doorHeight: c.hauteur - doorTop - doorBottom,
     frontFreeHeight: c.hauteur - topOverlay - bottomOverlay - drawerSpace,
     openingHeight: c.hauteur - topInset - bottomInset - (c.bandeauHaut?.hauteur ?? 0) - (c.bandeauBas?.hauteur ?? 0)};
 };

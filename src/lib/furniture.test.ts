@@ -167,7 +167,7 @@ describe('Fixed bands, drawer fronts and fixed shelves', () => {
     const c={tiroirs:{position:'haut' as const,hauteurs:[150]},nombrePortes:1 as const};
     expect(piece(c,'Montant gauche').largeur).toBe(329);
     expect(piece(c,'Rayon').largeur).toBe(300);
-    expect(piece(c,'Porte (intérieur)').largeur).toBe(1804);
+    expect(piece(c,'Porte (intérieur)').largeur).toBe(1824.5);
   });
   test('two covered bands and two drawers reserve all front joints exactly once', () => {
     const c={bandeauHaut:{...band,faceApplique:true},bandeauBas:{...band,faceApplique:true},tiroirs:{position:'bas' as const,hauteurs:[100,120]},nombrePortes:1 as const,typePorte:'applique' as const};

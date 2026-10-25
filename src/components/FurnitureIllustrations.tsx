@@ -55,12 +55,16 @@ export const DimensionIllustration: React.FC<DimensionIllustrationProps> = ({ cl
 interface AssemblyIllustrationProps {
   montantsTouteHauteur: boolean;
   traversesTouteLargeur: boolean;
+  topPanel?: boolean;
+  bottomPanel?: boolean;
   className?: string;
 }
 
 export const AssemblyIllustration: React.FC<AssemblyIllustrationProps> = ({ 
   montantsTouteHauteur, 
   traversesTouteLargeur, 
+  topPanel = true,
+  bottomPanel = true,
   className 
 }) => {
   const styles = {
@@ -114,16 +118,16 @@ export const AssemblyIllustration: React.FC<AssemblyIllustrationProps> = ({
   return (
     <div className={cn("relative inline-block", className)}>
       <div style={styles.rectangle}>
-        <div style={{
+        {topPanel && <div style={{
           ...styles.part,
           ...styles.top,
           ...(traversesTouteLargeur ? styles.partActive : {})
-        }} />
-        <div style={{
+        }} />}
+        {bottomPanel && <div style={{
           ...styles.part,
           ...styles.bottom,
           ...(traversesTouteLargeur ? styles.partActive : {})
-        }} />
+        }} />}
         <div style={{
           ...styles.part,
           ...styles.left,
