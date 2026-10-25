@@ -1,0 +1,4336 @@
+[
+  {
+    "id": 1,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 345,
+        "epaisseur": 19,
+        "quantite": 2
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 324,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 324,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 332,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 332,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 342,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 313,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 313,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 321,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 321,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 332,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 332,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": true,
+      "traversesTouteLargeur": false,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 2000,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 762,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 345,
+        "epaisseur": 19,
+        "quantite": 2
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 324,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "aucun",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 324,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 332,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-hauteur",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 332,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 337,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "toute-largeur",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 316,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 342,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 313,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 347,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 313,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 321,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-applique",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 326,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 321,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 800,
+        "largeur": 2000,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 332,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "entre-montants-traverses",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 762,
+        "largeur": 1962,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 0,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 332,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 1,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (intérieur)",
+        "longueur": 756,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 2,
+      "typePorte": "interieur",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 350,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 303,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (intérieur)",
+        "longueur": 377,
+        "largeur": 1956,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 1,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte (applique)",
+        "longueur": 797,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "config": {
+      "hauteur": 2000,
+      "largeur": 800,
+      "profondeur": 350,
+      "epaisseurMontants": 19,
+      "epaisseurTraverses": 19,
+      "epaisseurRayons": 19,
+      "epaisseurDos": 3,
+      "epaisseurPortes": 19,
+      "montantsTouteHauteur": false,
+      "traversesTouteLargeur": true,
+      "nombreRayons": 2,
+      "dosType": "en-rainure",
+      "nombrePortes": 2,
+      "typePorte": "applique",
+      "retraitRayons": 5,
+      "decalageDos": 10
+    },
+    "expected": [
+      {
+        "nom": "Montant gauche",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Montant droit",
+        "longueur": 1962,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse haute",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Traverse basse",
+        "longueur": 800,
+        "largeur": 329,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Rayon",
+        "longueur": 762,
+        "largeur": 311,
+        "epaisseur": 19,
+        "quantite": 2
+      },
+      {
+        "nom": "Dos",
+        "longueur": 782,
+        "largeur": 1982,
+        "epaisseur": 3,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte gauche (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      },
+      {
+        "nom": "Porte droite (applique)",
+        "longueur": 397.5,
+        "largeur": 1997,
+        "epaisseur": 19,
+        "quantite": 1
+      }
+    ]
+  }
+]
