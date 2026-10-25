@@ -243,6 +243,13 @@ describe('Centered divider and compartment clearances', () => {
     expect(validateConfig(c)).toEqual([]);
     expect(validateConfig({...c,montantIntermediaire:undefined}).length).toBeGreaterThan(0);
   });
+  test('drawer-only bays independently fill available height with actual front joints',()=>{
+    const c={...split,tiroirsCompartiments:{position:'haut' as const,gauche:[150,200],droite:[352]}};
+    expect(getFurnitureLayout(c).drawerRemaining).toEqual({gauche:1645,droite:1645});
+    const filled={...c,tiroirsCompartiments:{position:'haut' as const,gauche:[150,1845],droite:[1997]}};
+    expect(getFurnitureLayout(filled).drawerRemaining).toEqual({gauche:0,droite:0});
+    expect(validateConfig(filled)).toEqual([]);
+  });
   test('both divider poses and backs keep positive independent compartment pieces',()=>{
     for(const fixture of auditFixtures) for(const montantIntermediaire of ['entre-traverses','toute-hauteur'] as const) for(const dosParCompartiment of [false,true]) {
       const c={...fixture.config,montantIntermediaire,dosParCompartiment,rayonsCompartiments:split.rayonsCompartiments} as FurnitureConfig;
