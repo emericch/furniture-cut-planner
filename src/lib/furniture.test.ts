@@ -35,8 +35,8 @@ describe('Concrete manufacturing rules', () => {
   test('full-height back shortens top/bottom by thickness plus rear offset', () => expect(piece({dosType:'toute-hauteur',decalageDos:10},'Traverse haute').largeur).toBe(337));
   test('full-width back shortens sides by thickness plus rear offset', () => expect(piece({dosType:'toute-largeur',decalageDos:10},'Montant gauche').largeur).toBe(337));
   test('between-panel back deducts thickness and rear offset from shelves', () => expect(piece({dosType:'entre-montants-traverses',decalageDos:10,nombrePortes:1},'Rayon').largeur).toBe(308));
-  test('10 mm groove engagement adds 20 mm to each back dimension', () => expect(piece({dosType:'en-rainure'},'Dos')).toMatchObject({longueur:782,largeur:1982}));
-  test('10 mm groove needs more than 10 mm of surrounding material', () => expect(validateConfig({...base,dosType:'en-rainure',epaisseurMontants:8}).length).toBeGreaterThan(0));
+  test('5 mm groove engagement adds 10 mm to each back dimension', () => expect(piece({dosType:'en-rainure'},'Dos')).toMatchObject({longueur:772,largeur:1972}));
+  test('5 mm exterior grooves allow 8 mm panels', () => expect(validateConfig({...base,dosType:'en-rainure',epaisseurMontants:8,epaisseurTraverses:8})).toEqual([]));
   test('3 mm only allowed for back and 8 mm not allowed for doors', () => {
     expect(validateConfig({...base,epaisseurMontants:3}).length).toBeGreaterThan(0);
     expect(validateConfig({...base,epaisseurPortes:8}).length).toBeGreaterThan(0);
@@ -49,7 +49,7 @@ describe('Invalid configurations and full matrix', () => {
       const config = fixture.config as FurnitureConfig;
       expect(validateConfig(config)).toEqual([]);
       // Historic references predate the confirmed 1 mm mobile-shelf clearance.
-      expect(generateMeubleItems(config)).toEqual(fixture.expected.map(i => i.nom === 'Rayon' ? {...i,longueur:i.longueur-1} : i));
+      expect(generateMeubleItems(config)).toEqual(fixture.expected.map(i => i.nom === 'Rayon' ? {...i,longueur:i.longueur-1} : i.nom === 'Dos' && config.dosType === 'en-rainure' ? {...i,longueur:i.longueur-10,largeur:i.largeur-10} : i));
     }
   });
   test('all permitted panel thickness combinations reconstruct overall dimensions and door clearances', () => {
@@ -57,10 +57,6 @@ describe('Invalid configurations and full matrix', () => {
       for (const epaisseurMontants of [8,16,19,22]) for (const epaisseurTraverses of [8,16,19,22])
       for (const epaisseurRayons of [8,16,19,22]) for (const epaisseurDos of [3,8,16,19,22]) for (const epaisseurPortes of [16,19,22]) {
         const c = {...fixture.config,epaisseurMontants,epaisseurTraverses,epaisseurRayons,epaisseurDos,epaisseurPortes} as FurnitureConfig;
-        if (c.dosType === 'en-rainure' && (epaisseurMontants <= 10 || epaisseurTraverses <= 10)) {
-          expect(validateConfig(c).length).toBeGreaterThan(0);
-          continue;
-        }
         expect(validateConfig(c)).toEqual([]);
         const items = generateMeubleItems(c);
         const [side,,top,,shelf] = items;
