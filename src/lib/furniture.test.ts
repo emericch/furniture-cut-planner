@@ -90,6 +90,22 @@ describe('Invalid configurations and full matrix', () => {
   test('reject fractional shelf quantity', () => expect(validateConfig({...base,nombreRayons:1.5}).length).toBeGreaterThan(0));
   test('reject zero/negative panel depth after deductions', () => expect(validateConfig({...base,nombrePortes:1,typePorte:'applique',dosType:'toute-hauteur',decalageDos:347}).length).toBeGreaterThan(0));
   test('reject shelves that consume entire internal height', () => expect(validateConfig({...base,hauteur:100,nombreRayons:10}).length).toBeGreaterThan(0));
+  test('back thickness and offset must fit even without shelves', () => {
+    for (const dosType of ['toute-hauteur','toute-largeur','entre-montants-traverses','en-rainure'] as const) {
+      expect(validateConfig({...base,nombreRayons:0,dosType,decalageDos:400}).length).toBeGreaterThan(0);
+      expect(validateConfig({...base,nombreRayons:0,dosType,decalageDos:10})).toEqual([]);
+    }
+  });
+  test('19 mm inset door must fit depth and not overlap a 3 mm back even without shelves', () => {
+    expect(validateConfig({...base,nombreRayons:0,nombrePortes:1,profondeur:10}).length).toBeGreaterThan(0);
+    expect(validateConfig({...base,nombreRayons:0,nombrePortes:1,profondeur:20,dosType:'entre-montants-traverses'}).length).toBeGreaterThan(0);
+    expect(validateConfig({...base,nombreRayons:0,nombrePortes:1,profondeur:23,dosType:'entre-montants-traverses'})).toEqual([]);
+  });
+  test('reject unsupported runtime door counts, door placements and back types', () => {
+    for (const overrides of [{nombrePortes:3},{typePorte:'invalid'},{dosType:'invalid'}]) {
+      expect(validateConfig({...base,...overrides} as FurnitureConfig).length).toBeGreaterThan(0);
+    }
+  });
   test('all 60 assembly/back/door variants maintain the intended depth', () => {
     for (const whole of [true,false]) for (const dosType of ['aucun','toute-hauteur','toute-largeur','en-applique','entre-montants-traverses','en-rainure'] as const) for (const [nombrePortes,typePorte] of [[0,'interieur'],[1,'interieur'],[2,'interieur'],[1,'applique'],[2,'applique']] as const) {
       const c = {...base,montantsTouteHauteur:whole,traversesTouteLargeur:!whole,dosType,nombrePortes,typePorte};

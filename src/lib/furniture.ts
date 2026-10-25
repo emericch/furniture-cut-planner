@@ -218,10 +218,16 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
   if (!Number.isInteger(c.nombreRayons) || c.nombreRayons < 0) errors.push('Le nombre de rayons doit être un entier positif ou nul.');
   if (![c.retraitRayons, c.decalageDos].every(n => Number.isFinite(n) && n >= 0)) errors.push('Les retraits et décalages ne peuvent pas être négatifs.');
   if (c.montantsTouteHauteur === c.traversesTouteLargeur) errors.push('Choisissez un seul montage.');
+  if (![0,1,2].includes(c.nombrePortes) || !['applique','interieur'].includes(c.typePorte) || !['aucun','toute-hauteur','toute-largeur','en-applique','entre-montants-traverses','en-rainure'].includes(c.dosType)) errors.push('Configuration de portes ou de dos non autorisée.');
   if (![8,16,19,22].includes(c.epaisseurMontants) || ![8,16,19,22].includes(c.epaisseurTraverses) || ![8,16,19,22].includes(c.epaisseurRayons) || ![3,8,16,19,22].includes(c.epaisseurDos) || ![16,19,22].includes(c.epaisseurPortes)) errors.push('Épaisseur de panneau non autorisée.');
   if (c.largeur <= 2*c.epaisseurMontants || c.hauteur <= 2*c.epaisseurTraverses) errors.push('Les panneaux ne laissent pas une ouverture intérieure positive.');
   if (c.dosType === 'en-rainure' && Math.min(c.epaisseurMontants,c.epaisseurTraverses) <= 10) errors.push('Une rainure de 10 mm exige des montants et traverses de plus de 10 mm.');
   if (c.nombreRayons*c.epaisseurRayons >= c.hauteur - 2*c.epaisseurTraverses && c.nombreRayons > 0) errors.push('Les rayons ne tiennent pas dans la hauteur disponible.');
+  const profondeurCaisson = c.profondeur - (c.nombrePortes > 0 && c.typePorte === 'applique' ? c.epaisseurPortes + 2 : 0) - (c.dosType === 'en-applique' ? c.epaisseurDos : 0);
+  const dosInterieur = c.dosType !== 'aucun' && c.dosType !== 'en-applique';
+  const profondeurLibre = profondeurCaisson - (dosInterieur ? c.epaisseurDos + c.decalageDos : 0);
+  if (dosInterieur && profondeurLibre <= 0) errors.push('Le dos et son décalage dépassent la profondeur disponible du caisson.');
+  if (c.nombrePortes > 0 && c.typePorte === 'interieur' && c.epaisseurPortes > profondeurLibre) errors.push('La porte intérieure dépasse la profondeur disponible ou chevauche le dos.');
   if (generateMeubleItems(c).some(i => ![i.longueur,i.largeur,i.epaisseur].every(n => Number.isFinite(n) && n > 0))) errors.push('Une pièce aurait une dimension nulle ou négative : réduisez les retraits ou augmentez le meuble.');
   return errors;
 };
