@@ -208,3 +208,48 @@ describe('Fixed bands, drawer fronts and fixed shelves', () => {
     }
   });
 });
+
+describe('Centered divider and compartment clearances', () => {
+  const split={...base,montantIntermediaire:'entre-traverses' as const,rayonsCompartiments:{gauche:{mobiles:2,fixes:1},droite:{mobiles:1,fixes:2}}};
+  test('centered divider subtracts one thickness and shelves stay inside each bay',()=>{
+    expect(piece(split,'Montant intermédiaire')).toMatchObject({longueur:1962,largeur:350,epaisseur:19});
+    expect(piece(split,'Rayon fixe gauche').longueur).toBe(371.5);
+    expect(piece(split,'Rayon mobile droite').longueur).toBe(370.5);
+    expect(2*371.5+3*19).toBe(800);
+    expect(generateMeubleItems(split).some(i=>i.nom==='Rayon')).toBe(false);
+  });
+  test('full-height divider splits horizontal panels rather than intersecting them',()=>{
+    const c={...split,montantIntermediaire:'toute-hauteur' as const};
+    expect(piece(c,'Montant intermédiaire').longueur).toBe(2000);
+    expect(piece(c,'Traverse haute')).toMatchObject({longueur:371.5,quantite:2});
+    expect(piece({...c,montantsTouteHauteur:false,traversesTouteLargeur:true},'Traverse haute')).toMatchObject({longueur:390.5,quantite:2});
+  });
+  test('continuous backs stop divider at front face; split grooved backs engage 5 mm on each edge',()=>{
+    expect(piece({...split,dosType:'en-rainure',decalageDos:10},'Montant intermédiaire').largeur).toBe(337);
+    expect(piece({...split,dosType:'en-rainure',dosParCompartiment:true,decalageDos:10},'Montant intermédiaire').largeur).toBe(340);
+    expect(piece({...split,dosType:'en-rainure',dosParCompartiment:true},'Dos')).toMatchObject({longueur:381.5,largeur:1972,quantite:2});
+    expect(validateConfig({...split,dosType:'en-rainure',dosParCompartiment:true,epaisseurMontants:8}).length).toBeGreaterThan(0);
+  });
+  test('divider clears continuous bands and inset doors in depth',()=>{
+    const c={...split,bandeauHaut:{hauteur:150,remplaceTraverse:true,faceApplique:true},nombrePortes:1 as const,typePorte:'interieur' as const};
+    expect(piece(c,'Montant intermédiaire')).toMatchObject({longueur:1981,largeur:310});
+    expect(validateConfig(c)).toEqual([]);
+  });
+  test('left/right drawer fronts share 2 mm center joint and reserve the taller stack for common doors',()=>{
+    const c={...split,nombrePortes:1 as const,typePorte:'applique' as const,tiroirsCompartiments:{position:'haut' as const,gauche:[150,200],droite:[352]}};
+    expect(piece(c,'Face tiroir gauche 1').longueur).toBe(397.5);
+    expect(piece(c,'Porte (applique)').largeur).toBe(1643);
+    expect(piece(c,'Montant gauche').largeur).toBe(329);
+    expect(validateConfig(c)).toEqual([]);
+    expect(validateConfig({...c,montantIntermediaire:undefined}).length).toBeGreaterThan(0);
+  });
+  test('both divider poses and backs keep positive independent compartment pieces',()=>{
+    for(const fixture of auditFixtures) for(const montantIntermediaire of ['entre-traverses','toute-hauteur'] as const) for(const dosParCompartiment of [false,true]) {
+      const c={...fixture.config,montantIntermediaire,dosParCompartiment,rayonsCompartiments:split.rayonsCompartiments} as FurnitureConfig;
+      expect(validateConfig(c)).toEqual([]);
+      const items=generateMeubleItems(c);
+      expect(items.find(i=>i.nom==='Rayon fixe droite')?.longueur).toBe(371.5);
+      expect(items.find(i=>i.nom==='Montant intermédiaire')?.largeur).toBeGreaterThan(0);
+    }
+  });
+});
