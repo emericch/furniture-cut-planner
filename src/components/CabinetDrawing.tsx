@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Columns2, Layers, PanelTop, DoorOpen } from 'lucide-react';
 import { getFurnitureLayout, formatMm, type FurnitureConfig } from '@/lib/furniture';
+import { getFrontRectangles } from '@/lib/cabinet-drawing';
 
 interface Props {
   config: FurnitureConfig;
@@ -15,41 +16,25 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
   return <figure className="min-w-0 space-y-3">
     <div className="relative mx-auto w-full max-w-[320px] aspect-[16/15]">
       <svg viewBox="0 0 320 300" className="h-full w-full" role="img" aria-label={view === 'interieur' ? 'Vue de face de la structure du meuble' : 'Vue de face des portes et tiroirs'}>
-        <rect x="22" y="12" width="276" height="276" className="fill-background stroke-border" strokeWidth="2" />
-        <g className="fill-secondary stroke-foreground" strokeWidth="1.5">
-          <rect x="22" y="12" width="12" height="276" />
-          <rect x="286" y="12" width="12" height="276" />
-          {layout.topPanel && <rect x="34" y="12" width="252" height="12" />}
-          {layout.bottomPanel && <rect x="34" y="276" width="252" height="12" />}
-          {c.bandeauHaut && <rect x="34" y="24" width="252" height="28" />}
-          {c.bandeauBas && <rect x="34" y="248" width="252" height="28" />}
-          {view === 'interieur' && divided && <rect x="154" y="24" width="12" height="252" />}
-          {view === 'interieur' && bays.map(side => {
-            const count = divided ? (c.rayonsCompartiments?.[side]?.mobiles ?? 0) + (c.rayonsCompartiments?.[side]?.fixes ?? 0) : c.nombreRayons + (c.nombreRayonsFixes ?? 0);
-            return Array.from({ length: Math.min(count, 8) }, (_, i) => <rect key={`${side}-${i}`} x={!divided || side === 'gauche' ? 34 : 166} y={60 + (i + 1) * 180 / (Math.min(count, 8) + 1)} width={divided ? 120 : 252} height="5" />);
-          })}
+        <g transform={`translate(22 12) scale(${276 / Math.max(1, c.largeur)} ${276 / Math.max(1, c.hauteur)})`}>
+          <g className="fill-secondary stroke-foreground">
+            <rect data-piece="Montant gauche" x="0" y={c.montantsTouteHauteur ? 0 : layout.topInset} width={c.epaisseurMontants} height={c.montantsTouteHauteur ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset} />
+            <rect data-piece="Montant droit" x={c.largeur-c.epaisseurMontants} y={c.montantsTouteHauteur ? 0 : layout.topInset} width={c.epaisseurMontants} height={c.montantsTouteHauteur ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset} />
+            {layout.topPanel && <rect data-piece="Traverse haute" x={c.montantsTouteHauteur ? c.epaisseurMontants : 0} y="0" width={c.largeur-(c.montantsTouteHauteur ? 2*c.epaisseurMontants : 0)} height={c.epaisseurTraverses} />}
+            {layout.bottomPanel && <rect data-piece="Traverse basse" x={c.montantsTouteHauteur ? c.epaisseurMontants : 0} y={c.hauteur-c.epaisseurTraverses} width={c.largeur-(c.montantsTouteHauteur ? 2*c.epaisseurMontants : 0)} height={c.epaisseurTraverses} />}
+            {c.bandeauHaut && <rect data-piece="Bandeau haut" x={c.epaisseurMontants} y={layout.topInset} width={c.largeur-2*c.epaisseurMontants} height={c.bandeauHaut.hauteur} />}
+            {c.bandeauBas && <rect data-piece="Bandeau bas" x={c.epaisseurMontants} y={c.hauteur-layout.bottomBandEnd} width={c.largeur-2*c.epaisseurMontants} height={c.bandeauBas.hauteur} />}
+            {view === 'interieur' && divided && <rect x={(c.largeur-c.epaisseurMontants)/2} y={c.montantIntermediaire==='toute-hauteur' ? 0 : layout.topInset} width={c.epaisseurMontants} height={c.montantIntermediaire==='toute-hauteur' ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset} />}
+            {view === 'interieur' && bays.map(side => {
+              const count = divided ? (c.rayonsCompartiments?.[side]?.mobiles ?? 0)+(c.rayonsCompartiments?.[side]?.fixes ?? 0) : c.nombreRayons+(c.nombreRayonsFixes ?? 0);
+              return Array.from({length:Math.min(count,8)},(_,i)=><rect key={`${side}-${i}`} x={side==='droite' ? (c.largeur+c.epaisseurMontants)/2 : c.epaisseurMontants} y={layout.topBandEnd+(c.hauteur-layout.topBandEnd-layout.bottomBandEnd)*(i+1)/(Math.min(count,8)+1)} width={divided ? layout.bayWidth : c.largeur-2*c.epaisseurMontants} height={c.epaisseurRayons} />);
+            })}
+          </g>
+          {view === 'facades' && <g className="fill-background stroke-foreground">{getFrontRectangles(c).map(front=><rect key={front.name} data-piece={front.name} x={front.x} y={front.y} width={Math.max(0,front.width)} height={Math.max(0,front.height)} vectorEffect="non-scaling-stroke" strokeWidth="1.5" />)}</g>}
         </g>
-        {view === 'facades' && <g className="fill-background stroke-foreground" strokeWidth="1.5">
-          {bays.map(side => {
-            const heights = c.tiroirsCompartiments?.[side] ?? c.tiroirs?.hauteurs ?? [];
-            const separate = !!c.tiroirsCompartiments;
-            if (!separate && side === 'droite') return null;
-            const x = separate && side === 'droite' ? 162 : 36;
-            const width = separate ? 122 : 248;
-            const position = c.tiroirsCompartiments?.position ?? c.tiroirs?.position;
-            let offset = 0;
-            return heights.map((h, i) => {
-              const height = Math.max(8, Math.min(210 / Math.max(1, heights.length), h / Math.max(1, c.hauteur) * 240));
-              const y = position === 'bas' ? 272 - offset - height : 28 + offset;
-              offset += height + 3;
-              return <rect key={`${side}-${i}`} x={x} y={y} width={width} height={height} />;
-            });
-          })}
-          {Array.from({ length: c.nombrePortes }, (_, i) => <rect key={i} x={36 + i * (248 / Math.max(1, c.nombrePortes))} y={c.tiroirs?.position === 'haut' || c.tiroirsCompartiments?.position === 'haut' ? 28 + Math.min(150, (c.tiroirs?.hauteurs.reduce((a, b) => a + b, 0) ?? Math.max(c.tiroirsCompartiments?.gauche.reduce((a, b) => a + b, 0) ?? 0, c.tiroirsCompartiments?.droite.reduce((a, b) => a + b, 0) ?? 0)) / Math.max(1, c.hauteur) * 240 + 6) : 28} width={248 / Math.max(1, c.nombrePortes) - 3} height={Math.max(12, Math.min(240, layout.doorHeight / Math.max(1, c.hauteur) * 240))} />)}
-        </g>}
       </svg>
       <div className="absolute inset-x-0 top-0 flex justify-center">
-        <Button variant="outline" size="icon" title="Traverses et bandeaux" aria-label="Sélectionner les traverses et bandeaux" onClick={() => onSelect(3)}><PanelTop className="h-5 w-5" /></Button>
+        <Button variant="outline" size="icon" title="Bandeaux et façades" aria-label="Sélectionner les bandeaux et façades" onClick={() => onSelect(3)}><PanelTop className="h-5 w-5" /></Button>
       </div>
       <div className="absolute inset-x-10 top-1/2 -translate-y-1/2 flex justify-around">
         {view === 'interieur' ? bays.map(side => <Button key={side} variant="outline" size="icon" title={`Rayons ${divided ? side : ''}`} aria-label={`Sélectionner les rayons ${side}`} onClick={() => onSelect(2, side)}><Layers className="h-5 w-5" /></Button>) : <Button variant="outline" size="icon" title="Portes et tiroirs" aria-label="Sélectionner les portes et tiroirs" onClick={() => onSelect(3)}><DoorOpen className="h-5 w-5" /></Button>}

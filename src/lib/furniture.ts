@@ -84,7 +84,7 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   const bayWidth = (c.largeur-3*c.epaisseurMontants)/2;
   const innerBack = c.dosType !== 'aucun' && c.dosType !== 'en-applique' ? c.epaisseurDos+c.decalageDos : 0;
   const dividerFront = Math.max(c.nombrePortes > 0 && c.typePorte === 'interieur' ? c.epaisseurPortes : 0, c.bandeauHaut || c.bandeauBas ? c.epaisseurTraverses : 0);
-  return {topPanel,bottomPanel,topInset,bottomInset,topBandEnd,bottomBandEnd,depth,overlay,drawerSpace,bayWidth,dividerDepth:depth-(c.dosParCompartiment && c.dosType === 'en-rainure' ? c.decalageDos : innerBack)-dividerFront,
+  return {topPanel,bottomPanel,topInset,bottomInset,topBandEnd,bottomBandEnd,topOverlay,bottomOverlay,doorTop,doorBottom,depth,overlay,drawerSpace,bayWidth,dividerDepth:depth-(c.dosParCompartiment && c.dosType === 'en-rainure' ? c.decalageDos : innerBack)-dividerFront,
     doorHeight: c.hauteur - doorTop - doorBottom,
     frontFreeHeight: c.hauteur - topOverlay - bottomOverlay - drawerSpace,
     drawerRemaining: {gauche:c.hauteur-topOverlay-bottomOverlay-stackSpace(c.tiroirsCompartiments?.gauche ?? []),droite:c.hauteur-topOverlay-bottomOverlay-stackSpace(c.tiroirsCompartiments?.droite ?? [])},

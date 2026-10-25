@@ -1,5 +1,7 @@
 # Optimisation
 
+- [x] Correct front coverage and removed-panel rendering; replace step navigation with continuous menus and assess novice usability (53 tests pass, 320/666/820/1280 px verified; no real-child usability test).
+
 - [x] Simplify the cabinet drawing and option labels; verify all four steps and furniture addition at 320/390/820/1280 px without changing calculations (49 regression tests pass).
 
 - [x] Add centered intermediate upright, continuous/split backs with 5 mm grooves and compartment shelves without panel intersections.
