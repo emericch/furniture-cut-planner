@@ -8,7 +8,7 @@ export interface SheetState {
   meubleCounter: number;
   order: SheetOrder;
   groupIdentical: boolean;
-  config: FurnitureConfig;
+  config?: FurnitureConfig;
   meubleNom: string;
 }
 
@@ -159,30 +159,31 @@ const isConfig = (v: unknown): v is FurnitureConfig =>
   typeof (v as FurnitureConfig).montantsTouteHauteur === 'boolean' &&
   typeof (v as FurnitureConfig).traversesTouteLargeur === 'boolean';
 
+// Ne rejette tout que si le JSON est illisible ou n'est pas un objet :
+// une entrée invalide est ignorée seule, une config de formulaire invalide est simplement absente.
 export const parseSheet = (raw: string | null): SheetState | null => {
   if (!raw) return null;
   try {
     const v = JSON.parse(raw);
-    if (!v || typeof v !== 'object') return null;
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
     if (!Array.isArray(v.meubleGroups) || !Array.isArray(v.customItems)) return null;
-    if (!v.customItems.every(isItem)) return null;
-    if (!isConfig(v.config)) return null;
     const meubleGroups: MeubleGroup[] = [];
     for (const g of v.meubleGroups) {
-      if (!g || typeof g.id !== 'string' || typeof g.nom !== 'string') return null;
-      if (!Array.isArray(g.items) || !g.items.every(isItem)) return null;
-      if (!isConfig(g.config)) return null;
+      if (!g || typeof g.id !== 'string' || typeof g.nom !== 'string') continue;
+      if (!Array.isArray(g.items) || !g.items.every(isItem)) continue;
+      if (!isConfig(g.config)) continue;
       const date = new Date(g.dateAjout);
       meubleGroups.push({ ...g, dateAjout: Number.isNaN(date.getTime()) ? new Date() : date });
     }
+    const config = isConfig(v.config) ? v.config : undefined;
     return {
       meubleGroups,
-      customItems: v.customItems,
+      customItems: v.customItems.filter(isItem),
       meubleCounter: Number.isInteger(v.meubleCounter) && v.meubleCounter > 0 ? v.meubleCounter : 1,
       order: v.order === 'taille' ? 'taille' : 'meuble',
       groupIdentical: v.groupIdentical === true,
-      config: v.config,
-      meubleNom: typeof v.meubleNom === 'string' ? v.meubleNom : '',
+      config,
+      meubleNom: config && typeof v.meubleNom === 'string' ? v.meubleNom : '',
     };
   } catch {
     return null;
