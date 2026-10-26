@@ -504,6 +504,10 @@ const FurnitureCalculator: React.FC = () => {
                     <Checkbox id="group-identical" checked={groupIdentical} onCheckedChange={checked => setGroupIdentical(checked === true)} />
                     <Label className="block leading-5" htmlFor="group-identical">Regrouper les pièces identiques</Label>
                   </div>
+                  <div className="flex items-center gap-3 [&>button]:shrink-0">
+                    <Checkbox id="show-thumbnails" checked={showThumbnails} onCheckedChange={checked => setShowThumbnails(checked === true)} />
+                    <Label className="block leading-5" htmlFor="show-thumbnails">Vues du meuble en miniature</Label>
+                  </div>
                 </div>
                 {showAddForm && (
                   <Card className="mb-4 border-primary/20">
@@ -654,6 +658,7 @@ const FurnitureCalculator: React.FC = () => {
                             <p className="text-xs text-muted-foreground">
                               {section.detail}
                             </p>
+                            {showThumbnails && <CabinetThumbnail config={groupe.config} className="mt-2" />}
                             </>
                           )}
                         </CardHeader>
