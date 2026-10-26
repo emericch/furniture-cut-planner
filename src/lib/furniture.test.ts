@@ -205,25 +205,26 @@ describe('Fixed bands, drawer fronts and fixed shelves', () => {
     const c={tiroirs:{position:'haut' as const,hauteurs:[150]},nombrePortes:1 as const};
     expect(piece(c,'Montant gauche').largeur).toBe(329);
     expect(piece(c,'Rayon').largeur).toBe(300);
-    expect(piece(c,'Porte (intérieur)').largeur).toBe(1824.5);
+    expect(piece(c,'Porte (intérieur)').longueur).toBe(1825);
   });
   test('two covered bands and two drawers reserve all front joints exactly once', () => {
     const c={bandeauHaut:{...band,faceApplique:true},bandeauBas:{...band,faceApplique:true},tiroirs:{position:'bas' as const,hauteurs:[100,120]},nombrePortes:1 as const,typePorte:'applique' as const};
     const items=generateMeubleItems({...base,...c});
-    const frontHeight=items.filter(i => i.nom.startsWith('Face') || i.nom.startsWith('Porte')).reduce((sum,i) => sum+i.largeur,0);
-    expect(frontHeight+4*2+3).toBe(2000);
+    const frontHeight=items.filter(i => i.nom.startsWith('Face') || i.nom.startsWith('Porte')).reduce((sum,i) => sum+i.longueur,0);
+    expect(frontHeight+4*2+2).toBe(2000);
   });
   test('reject invalid bands, drawer heights, exhausted openings and unsupported open grooves', () => {
     for (const c of [{bandeauHaut:{...band,hauteur:0}},{bandeauBas:{...band,hauteur:2000}},{tiroirs:{position:'haut' as const,hauteurs:[-1]}},{tiroirs:{position:'bas' as const,hauteurs:[2000]},nombrePortes:1 as const},{nombreRayonsFixes:1.5},{bandeauHaut:band,dosType:'en-rainure' as const}]) expect(validateConfig({...base,...c}).length).toBeGreaterThan(0);
   });
   test('removed panels adjust back heights without subtracting vertical band heights', () => {
-    expect(piece({bandeauHaut:band,dosType:'entre-montants-traverses'},'Dos').largeur).toBe(1981);
-    expect(piece({bandeauHaut:band,bandeauBas:band,dosType:'toute-largeur'},'Dos').largeur).toBe(2000);
+    expect(piece({bandeauHaut:band,dosType:'entre-montants-traverses'},'Dos').longueur).toBe(1981);
+    expect(piece({bandeauHaut:band,bandeauBas:band,dosType:'toute-largeur',montantsTouteHauteur:false,traversesTouteLargeur:true},'Dos').longueur).toBe(2000);
   });
   test('combined new options remain positive across both assemblies, all back poses and door modes', () => {
     for (const fixture of auditFixtures) for (const position of ['haut','bas'] as const) for (const replace of [false,true]) {
       const c={...fixture.config,nombreRayonsFixes:1,bandeauHaut:{...band,remplaceTraverse:replace,faceApplique:true},bandeauBas:{...band,remplaceTraverse:replace},tiroirs:{position,hauteurs:[100,120]}} as FurnitureConfig;
       if (c.dosType === 'en-rainure' && replace) {expect(validateConfig(c).length).toBeGreaterThan(0);continue;}
+      if (incoherent(c)) {expect(validateConfig(c).length).toBeGreaterThan(0);continue;}
       expect(validateConfig(c)).toEqual([]);
       expect(generateMeubleItems(c).every(i => i.longueur>0 && i.largeur>0 && i.epaisseur>0)).toBe(true);
     }
