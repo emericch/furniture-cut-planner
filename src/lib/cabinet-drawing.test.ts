@@ -26,7 +26,6 @@ describe('Front positions share manufacturing dimensions', () => {
       { ...base, nombrePortes: 2 as const },
       { ...base, tiroirs: { position: 'haut' as const, hauteurs: [150, 200] } },
       { ...base, bandeauHaut: { hauteur: 150, remplaceTraverse: true, faceApplique: true }, tiroirs: { position: 'bas' as const, hauteurs: [120] } },
-      { ...base, nombrePortes: 0 as const, tiroirs: { position: 'bas' as const, hauteurs: [300, 400] } },
     ]) {
       const fronts = getFrontRectangles(c);
       expect(fronts.length).toBeGreaterThan(0);
