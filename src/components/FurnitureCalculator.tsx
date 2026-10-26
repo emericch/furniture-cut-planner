@@ -406,7 +406,7 @@ const FurnitureCalculator: React.FC = () => {
         <div className="text-center">
           <h1 className="text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
             <img src={logo.url} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/app-icon-192.png'; }} alt="Logo Emeric Chenay" className="h-12 w-16 shrink-0 object-contain" />
-            Générateur de Débit Meuble
+            Débit Rapide
           </h1>
         </div>
 
