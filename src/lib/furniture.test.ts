@@ -350,3 +350,47 @@ describe('Split-back and decimal regression fixes', () => {
     expect(piece(c,'Rayon')).toMatchObject({longueur:561.12,largeur:580.72,epaisseur:19,quantite:2});
   });
 });
+
+describe('Shelf zones outside drawers, coherent assembly/back pairs, hidden bands and small-piece warnings', () => {
+  test('shelf zones stop at the drawer stack, per side', () => {
+    expect(getFurnitureLayout(base).shelfZones.gauche).toEqual({top:19,bottom:1981});
+    expect(getFurnitureLayout({...base,tiroirs:{position:'haut',hauteurs:[400]}}).shelfZones.gauche).toEqual({top:401,bottom:1981});
+    expect(getFurnitureLayout({...base,tiroirs:{position:'bas',hauteurs:[400]}}).shelfZones.gauche).toEqual({top:19,bottom:1599});
+    const split = {...base,montantIntermediaire:'entre-traverses' as const,tiroirsCompartiments:{position:'haut' as const,gauche:[400],droite:[] as number[]}};
+    expect(getFurnitureLayout(split).shelfZones.gauche.top).toBe(401);
+    expect(getFurnitureLayout(split).shelfZones.droite.top).toBe(19);
+  });
+  test('the 32 mm rule applies to the free zone outside drawers', () => {
+    expect(validateConfig({...base,nombreRayons:31})).toEqual([]);
+    expect(validateConfig({...base,nombreRayons:31,tiroirs:{position:'haut',hauteurs:[400]}})).toContain('Trop de rayons pour la place restante hors tiroirs : il faut au moins 32 mm entre deux rayons.');
+    expect(validateConfig({...base,nombreRayons:30,tiroirs:{position:'haut',hauteurs:[400]}})).toEqual([]);
+  });
+  test('incoherent assembly/back pairs are rejected with explicit messages', () => {
+    expect(validateConfig({...base,dosType:'toute-largeur'})).toContain('Un dos toute largeur nécessite l\'assemblage traverses toute largeur.');
+    expect(validateConfig({...base,montantsTouteHauteur:false,traversesTouteLargeur:true,dosType:'toute-hauteur'})).toContain('Un dos toute hauteur nécessite l\'assemblage montants toute hauteur.');
+    expect(validateConfig({...base,montantsTouteHauteur:false,traversesTouteLargeur:true,dosType:'toute-largeur'})).toEqual([]);
+    expect(validateConfig({...base,dosType:'toute-hauteur'})).toEqual([]);
+  });
+  const hidden = {hauteur:150,remplaceTraverse:true,faceApplique:false,cachePorte:true};
+  test('hidden band stays in the cut list but overlay fronts ignore it', () => {
+    const c = {...base,bandeauHaut:hidden,nombrePortes:1 as const,typePorte:'applique' as const};
+    expect(piece(c,'Bandeau haut')).toMatchObject({longueur:762,largeur:150,epaisseur:19});
+    expect(generateMeubleItems(c).some(i => i.nom.startsWith('Face fixe'))).toBe(false);
+    expect(getFurnitureLayout(c).topOverlay).toBe(1);
+    expect(piece(c,'Porte (applique)')).toMatchObject({longueur:1998,largeur:798});
+    expect(validateConfig(c)).toEqual([]);
+  });
+  test('hidden band covered by a drawer stack keeps its overlay offset', () => {
+    const c = {...base,bandeauHaut:hidden,nombrePortes:1 as const,typePorte:'applique' as const,tiroirs:{position:'haut' as const,hauteurs:[150]}};
+    expect(getFurnitureLayout(c).topOverlay).toBe(152);
+  });
+  test('hidden band requires overlay doors', () => {
+    expect(validateConfig({...base,bandeauHaut:hidden,nombrePortes:1,typePorte:'interieur'})).toContain('Un bandeau caché nécessite des portes en applique.');
+    expect(validateConfig({...base,bandeauHaut:hidden})).toContain('Un bandeau caché nécessite des portes en applique.');
+  });
+  test('small pieces raise non-blocking warnings', () => {
+    expect(getWarnings(base)).toEqual([]);
+    expect(getWarnings({...base,bandeauHaut:{hauteur:100,remplaceTraverse:true,faceApplique:false}})).toContain('Attention : Bandeau haut mesure moins de 150 mm (100 mm).');
+    expect(getWarnings({...base,hauteur:0})).toEqual([]);
+  });
+});
