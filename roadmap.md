@@ -1,5 +1,7 @@
 # Optimisation
 
+- [ ] Apply only the requested split-back dimensions, equal drawer-stack validation, 0.01 mm rounding and decimal input keyboard fixes; add regression tests and verify 147.5 entry without visual changes. Security optimization plan remains pending approval.
+
 - [x] Review recorded security scan results and dependency alerts; 53 regression tests pass. Recorded scans are stale, dependency advisories exist, and lockfiles disagree with installed jsPDF.
 - [ ] Review a fresh deep security scan before public presentation: user must run it in the Security tab.
 - [ ] Propose confirmed code-weight and maintainability optimizations for approval; do not modify application code or dependencies before approval.
