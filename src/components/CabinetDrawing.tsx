@@ -27,6 +27,9 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
   const sxSide = 156 / Math.max(1, size(c.profondeur));
   const sideW = (mm: number) => mm <= 40 ? size(mm) * T / sxSide : size(mm);
   const sideH = (mm: number) => mm <= 40 ? size(mm) * T / sy : size(mm);
+  // Jeux entre façades exagérés (3 px à l'écran) pour rester lisibles, comme les épaisseurs.
+  const frontNames = new Set(getFrontRectangles(c).map(f => f.name));
+  const joint = 3 / sy;
   return <figure className="min-w-0 space-y-3">
     <div className="flex flex-wrap items-start justify-center gap-3">
       <div className="w-full max-w-[300px]">
