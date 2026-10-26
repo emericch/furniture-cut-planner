@@ -81,6 +81,19 @@ describe('Side view shares cutting-list depths', () => {
     expect(rects.find(r => r.name === 'Montant')?.width).toBe(items.find(i => i.nom === 'Montant gauche')?.largeur);
     expect(rects.find(r => r.name === 'Rayon')?.width).toBe(items.find(i => i.nom === 'Rayon')?.largeur);
   });
+  test('shelves sit against the back panel, clearance shows at the front', () => {
+    // Dos intérieur 3 mm : le rayon le touche, le retrait de 10 mm se lit à l'avant.
+    const c = { ...base, dosType: 'entre-montants-traverses' as const, retraitRayons: 10 };
+    const layout = getFurnitureLayout(c);
+    const shelf = getSideRectangles(c).find(r => r.name === 'Rayon')!;
+    expect(shelf.x).toBe(21 + 10); // frontOffset + retrait
+    expect(shelf.x + shelf.width).toBe(21 + layout.depth - 3); // contre le dos
+    // Porte intérieure : dégagement épaisseur de porte + 10 mm entre porte et rayon.
+    const ci = { ...base, typePorte: 'interieur' as const };
+    const shelfI = getSideRectangles(ci).find(r => r.name === 'Rayon')!;
+    expect(shelfI.x).toBe(19 + 10);
+    expect(shelfI.x + shelfI.width).toBe(getFurnitureLayout(ci).depth);
+  });
   test('everything stays within the overall depth', () => {
     for (const c of [
       base,

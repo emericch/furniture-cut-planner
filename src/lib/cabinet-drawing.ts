@@ -70,7 +70,7 @@ export function getSideRectangles(c: FurnitureConfig): SideRectangle[] {
     const shown = Math.min(count, 8);
     const zone = layout.shelfZones[side];
     for (let i = 0; i < shown; i++) {
-      result.push({ name: 'Rayon', x: frontOffset, y: zone.top + (zone.bottom - zone.top) * (i + 1) / (shown + 1), width: shelfDepth, height: c.epaisseurRayons });
+      result.push({ name: 'Rayon', x: shelfX, y: zone.top + (zone.bottom - zone.top) * (i + 1) / (shown + 1), width: shelfDepth, height: c.epaisseurRayons });
     }
   }
 
