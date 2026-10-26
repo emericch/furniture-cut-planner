@@ -67,7 +67,7 @@ describe('Invalid configurations and full matrix', () => {
       if (incoherent(config)) { expect(validateConfig(config).length).toBeGreaterThan(0); continue; }
       expect(validateConfig(config)).toEqual([]);
       // Historic references predate the confirmed 1 mm mobile-shelf clearance and the 5 mm grooves.
-      expect(generateMeubleItems(config)).toEqual(fixture.expected.map(i => i.nom === 'Rayon' ? {...i,longueur:i.longueur-1} : i.nom === 'Dos' && config.dosType === 'en-rainure' ? {...i,longueur:i.longueur+10,largeur:i.largeur+10} : i));
+      expect(generateMeubleItems(config)).toEqual(fixture.expected.map(i => i.nom === 'Rayon' ? {...i,longueur:i.longueur-1} : i.nom === 'Dos' && config.dosType === 'en-rainure' ? {...i,longueur:i.longueur-10,largeur:i.largeur-10} : i));
     }
   });
   test('all permitted panel thickness combinations reconstruct overall dimensions and door clearances', () => {
