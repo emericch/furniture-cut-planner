@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { NumberField } from './NumberField';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2 } from 'lucide-react';
 import { FurnitureExtras } from './FurnitureExtras';
@@ -12,7 +11,7 @@ function Choice({label,value,options,onChange}:{label:string;value:string;option
  return <div className="min-w-0 space-y-2"><Label className="block leading-5" htmlFor={label}>{label}</Label><Select value={value} onValueChange={onChange}><SelectTrigger id={label} className="h-auto min-h-11 text-left [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words [&>span]:pr-2 [&>svg]:shrink-0"><SelectValue/></SelectTrigger><SelectContent className="max-w-[calc(100vw-2rem)]">{options.map(([v,text])=><SelectItem className="whitespace-normal" key={v} value={v}>{text}</SelectItem>)}</SelectContent></Select></div>;
 }
 function Numeric({label,value,onChange}:{label:string;value:number;onChange:(v:number)=>void}) {
- return <div className="min-w-0 flex-1 space-y-2"><Label className="block leading-5" htmlFor={label}>{label}</Label><Input id={label} type="number" min="0" value={value} onChange={e=>onChange(Number(e.target.value))}/></div>;
+  return <div className="min-w-0 flex-1 space-y-2"><NumberField id={label} label={label} value={value} min="0" onCommit={onChange}/></div>;
 }
 export function FurnitureDesigner({config:c,onChange}:Props) {
  const sections=useRef<Array<HTMLElement | null>>([]); const [side,setSide]=useState<'gauche'|'droite'>('gauche'); const [view,setView]=useState<'interieur'|'facades'>('interieur');
