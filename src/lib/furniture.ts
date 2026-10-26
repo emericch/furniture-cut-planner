@@ -345,8 +345,8 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
 export const getWarnings = (c: FurnitureConfig): string[] => {
   if (validateConfig(c).length) return [];
   const warnings: string[] = [];
-  for (const item of generateMeubleItems(c)) for (const [label, value] of [['longueur', item.longueur], ['largeur', item.largeur]] as const) {
-    if (value < 150) warnings.push(`Attention : ${item.nom} mesure moins de 150 mm (${formatMm(value)} mm en ${label}).`);
+  for (const item of generateMeubleItems(c)) for (const value of [item.longueur, item.largeur]) {
+    if (value < 150) warnings.push(`Attention : ${item.nom} mesure moins de 150 mm (${formatMm(value)} mm).`);
   }
   return warnings;
 };
