@@ -2,6 +2,7 @@ export interface FixedBand {
   hauteur: number;
   remplaceTraverse: boolean;
   faceApplique: boolean;
+  cachePorte?: boolean;
 }
 
 export interface FurnitureConfig {
@@ -77,6 +78,13 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   const topOverlay = topBandEnd ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1.5;
   const bottomOverlay = bottomBandEnd ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1.5;
   const position = c.tiroirsCompartiments?.position ?? c.tiroirs?.position;
+  const pile = (h: number[]) => h.reduce((s,x) => s+x,0) + Math.max(0,h.length-1)*2;
+  const sidePile = (side: 'gauche' | 'droite') => c.tiroirsCompartiments ? pile(c.tiroirsCompartiments[side]) : pile(c.tiroirs?.hauteurs ?? []);
+  // A band hidden behind a full-height overlay door is ignored by the fronts when no drawer stack covers it on that side.
+  const hiddenTop = (side: 'gauche' | 'droite') => !!c.bandeauHaut?.cachePorte && !(position === 'haut' && sidePile(side) > 0);
+  const hiddenBottom = (side: 'gauche' | 'droite') => !!c.bandeauBas?.cachePorte && !(position === 'bas' && sidePile(side) > 0);
+  const hiddenTopAll = hiddenTop('gauche') && hiddenTop('droite');
+  const hiddenBottomAll = hiddenBottom('gauche') && hiddenBottom('droite');
   const topDrawers = position === 'haut' ? drawerSpace : 0;
   const bottomDrawers = position === 'bas' ? drawerSpace : 0;
   const doorTop = c.typePorte === 'applique' ? topOverlay + topDrawers : Math.max(topInset + 3, topBandEnd + (topBandEnd ? 3 : 0), topDrawers ? topOverlay + topDrawers : 0);
