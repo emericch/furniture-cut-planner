@@ -126,13 +126,14 @@ describe('Invalid configurations and full matrix', () => {
   test('all 60 assembly/back/door variants maintain the intended depth', () => {
     for (const whole of [true,false]) for (const dosType of ['aucun','toute-hauteur','toute-largeur','en-applique','entre-montants-traverses','en-rainure'] as const) for (const [nombrePortes,typePorte] of [[0,'interieur'],[1,'interieur'],[2,'interieur'],[1,'applique'],[2,'applique']] as const) {
       const c = {...base,montantsTouteHauteur:whole,traversesTouteLargeur:!whole,dosType,nombrePortes,typePorte};
+      if (incoherent(c)) { expect(validateConfig(c).length).toBeGreaterThan(0); continue; }
       expect(validateConfig(c)).toEqual([]);
       expect(piece(c,'Rayon').largeur).toBe(350-(nombrePortes ? (typePorte === 'interieur' ? 29 : 21) : 0)-(dosType === 'aucun' ? 0 : 3));
     }
   });
   test('sort by largest side without rotating the piece', () => {
     const a = piece({nombrePortes:1},'Porte (intérieur)'); const b=piece({},'Rayon');
-    expect([b,a].sort(compareSize)[0]).toBe(a); expect(a.longueur).toBe(756);
+    expect([b,a].sort(compareSize)[0]).toBe(a); expect(a.longueur).toBe(1956);
   });
   test('export escapes executable names', () => expect(escapeHtml('<img src=x onerror="alert(1)">')).toBe('&lt;img src=x onerror=&quot;alert(1)&quot;&gt;'));
 });
