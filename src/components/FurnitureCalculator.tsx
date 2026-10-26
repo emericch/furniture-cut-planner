@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
 import { FurnitureDesigner } from './FurnitureDesigner';
 import { NumberField } from './NumberField';
+import { CabinetThumbnail } from './CabinetDrawing';
+import { getThumbnailViews, thumbnailSvgMarkup } from '@/lib/cabinet-drawing';
 
 const defaultConfig: FurnitureConfig = {
   hauteur: 2000,
@@ -64,12 +66,13 @@ const FurnitureCalculator: React.FC = () => {
 
   const [order, setOrder] = useState<SheetOrder>(saved?.order ?? 'meuble');
   const [groupIdentical, setGroupIdentical] = useState(saved?.groupIdentical ?? false);
+  const [showThumbnails, setShowThumbnails] = useState(saved?.showThumbnails ?? false);
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, config: formBackup?.config ?? config, meubleNom: formBackup?.meubleNom ?? meubleNom }));
+      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config: formBackup?.config ?? config, meubleNom: formBackup?.meubleNom ?? meubleNom }));
     } catch { /* stockage indisponible : la feuille reste en mémoire */ }
-  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, config, meubleNom, formBackup]);
+  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config, meubleNom, formBackup]);
 
   const validationErrors = validateConfig(config);
   const sections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
@@ -334,10 +337,12 @@ const FurnitureCalculator: React.FC = () => {
 
   const generatePrintContent = () => {
     if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
-    return sections.map((section, index) => `
+    return sections.map((section, index) => {
+      const groupe = meubleGroups.find(g => g.id === section.id);
+      return `
       <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? 'border-top: 1px solid #bbb; padding-top: 6px;' : ''}">
         <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
-          ${escapeHtml(section.nom)}${section.detail ? ` (${section.detail})` : ''}
+          ${showThumbnails && groupe ? thumbnailSvgMarkup(groupe.config, 56) : ''}${escapeHtml(section.nom)}${section.detail ? ` (${section.detail})` : ''}
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
           <thead>
@@ -362,7 +367,8 @@ const FurnitureCalculator: React.FC = () => {
           </tbody>
         </table>
       </div>
-    `).join('');
+    `;
+    }).join('');
   };
 
   const handleExportPDF = async () => {
@@ -374,10 +380,40 @@ const FurnitureCalculator: React.FC = () => {
       pdf.setFontSize(9); pdf.text(new Date().toLocaleDateString('fr-FR'), 14, 21);
       pdf.text(GRAIN_LEGEND, 14, 26);
       const pdfSections = order === 'taille'
-        ? [{ title: 'Pièces par taille décroissante', rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }]
-        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }));
-      const body = pdfSections.flatMap(section => [[{ content: section.title, colSpan: 5, styles: { fontStyle: 'bold' as const, fillColor: 255 } }], ...section.rows]);
-      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid' });
+        ? [{ title: 'Pièces par taille décroissante', config: undefined as FurnitureConfig | undefined, rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }]
+        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, config: meubleGroups.find(g => g.id === s.id)?.config, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }));
+      const thumbByRow = new Map<number, FurnitureConfig>();
+      let rowIndex = 0;
+      const body = pdfSections.flatMap(section => {
+        const withThumb = showThumbnails && section.config;
+        if (withThumb) thumbByRow.set(rowIndex, section.config!);
+        rowIndex += 1 + section.rows.length;
+        return [[{ content: section.title, colSpan: 5, styles: { fontStyle: 'bold' as const, fillColor: 255, minCellHeight: withThumb ? 24 : undefined } }], ...section.rows];
+      });
+      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
+        didDrawCell: (data) => {
+          const cfg = thumbByRow.get(data.row.index);
+          if (!cfg || data.section !== 'body' || data.column.index !== 0) return;
+          const { front, side, largeur, hauteur, profondeur } = getThumbnailViews(cfg);
+          const H = 18; // hauteur miniature en mm
+          const s = H / Math.max(1, hauteur);
+          const draw = (rects: { x: number; y: number; width: number; height: number }[], w: number, x0: number) => {
+            const minT = 0.5 / s;
+            pdf.setDrawColor(0); pdf.setLineWidth(0.15);
+            for (const r of rects) {
+              const rw = Math.max(r.width, Math.min(minT, w));
+              const rh = Math.max(r.height, Math.min(minT, hauteur));
+              const x = Math.max(0, Math.min(r.x, w - rw));
+              const y = Math.max(0, Math.min(r.y, hauteur - rh));
+              pdf.rect(x0 + x * s, data.cell.y + 3 + y * s, rw * s, rh * s);
+            }
+            return w * s;
+          };
+          const totalW = (largeur + profondeur) * s + 2;
+          const x0 = data.cell.x + data.cell.width - 4 - totalW;
+          const wf = draw(front, largeur, x0);
+          draw(side, profondeur, x0 + wf + 2);
+        } });
       const page = pdf.getNumberOfPages(); pdf.setPage(page);
       pdf.setFontSize(8); pdf.text('Emeric Chenay · 2026 · superdebitcoupe@proton.me', 14, 285);
       pdf.addImage('/favicon.png', 'PNG', 183, 278, 10, 10);
@@ -500,6 +536,10 @@ const FurnitureCalculator: React.FC = () => {
                   <div className="flex items-center gap-3 [&>button]:shrink-0">
                     <Checkbox id="group-identical" checked={groupIdentical} onCheckedChange={checked => setGroupIdentical(checked === true)} />
                     <Label className="block leading-5" htmlFor="group-identical">Regrouper les pièces identiques</Label>
+                  </div>
+                  <div className="flex items-center gap-3 [&>button]:shrink-0">
+                    <Checkbox id="show-thumbnails" checked={showThumbnails} onCheckedChange={checked => setShowThumbnails(checked === true)} />
+                    <Label className="block leading-5" htmlFor="show-thumbnails">Vues du meuble en miniature</Label>
                   </div>
                 </div>
                 {showAddForm && (
@@ -651,6 +691,7 @@ const FurnitureCalculator: React.FC = () => {
                             <p className="text-xs text-muted-foreground">
                               {section.detail}
                             </p>
+                            {showThumbnails && <CabinetThumbnail config={groupe.config} className="mt-2" />}
                             </>
                           )}
                         </CardHeader>

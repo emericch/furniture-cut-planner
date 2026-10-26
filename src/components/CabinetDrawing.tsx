@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Columns2, Layers, PanelTop, DoorOpen } from 'lucide-react';
 import { getFurnitureLayout, formatMm, type FurnitureConfig } from '@/lib/furniture';
-import { getFrontRectangles, getSideRectangles } from '@/lib/cabinet-drawing';
+import { getFrontRectangles, getSideRectangles, getThumbnailViews, type ThumbnailRect } from '@/lib/cabinet-drawing';
 
 const coordinate = (n: number) => Number.isFinite(n) ? n : 0;
 const size = (n: number) => Number.isFinite(n) && n > 0 ? n : 0;
@@ -82,4 +82,22 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
       <Button variant="outline" className="h-auto min-h-11 whitespace-normal" onClick={() => onSelect(3)}><PanelTop className="mr-2 h-4 w-4 shrink-0" />Bandeaux et façades</Button>
     </div>
   </figure>;
+}
+
+// Miniature sans texte ni boutons pour la feuille de débit : vue de face + vue de côté.
+export function CabinetThumbnail({ config: c, className }: { config: FurnitureConfig; className?: string }) {
+  const { front, side, largeur, hauteur, profondeur } = getThumbnailViews(c);
+  const H = 96;
+  const render = (rects: ThumbnailRect[], w: number, h: number, label: string) => {
+    const s = H / Math.max(1, size(h));
+    const minT = 1.5 / s;
+    return <svg width={Math.max(1, size(w) * s)} height={H} viewBox={`0 0 ${Math.max(1, size(w) * s)} ${H}`} role="img" aria-label={label} className="shrink-0">
+      {rects.map((r, i) => {
+        const rw = Math.max(size(r.width), minT);
+        const rh = Math.max(size(r.height), minT);
+        return <rect key={`${r.name}-${i}`} x={Math.max(0, Math.min(coordinate(r.x), w - rw)) * s} y={Math.max(0, Math.min(coordinate(r.y), h - rh)) * s} width={rw * s} height={rh * s} vectorEffect="non-scaling-stroke" strokeWidth="1" className={r.kind === 'front' ? 'fill-background stroke-foreground' : 'fill-secondary stroke-foreground'} />;
+      })}
+    </svg>;
+  };
+  return <div className={`flex items-start gap-1 ${className ?? ''}`}>{render(front, largeur, hauteur, 'Vue de face miniature')}{render(side, profondeur, hauteur, 'Vue de côté miniature')}</div>;
 }

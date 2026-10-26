@@ -91,3 +91,65 @@ export function getSideRectangles(c: FurnitureConfig): SideRectangle[] {
 
   return result;
 }
+export interface ThumbnailRect { name: string; x: number; y: number; width: number; height: number; kind: 'structure' | 'front' }
+
+export interface ThumbnailViews {
+  front: ThumbnailRect[];
+  side: ThumbnailRect[];
+  largeur: number;
+  hauteur: number;
+  profondeur: number;
+}
+
+// Vues miniature (face + côté) en millimètres géométriques, pour la feuille de débit.
+// La face montre la structure puis les façades par-dessus ; le côté reprend getSideRectangles.
+export function getThumbnailViews(c: FurnitureConfig): ThumbnailViews {
+  const l = getFurnitureLayout(c);
+  const front: ThumbnailRect[] = [];
+  const push = (name: string, x: number, y: number, width: number, height: number) =>
+    front.push({ name, x, y, width, height, kind: 'structure' });
+  const montantY = c.montantsTouteHauteur ? 0 : l.topInset;
+  const montantH = c.montantsTouteHauteur ? c.hauteur : c.hauteur - l.topInset - l.bottomInset;
+  push('Montant gauche', 0, montantY, c.epaisseurMontants, montantH);
+  push('Montant droit', c.largeur - c.epaisseurMontants, montantY, c.epaisseurMontants, montantH);
+  const trX = c.montantsTouteHauteur ? c.epaisseurMontants : 0;
+  const trW = c.largeur - (c.montantsTouteHauteur ? 2 * c.epaisseurMontants : 0);
+  if (l.topPanel) push('Traverse haute', trX, 0, trW, c.epaisseurTraverses);
+  if (l.bottomPanel) push('Traverse basse', trX, c.hauteur - c.epaisseurTraverses, trW, c.epaisseurTraverses);
+  if (c.bandeauHaut) push('Bandeau haut', c.epaisseurMontants, l.topInset, c.largeur - 2 * c.epaisseurMontants, c.bandeauHaut.hauteur);
+  if (c.bandeauBas) push('Bandeau bas', c.epaisseurMontants, c.hauteur - l.bottomBandEnd, c.largeur - 2 * c.epaisseurMontants, c.bandeauBas.hauteur);
+  const divided = !!c.montantIntermediaire;
+  if (divided) push('Montant intermédiaire', (c.largeur - c.epaisseurMontants) / 2, c.montantIntermediaire === 'toute-hauteur' ? 0 : l.topInset, c.epaisseurMontants, c.montantIntermediaire === 'toute-hauteur' ? c.hauteur : montantH);
+  const bays = divided ? ['gauche', 'droite'] as const : ['gauche'] as const;
+  for (const side of bays) {
+    const count = divided ? (c.rayonsCompartiments?.[side]?.mobiles ?? 0) + (c.rayonsCompartiments?.[side]?.fixes ?? 0) : c.nombreRayons + (c.nombreRayonsFixes ?? 0);
+    const shown = Math.min(count, 8);
+    const zone = l.shelfZones[side];
+    for (let i = 0; i < shown; i++) {
+      push('Rayon', side === 'droite' ? (c.largeur + c.epaisseurMontants) / 2 : c.epaisseurMontants, zone.top + (zone.bottom - zone.top) * (i + 1) / (shown + 1), divided ? l.bayWidth : c.largeur - 2 * c.epaisseurMontants, c.epaisseurRayons);
+    }
+  }
+  for (const f of getFrontRectangles(c)) front.push({ name: f.name, x: f.x, y: f.y, width: f.width, height: f.height, kind: 'front' });
+  const frontNames = new Set(getFrontRectangles(c).map(f => f.name));
+  const side = getSideRectangles(c).map(r => ({ ...r, kind: (frontNames.has(r.name) ? 'front' : 'structure') as 'structure' | 'front' }));
+  return { front, side, largeur: c.largeur, hauteur: c.hauteur, profondeur: c.profondeur };
+}
+
+// Rendu SVG monochrome autonome (impression) : épaisseurs minimales visibles, bords clampés.
+export function thumbnailSvgMarkup(c: FurnitureConfig, heightPx = 60): string {
+  const { front, side, largeur, hauteur, profondeur } = getThumbnailViews(c);
+  const render = (rects: ThumbnailRect[], w: number, h: number) => {
+    const s = (heightPx - 2) / Math.max(1, h);
+    const widthPx = Math.max(1, w * s);
+    const minT = 1.5 / s;
+    const body = rects.map(r => {
+      const rw = Math.max(r.width, Math.min(minT, w));
+      const rh = Math.max(r.height, Math.min(minT, h));
+      const x = Math.max(0, Math.min(r.x, w - rw));
+      const y = Math.max(0, Math.min(r.y, h - rh));
+      return `<rect x="${(x * s).toFixed(1)}" y="${(y * s).toFixed(1)}" width="${(rw * s).toFixed(1)}" height="${(rh * s).toFixed(1)}" fill="${r.kind === 'front' ? '#ffffff' : '#e8e8e8'}" stroke="#000000" stroke-width="0.6"/>`;
+    }).join('');
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${widthPx.toFixed(0)}" height="${heightPx}" viewBox="0 0 ${widthPx.toFixed(1)} ${heightPx}" style="margin-right:6px;vertical-align:middle">${body}</svg>`;
+  };
+  return `<span style="display:inline-block;vertical-align:middle;margin-right:8px">${render(front, largeur, hauteur)}${render(side, profondeur, hauteur)}</span>`;
+}
