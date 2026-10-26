@@ -51,6 +51,7 @@ export interface CutSheetItem {
   largeur: number;
   epaisseur: number;
   quantite: number;
+  filPivote?: boolean;
 }
 
 export interface MeubleGroup {
@@ -311,6 +312,7 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
   if (c.montantsTouteHauteur && c.dosType === 'toute-largeur') errors.push('Un dos toute largeur nécessite l\'assemblage traverses toute largeur.');
   if (c.traversesTouteLargeur && c.dosType === 'toute-hauteur') errors.push('Un dos toute hauteur nécessite l\'assemblage montants toute hauteur.');
   for (const band of [c.bandeauHaut, c.bandeauBas]) if (band?.cachePorte && !(c.nombrePortes > 0 && c.typePorte === 'applique')) errors.push('Un bandeau caché nécessite des portes en applique.');
+  for (const band of [c.bandeauHaut, c.bandeauBas]) if (band?.faceApplique && band?.cachePorte) errors.push('Choisissez face fixe ou bandeau caché, pas les deux.');
   if (![0,1,2].includes(c.nombrePortes) || !['applique','interieur'].includes(c.typePorte) || !['aucun','toute-hauteur','toute-largeur','en-applique','entre-montants-traverses','en-rainure'].includes(c.dosType)) errors.push('Configuration de portes ou de dos non autorisée.');
   if (![8,16,19,22].includes(c.epaisseurMontants) || ![8,16,19,22].includes(c.epaisseurTraverses) || ![8,16,19,22].includes(c.epaisseurRayons) || ![3,8,16,19,22].includes(c.epaisseurDos) || ![16,19,22].includes(c.epaisseurPortes)) errors.push('Épaisseur de panneau non autorisée.');
   if (c.largeur <= 2*c.epaisseurMontants || c.hauteur <= layout.topInset + layout.bottomInset) errors.push('Les panneaux ne laissent pas une ouverture intérieure positive.');

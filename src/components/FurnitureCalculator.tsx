@@ -1,42 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
-import { generateMeubleItems, validateConfig, getWarnings, compareSize, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
+import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
+import { buildMeubleSections, buildSizeRows, parseSheet, pivotAt, pivotMatching, reapplyPivots, serializeSheet, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, SHEET_STORAGE_KEY, type SheetOrder } from '@/lib/sheet';
 import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
-import { AssemblyIllustration } from './FurnitureIllustrations';
 import { FurnitureDesigner } from './FurnitureDesigner';
 import { NumberField } from './NumberField';
 
-const FurnitureCalculator: React.FC = () => {
-  const [config, setConfig] = useState<FurnitureConfig>({
-    hauteur: 2000,
-    largeur: 800,
-    profondeur: 350,
-    epaisseurMontants: 19,
-    epaisseurTraverses: 19,
-    epaisseurRayons: 19,
-    epaisseurDos: 3,
-    epaisseurPortes: 19,
-    montantsTouteHauteur: true,
-    traversesTouteLargeur: false,
-    nombreRayons: 2,
-    nombreRayonsFixes: 0,
-    dosType: 'aucun',
-    nombrePortes: 0,
-    typePorte: 'interieur',
-    retraitRayons: 0,
-    decalageDos: 0
-  });
+const defaultConfig: FurnitureConfig = {
+  hauteur: 2000,
+  largeur: 800,
+  profondeur: 350,
+  epaisseurMontants: 19,
+  epaisseurTraverses: 19,
+  epaisseurRayons: 19,
+  epaisseurDos: 3,
+  epaisseurPortes: 19,
+  montantsTouteHauteur: true,
+  traversesTouteLargeur: false,
+  nombreRayons: 2,
+  nombreRayonsFixes: 0,
+  dosType: 'aucun',
+  nombrePortes: 0,
+  typePorte: 'interieur',
+  retraitRayons: 0,
+  decalageDos: 0
+};
 
-  const [meubleGroups, setMeubleGroups] = useState<MeubleGroup[]>([]);
-  const [customItems, setCustomItems] = useState<CutSheetItem[]>([]);
+const loadSavedSheet = () => {
+  try {
+    return parseSheet(window.localStorage.getItem(SHEET_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+};
+
+const FurnitureCalculator: React.FC = () => {
+  const [saved] = useState(loadSavedSheet);
+  const [config, setConfig] = useState<FurnitureConfig>(saved?.config ?? defaultConfig);
+  const [meubleGroups, setMeubleGroups] = useState<MeubleGroup[]>(saved?.meubleGroups ?? []);
+  const [customItems, setCustomItems] = useState<CutSheetItem[]>(saved?.customItems ?? []);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState<Partial<CutSheetItem>>({
     nom: '',
@@ -45,22 +55,50 @@ const FurnitureCalculator: React.FC = () => {
     epaisseur: 19,
     quantite: 1
   });
-  const [meubleCounter, setMeubleCounter] = useState(1);
-  const [meubleNom, setMeubleNom] = useState('');
+  const [meubleCounter, setMeubleCounter] = useState(saved?.meubleCounter ?? 1);
+  const [meubleNom, setMeubleNom] = useState(saved?.meubleNom ?? '');
   const [editingMeubleId, setEditingMeubleId] = useState<string | null>(null);
   const [editingNom, setEditingNom] = useState('');
+  const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
 
-  const [order, setOrder] = useState<'meuble' | 'taille'>('meuble');
+  const [order, setOrder] = useState<SheetOrder>(saved?.order ?? 'meuble');
+  const [groupIdentical, setGroupIdentical] = useState(saved?.groupIdentical ?? false);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, config, meubleNom }));
+    } catch { /* stockage indisponible : la feuille reste en mémoire */ }
+  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, config, meubleNom]);
+
   const validationErrors = validateConfig(config);
-  const sortedRows = [...meubleGroups.flatMap(g => g.items.map(item => ({item, meuble: g.nom}))), ...customItems.map(item => ({item, meuble: 'Pièces personnalisées'}))].sort((a,b) => compareSize(a.item,b.item));
+  const sections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
+  const sizeRows = buildSizeRows(meubleGroups, customItems, groupIdentical);
 
   const epaisseurs = [8, 16, 19, 22];
   const epaisseursDos = [3, 8, 16, 19, 22];
-  const epaisseursPortes = [16, 19, 22];
+
+  const cancelEditMeuble = () => {
+    setEditingConfigId(null);
+    setMeubleNom('');
+    setConfig(defaultConfig);
+  };
 
   const addMeubleToSheet = () => {
     if (validationErrors.length) { toast.error(validationErrors[0]); return; }
     const items = generateMeubleItems(config);
+    if (editingConfigId) {
+      const existing = meubleGroups.find(g => g.id === editingConfigId);
+      if (!existing) { cancelEditMeuble(); return; }
+      const nomMeuble = meubleNom.trim() || existing.nom;
+      setMeubleGroups(meubleGroups.map(g => g.id === editingConfigId
+        ? { ...g, nom: nomMeuble, config: { ...config }, items: reapplyPivots(g.items, items) }
+        : g));
+      toast.success(`${nomMeuble} mis à jour`);
+      setEditingConfigId(null);
+      setMeubleNom('');
+      setConfig(defaultConfig);
+      return;
+    }
     const nomMeuble = meubleNom.trim() || `Meuble ${meubleCounter}`;
     const newMeuble: MeubleGroup = {
       id: crypto.randomUUID(),
@@ -69,10 +107,17 @@ const FurnitureCalculator: React.FC = () => {
       items: items,
       dateAjout: new Date()
     };
-    
+
     setMeubleGroups([...meubleGroups, newMeuble]);
     setMeubleCounter(meubleCounter + 1);
     setMeubleNom('');
+  };
+
+  const startEditMeubleConfig = (groupe: MeubleGroup) => {
+    setEditingConfigId(groupe.id);
+    setConfig({ ...groupe.config });
+    setMeubleNom(groupe.nom);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const startEditingMeuble = (meubleId: string, currentNom: string) => {
@@ -83,8 +128,8 @@ const FurnitureCalculator: React.FC = () => {
   const saveEditedMeubleName = () => {
     if (!editingNom.trim()) { cancelEditingMeuble(); return; }
     if (editingMeubleId && editingNom.trim()) {
-      setMeubleGroups(meubleGroups.map(groupe => 
-        groupe.id === editingMeubleId 
+      setMeubleGroups(meubleGroups.map(groupe =>
+        groupe.id === editingMeubleId
           ? { ...groupe, nom: editingNom.trim() }
           : groupe
       ));
@@ -99,7 +144,23 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const removeMeubleGroup = (meubleId: string) => {
+    const index = meubleGroups.findIndex(g => g.id === meubleId);
+    const removed = meubleGroups[index];
+    if (!removed) return;
     setMeubleGroups(meubleGroups.filter(group => group.id !== meubleId));
+    if (editingConfigId === meubleId) cancelEditMeuble();
+    toast(`${removed.nom} supprimé`, {
+      duration: 6000,
+      action: {
+        label: 'Annuler',
+        onClick: () => setMeubleGroups(current => {
+          if (current.some(g => g.id === removed.id)) return current;
+          const next = [...current];
+          next.splice(Math.min(index, next.length), 0, removed);
+          return next;
+        })
+      }
+    });
   };
 
   const addCustomItem = () => {
@@ -124,29 +185,49 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const removeCustomItem = (index: number) => {
+    const removed = customItems[index];
+    if (!removed) return;
     setCustomItems(customItems.filter((_, i) => i !== index));
+    toast(`${removed.nom} supprimé`, {
+      duration: 6000,
+      action: {
+        label: 'Annuler',
+        onClick: () => setCustomItems(current => {
+          const next = [...current];
+          next.splice(Math.min(index, next.length), 0, removed);
+          return next;
+        })
+      }
+    });
   };
 
-  const getAllItems = () => {
-    const allItems: CutSheetItem[] = [];
-    meubleGroups.forEach(group => {
-      allItems.push(...group.items);
-    });
-    allItems.push(...customItems);
-    return allItems;
+  const pivotSectionRow = (sectionId: string, row: { item: CutSheetItem; index: number }) => {
+    const apply = (items: CutSheetItem[]) => row.index >= 0 ? pivotAt(items, row.index) : pivotMatching(items, row.item);
+    if (sectionId === CUSTOM_SECTION_ID) setCustomItems(apply);
+    else setMeubleGroups(groups => groups.map(g => g.id === sectionId ? { ...g, items: apply(g.items) } : g));
+  };
+
+  const pivotSizeRow = (row: { item: CutSheetItem; meubleId: string; index: number }) => {
+    if (row.index >= 0) {
+      if (row.meubleId === CUSTOM_SECTION_ID) setCustomItems(items => pivotAt(items, row.index));
+      else setMeubleGroups(groups => groups.map(g => g.id === row.meubleId ? { ...g, items: pivotAt(g.items, row.index) } : g));
+    } else {
+      setMeubleGroups(groups => groups.map(g => ({ ...g, items: pivotMatching(g.items, row.item) })));
+      setCustomItems(items => pivotMatching(items, row.item));
+    }
   };
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
-    
+
     if (printWindow) {
       printWindow.document.write(`
         <html lang="fr">
           <head>
             <title>Feuille de Débit</title>
             <style>
-              body { 
-                font-family: Arial, sans-serif; 
+              body {
+                font-family: Arial, sans-serif;
                 margin: 20px;
                 color: #000;
                 font-size: 12px;
@@ -221,6 +302,7 @@ const FurnitureCalculator: React.FC = () => {
             <div class="print-header">
               <h1>FEUILLE DE DÉBIT</h1>
               <p>${new Date().toLocaleDateString('fr-FR')}</p>
+              <p>${GRAIN_LEGEND}</p>
             </div>
             ${generatePrintContent()}
             <div class="print-footer" style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #bbb; text-align: center; font-size: 10px; color: #666;">
@@ -240,76 +322,36 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const generatePrintContent = () => {
-    if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sortedRows.map(({item,meuble}) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
-    let content = '';
-    
-    meubleGroups.forEach((groupe, index) => {
-      content += `
-        <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? 'border-top: 1px solid #bbb; padding-top: 6px;' : ''}">
-          <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
-            ${escapeHtml(groupe.nom)} (${formatMm(groupe.config.hauteur)}×${formatMm(groupe.config.largeur)}×${formatMm(groupe.config.profondeur)}mm)
-          </div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
-            <thead>
-              <tr style="border-bottom: 1px solid #bbb;">
-                <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Pièce</th>
-                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Qté</th>
-                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
-                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">l (mm)</th>
-                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">e (mm)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${groupe.items.map(item => `
-                <tr style="border-bottom: 1px solid #ddd;">
-                  <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.longueur)}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.largeur)}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+    if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
+    return sections.map((section, index) => `
+      <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? 'border-top: 1px solid #bbb; padding-top: 6px;' : ''}">
+        <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
+          ${escapeHtml(section.nom)}${section.detail ? ` (${section.detail})` : ''}
         </div>
-      `;
-    });
-
-    if (customItems.length > 0) {
-      content += `
-        <div class="print-section" style="margin-top: 12px; border-top: 1px solid #bbb; padding-top: 6px;">
-          <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
-            Pièces personnalisées
-          </div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-            <thead>
-              <tr style="border-bottom: 1px solid #bbb;">
-                <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Pièce</th>
-                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Qté</th>
-                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
-                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">l (mm)</th>
-                <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">e (mm)</th>
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
+          <thead>
+            <tr style="border-bottom: 1px solid #bbb;">
+              <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Pièce</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Qté</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">l (mm)</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">e (mm)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${section.rows.map(({ item }) => `
+              <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
+                <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
+                <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.longueur)}</td>
+                <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.largeur)}</td>
+                <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
               </tr>
-            </thead>
-            <tbody>
-              ${customItems.map(item => `
-                <tr style="border-bottom: 1px solid #ddd;">
-                  <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.longueur)}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.largeur)}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    // La signature sera ajoutée plus tard dans le template principal
-
-    return content;
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `).join('');
   };
 
   const handleExportPDF = async () => {
@@ -319,17 +361,32 @@ const FurnitureCalculator: React.FC = () => {
       const pdf = new jsPDF();
       pdf.setFontSize(16); pdf.text('FEUILLE DE DÉBIT', 14, 15);
       pdf.setFontSize(9); pdf.text(new Date().toLocaleDateString('fr-FR'), 14, 21);
-      const sections = order === 'taille'
-        ? [{title: 'Pièces par taille décroissante', rows: sortedRows.map(({item,meuble}) => [meuble+' · '+item.nom,item.quantite,formatMm(item.longueur),formatMm(item.largeur),item.epaisseur])}]
-        : [...meubleGroups.map(g => ({title: g.nom+' — '+formatMm(g.config.hauteur)+' × '+formatMm(g.config.largeur)+' × '+formatMm(g.config.profondeur)+' mm',rows: g.items.map(i => [i.nom,i.quantite,formatMm(i.longueur),formatMm(i.largeur),i.epaisseur])})), ...(customItems.length ? [{title:'Pièces personnalisées',rows:customItems.map(i => [i.nom,i.quantite,formatMm(i.longueur),formatMm(i.largeur),i.epaisseur])}] : [])];
-      const body = sections.flatMap(section => [[{content:section.title,colSpan:5,styles:{fontStyle:'bold' as const,fillColor:255}}], ...section.rows]);
-      autoTable(pdf, {startY:27, margin:{left:14,right:14,bottom:24}, head:[['Pièce','Qté','L (mm)','l (mm)','e (mm)']], body, theme:'plain', styles:{fontSize:9,cellPadding:2,textColor:0,lineColor:210,lineWidth:0.1,overflow:'linebreak'}, headStyles:{fillColor:255,textColor:0,fontStyle:'bold'}, rowPageBreak:'avoid'});
+      pdf.text(GRAIN_LEGEND, 14, 26);
+      const pdfSections = order === 'taille'
+        ? [{ title: 'Pièces par taille décroissante', rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }]
+        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }));
+      const body = pdfSections.flatMap(section => [[{ content: section.title, colSpan: 5, styles: { fontStyle: 'bold' as const, fillColor: 255 } }], ...section.rows]);
+      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid' });
       const page = pdf.getNumberOfPages(); pdf.setPage(page);
-      pdf.setFontSize(8); pdf.text('Emeric Chenay · 2026 · superdebitcoupe@proton.me',14,285);
-      pdf.addImage('/favicon.png','PNG',183,278,10,10);
+      pdf.setFontSize(8); pdf.text('Emeric Chenay · 2026 · superdebitcoupe@proton.me', 14, 285);
+      pdf.addImage('/favicon.png', 'PNG', 183, 278, 10, 10);
       pdf.save(`feuille-debit-${new Date().toISOString().split('T')[0]}.pdf`);
     } catch { toast.error('Impossible de créer le PDF. Réessayez ou utilisez Imprimer.'); }
   };
+
+  const pivotButton = (item: CutSheetItem, onClick: () => void) => (
+    <Button
+      key="pivot"
+      aria-label={`Pivoter le sens du fil de ${item.nom}`}
+      title={`Pivoter le sens du fil de ${item.nom}`}
+      onClick={onClick}
+      size="sm"
+      variant="ghost"
+      className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
+    >
+      <ArrowUpDown className="h-3 w-3" />
+    </Button>
+  );
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -364,8 +421,13 @@ const FurnitureCalculator: React.FC = () => {
                 {getWarnings(config).length > 0 && <div role="status" className="space-y-1">{getWarnings(config).map((warning, index) => <p key={index} className="text-sm text-muted-foreground">{warning}</p>)}</div>}
                 <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="w-full" size="lg">
                   <Plus className="mr-2 h-4 w-4" />
-                  Ajouter à la feuille de débit
+                  {editingConfigId ? 'Mettre à jour le meuble' : 'Ajouter à la feuille de débit'}
                 </Button>
+                {editingConfigId && (
+                  <Button onClick={cancelEditMeuble} variant="outline" className="w-full">
+                    Annuler la modification
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -415,12 +477,19 @@ const FurnitureCalculator: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="min-w-0">
-                <div className="mb-4 max-w-xs">
-                  <Label htmlFor="sheet-order">Classement</Label>
-                  <Select value={order} onValueChange={v => setOrder(v as 'meuble' | 'taille')}>
-                    <SelectTrigger id="sheet-order"><SelectValue /></SelectTrigger>
-                    <SelectContent><SelectItem value="meuble">Par meuble</SelectItem><SelectItem value="taille">Par taille · grande dimension décroissante</SelectItem></SelectContent>
-                  </Select>
+                <div className="mb-4 max-w-xs space-y-3">
+                  <div>
+                    <Label htmlFor="sheet-order">Classement</Label>
+                    <Select value={order} onValueChange={v => setOrder(v as SheetOrder)}>
+                      <SelectTrigger id="sheet-order"><SelectValue /></SelectTrigger>
+                      <SelectContent><SelectItem value="meuble">Par meuble</SelectItem><SelectItem value="taille">Par taille · grande dimension décroissante</SelectItem></SelectContent>
+                    </Select>
+                    <p className="mt-1 text-xs text-muted-foreground">{GRAIN_LEGEND}</p>
+                  </div>
+                  <div className="flex items-center gap-3 [&>button]:shrink-0">
+                    <Checkbox id="group-identical" checked={groupIdentical} onCheckedChange={checked => setGroupIdentical(checked === true)} />
+                    <Label className="block leading-5" htmlFor="group-identical">Regrouper les pièces identiques</Label>
+                  </div>
                 </div>
                 {showAddForm && (
                   <Card className="mb-4 border-primary/20">
@@ -445,7 +514,7 @@ const FurnitureCalculator: React.FC = () => {
                           placeholder="Ex: Tablette, Tiroir..."
                         />
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div>
                           <NumberField id="custom-longueur" label="Longueur (mm)" labelClassName="text-xs" value={newItem.longueur || undefined} onCommit={v => setNewItem({ ...newItem, longueur: v })} />
@@ -455,8 +524,8 @@ const FurnitureCalculator: React.FC = () => {
                         </div>
                         <div>
                           <Label className="text-xs">Épaisseur</Label>
-                          <Select 
-                            value={newItem.epaisseur?.toString() || '19'} 
+                          <Select
+                            value={newItem.epaisseur?.toString() || '19'}
                             onValueChange={(value) => setNewItem({ ...newItem, epaisseur: Number(value) })}
                           >
                             <SelectTrigger className="h-9">
@@ -478,9 +547,9 @@ const FurnitureCalculator: React.FC = () => {
                         <Button onClick={addCustomItem} className="flex-1">
                           Ajouter
                         </Button>
-                        <Button 
-                          onClick={() => setShowAddForm(false)} 
-                          variant="outline" 
+                        <Button
+                          onClick={() => setShowAddForm(false)}
+                          variant="outline"
                           className="flex-1"
                         >
                           Annuler
@@ -492,120 +561,117 @@ const FurnitureCalculator: React.FC = () => {
 
                 {(meubleGroups.length > 0 || customItems.length > 0) ? (
                   <div className="space-y-4">
-                    {order === 'taille' && <div className="divide-y divide-border">{sortedRows.map(({item,meuble},index) => <div key={index} className="py-3"><p className="text-sm text-muted-foreground break-words">{meuble}</p><p className="font-medium break-words">{item.nom}</p><p className="text-sm">{formatMm(item.longueur)} × {formatMm(item.largeur)} × {item.epaisseur} mm · Qté {item.quantite}</p></div>)}</div>}
+                    {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
                     {/* Groupes de meubles */}
-                    {order === 'meuble' && meubleGroups.map((groupe) => (
-                       <Card key={groupe.id} className="border-l-4 border-l-primary">
-                         <CardHeader className="pb-2">
-                           <div className="flex items-center justify-between">
-                             {editingMeubleId === groupe.id ? (
-                               <div className="flex min-w-0 items-center gap-2 flex-1">
-                                 <Input
-                                   value={editingNom}
-                                   onChange={(e) => setEditingNom(e.target.value)}
-                                   className="h-8"
-                                   onKeyDown={(e) => {
-                                     if (e.key === 'Enter') saveEditedMeubleName();
-                                     if (e.key === 'Escape') cancelEditingMeuble();
-                                   }}
-                                   autoFocus
-                                 />
-                                 <Button
-                                   aria-label="Enregistrer le nom" onClick={saveEditedMeubleName}
-                                   size="sm"
-                                   variant="ghost"
-                                   className="h-11 w-11 shrink-0 p-0 text-primary"
-                                 >
-                                   <Check className="h-3 w-3" />
-                                 </Button>
-                                 <Button
-                                   aria-label="Annuler le renommage" onClick={cancelEditingMeuble}
-                                   size="sm"
-                                   variant="ghost"
-                                   className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
-                                 >
-                                   <X className="h-3 w-3" />
-                                 </Button>
-                               </div>
-                             ) : (
-                               <>
-                                 <div className="flex min-w-0 items-center gap-2 flex-1">
-                                   <CardTitle className="min-w-0 break-all text-base">{groupe.nom}</CardTitle>
-                                   <Button
-                                     aria-label={`Renommer ${groupe.nom}`} title="Renommer"
-                                     onClick={() => startEditingMeuble(groupe.id, groupe.nom)}
-                                     size="sm"
-                                     variant="ghost"
-                                     className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
-                                   >
-                                     <Edit2 className="h-3 w-3" />
-                                   </Button>
-                                 </div>
-                                 <Button
-                                   aria-label={`Supprimer ${groupe.nom}`} title={`Supprimer ${groupe.nom}`}
-                                   onClick={() => removeMeubleGroup(groupe.id)}
-                                   size="sm"
-                                   variant="ghost"
-                                   className="h-11 w-11 shrink-0 p-0 text-destructive"
-                                 >
-                                   <Trash2 className="h-3 w-3" />
-                                 </Button>
-                               </>
-                             )}
-                           </div>
-                           <p className="text-xs text-muted-foreground">
-                             {formatMm(groupe.config.hauteur)} × {formatMm(groupe.config.largeur)} × {formatMm(groupe.config.profondeur)}mm
-                           </p>
-                         </CardHeader>
-                        <CardContent className="space-y-2">
-                          {groupe.items.map((item, index) => (
-                            <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
-                              <div className="flex-1">
-                                <h5 className="font-medium text-sm">{item.nom}</h5>
-                                <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-4">
-                                  <div>L: {formatMm(item.longueur)}mm</div>
-                                  <div>l: {formatMm(item.largeur)}mm</div>
-                                  <div>Ép: {item.epaisseur}mm</div>
-                                  <div>Qté: {item.quantite}</div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </CardContent>
-                      </Card>
-                    ))}
-
-                    {/* Pièces personnalisées */}
-                    {order === 'meuble' && customItems.length > 0 && (
-                      <Card className="border-l-4 border-l-secondary">
+                    {order === 'meuble' && sections.map((section) => {
+                      const groupe = meubleGroups.find(g => g.id === section.id);
+                      return (
+                      <Card key={section.id} className={`border-l-4 ${section.id === CUSTOM_SECTION_ID ? 'border-l-secondary' : 'border-l-primary'}`}>
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-base">Pièces personnalisées</CardTitle>
+                          {section.id === CUSTOM_SECTION_ID ? (
+                            <CardTitle className="text-base">{CUSTOM_SECTION_NAME}</CardTitle>
+                          ) : groupe && (
+                            <>
+                            <div className="flex items-center justify-between">
+                              {editingMeubleId === groupe.id ? (
+                                <div className="flex min-w-0 items-center gap-2 flex-1">
+                                  <Input
+                                    value={editingNom}
+                                    onChange={(e) => setEditingNom(e.target.value)}
+                                    className="h-8"
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEditedMeubleName();
+                                      if (e.key === 'Escape') cancelEditingMeuble();
+                                    }}
+                                    autoFocus
+                                  />
+                                  <Button
+                                    aria-label="Enregistrer le nom" onClick={saveEditedMeubleName}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-11 w-11 shrink-0 p-0 text-primary"
+                                  >
+                                    <Check className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    aria-label="Annuler le renommage" onClick={cancelEditingMeuble}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="flex min-w-0 items-center gap-2 flex-1">
+                                    <CardTitle className="min-w-0 break-all text-base">{groupe.nom}</CardTitle>
+                                    <Button
+                                      aria-label={`Renommer ${groupe.nom}`} title="Renommer"
+                                      onClick={() => startEditingMeuble(groupe.id, groupe.nom)}
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
+                                    >
+                                      <Edit2 className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      aria-label={`Modifier ${groupe.nom}`} title={`Modifier ${groupe.nom}`}
+                                      onClick={() => startEditMeubleConfig(groupe)}
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
+                                    >
+                                      <SlidersHorizontal className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                  <Button
+                                    aria-label={`Supprimer ${groupe.nom}`} title={`Supprimer ${groupe.nom}`}
+                                    onClick={() => removeMeubleGroup(groupe.id)}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-11 w-11 shrink-0 p-0 text-destructive"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {section.detail}
+                            </p>
+                            </>
+                          )}
                         </CardHeader>
                         <CardContent className="space-y-2">
-                          {customItems.map((item, index) => (
+                          {section.rows.map((row, index) => (
                             <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
                               <div className="flex-1">
-                                <h5 className="font-medium text-sm">{item.nom}</h5>
+                                <h5 className="font-medium text-sm">{row.item.nom}</h5>
                                 <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-4">
-                                  <div>L: {formatMm(item.longueur)}mm</div>
-                                  <div>l: {formatMm(item.largeur)}mm</div>
-                                  <div>Ép: {item.epaisseur}mm</div>
-                                  <div>Qté: {item.quantite}</div>
+                                  <div>L: {formatMm(row.item.longueur)}mm</div>
+                                  <div>l: {formatMm(row.item.largeur)}mm</div>
+                                  <div>Ép: {row.item.epaisseur}mm</div>
+                                  <div>Qté: {row.item.quantite}</div>
                                 </div>
                               </div>
-                              <Button
-                                aria-label={`Supprimer ${item.nom}`} onClick={() => removeCustomItem(index)}
-                                size="sm"
-                                variant="ghost"
-                                className="h-11 w-11 shrink-0 p-0 text-destructive"
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
+                              {pivotButton(row.item, () => pivotSectionRow(section.id, row))}
+                              {section.id === CUSTOM_SECTION_ID && !groupIdentical && (
+                                <Button
+                                  aria-label={`Supprimer ${row.item.nom}`} onClick={() => removeCustomItem(row.index)}
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-11 w-11 shrink-0 p-0 text-destructive"
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              )}
                             </div>
                           ))}
                         </CardContent>
                       </Card>
-                    )}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center py-8">
@@ -617,7 +683,7 @@ const FurnitureCalculator: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Footer avec signature professionnelle */}
       <footer className="mt-8 pt-6 border-t border-border">
         <div className="text-center text-sm text-muted-foreground">

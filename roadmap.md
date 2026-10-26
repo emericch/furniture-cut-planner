@@ -1,7 +1,7 @@
 # Optimisation
 
 - [x] Step 1 of validated calculation rules: 1 mm overlay edges, grain-direction lengths, shelf zones outside drawer stacks, coherent assembly/back pairing, hidden bands behind full-height doors and small-piece warnings; 85 tests pass, build OK, Chromium verifies full-height door, hidden band, warnings and blocked incoherent pairs; cut-sheet functions (step 2) untouched.
-- [ ] Step 2: cut-sheet workflow (grain reversal on the sheet, grouping, save, edit/cancel) — awaits user's go-ahead.
+- [x] Step 2: cut-sheet workflow — grain pivot per row with filPivote re-applied on edit, optional identical-piece grouping in both orderings, localStorage save/restore with corruption guard, meuble edit/update/cancel, undo-delete toasts, hidden-band fixes; shared pure sheet module feeds screen, print and PDF; 101 tests pass, build OK, Chromium verified persistence, edit, undo, pivot in PDF, grouping and corrupted-storage startup.
 
 - [x] Fix the four requested browser bugs only: invalid numeric drafts, 32 mm shelf clearance, empty split-drawer validation and independent shelf/drawer sides; 76 tests pass, build OK, Chromium confirms disabled invalid submissions and independent sides with saved drawer pieces; no input/runtime errors, existing preview ref warnings remain; presentation, cutting formulas, dependencies and pending plan untouched.
 
