@@ -1,5 +1,8 @@
 # Optimisation
 
+- [ ] Review current security scan results and dependency alerts; deep security scan must be refreshed in the Security tab before public presentation.
+- [ ] Propose confirmed code-weight and maintainability optimizations for approval; do not modify application code or dependencies before approval.
+
 - [x] Correct front coverage and removed-panel rendering; replace step navigation with continuous menus and assess novice usability (53 tests pass, 320/666/820/1280 px verified; no real-child usability test).
 
 - [x] Simplify the cabinet drawing and option labels; verify all four steps and furniture addition at 320/390/820/1280 px without changing calculations (49 regression tests pass).
