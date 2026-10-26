@@ -1,9 +1,14 @@
 /// <reference types="bun" />
 import { describe, expect, test } from 'bun:test';
-import { generateMeubleItems, getFurnitureLayout, validateConfig, compareSize, escapeHtml, type FurnitureConfig } from './furniture';
+import { generateMeubleItems, getFurnitureLayout, validateConfig, compareSize, escapeHtml, parseDecimal, type FurnitureConfig } from './furniture';
 import auditFixtures from './furniture.audit-fixtures.json';
 
 const base: FurnitureConfig = {hauteur:2000,largeur:800,profondeur:350,epaisseurMontants:19,epaisseurTraverses:19,epaisseurRayons:19,epaisseurDos:3,epaisseurPortes:19,montantsTouteHauteur:true,traversesTouteLargeur:false,nombreRayons:2,dosType:'aucun',nombrePortes:0,typePorte:'interieur',retraitRayons:0,decalageDos:0};
+describe('Decimal input parsing', () => {
+  for (const [raw, expected] of [['600,5',600.5],['600.5',600.5],['1 200',1200],['600,',600],['',null],['abc',null],['-5',-5],['6,0,0',null]] as const) {
+    test(`${JSON.stringify(raw)} parses as ${expected}`, () => expect(parseDecimal(raw)).toBe(expected));
+  }
+});
 const piece = (c: Partial<FurnitureConfig>, name: string) => {
   const found = generateMeubleItems({...base,...c}).find(i => i.nom === name);
   if (!found) throw new Error('Missing piece: '+name);

@@ -321,3 +321,4 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
 export const compareSize = (a: CutSheetItem, b: CutSheetItem) => Math.max(b.longueur,b.largeur)-Math.max(a.longueur,a.largeur) || Math.min(b.longueur,b.largeur)-Math.min(a.longueur,a.largeur) || b.epaisseur-a.epaisseur;
 export const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] ?? c));
 export const formatMm = (n: number) => n.toLocaleString('fr-FR', {maximumFractionDigits: 2, useGrouping: false});
+export const parseDecimal = (raw: string): number | null => { const s = raw.replace(/[\s  ]/g, '').replace(',', '.'); if (!/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return null; const n = Number(s); return Number.isFinite(n) ? n : null; };
