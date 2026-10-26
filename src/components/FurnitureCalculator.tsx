@@ -383,9 +383,11 @@ const FurnitureCalculator: React.FC = () => {
         ? [{ title: 'Pièces par taille décroissante', config: undefined as FurnitureConfig | undefined, rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }]
         : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, config: meubleGroups.find(g => g.id === s.id)?.config, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }));
       const thumbByRow = new Map<number, FurnitureConfig>();
-      const body = pdfSections.flatMap((section, sectionIndex) => {
+      let rowIndex = 0;
+      const body = pdfSections.flatMap(section => {
         const withThumb = showThumbnails && section.config;
-        if (withThumb) thumbByRow.set(sectionIndex === 0 ? 0 : thumbByRow.size ? Math.max(...thumbByRow.keys()) + pdfSections[sectionIndex - 1].rows.length + 1 : 0, section.config!);
+        if (withThumb) thumbByRow.set(rowIndex, section.config!);
+        rowIndex += 1 + section.rows.length;
         return [[{ content: section.title, colSpan: 5, styles: { fontStyle: 'bold' as const, fillColor: 255, minCellHeight: withThumb ? 24 : undefined } }], ...section.rows];
       });
       autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
