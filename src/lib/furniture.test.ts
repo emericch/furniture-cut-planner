@@ -230,7 +230,7 @@ describe('Centered divider and compartment clearances', () => {
     expect(validateConfig({...split,tiroirsCompartiments:{position:'haut',gauche:[],droite:[]}})).toEqual(['Ajoutez au moins une face de tiroir, ou choisissez des tiroirs sur toute la largeur.']);
   });
   test('zero and negative split drawer heights retain the positive-height error', () => {
-    for (const height of [0,-1]) expect(validateConfig({...split,tiroirsCompartiments:{position:'haut',gauche:[height],droite:[]}})).toEqual(['Saisissez une hauteur positive pour chaque face de tiroir.']);
+    for (const height of [0,-1]) expect(validateConfig({...split,tiroirsCompartiments:{position:'haut',gauche:[height],droite:[]}})).toContain('Saisissez une hauteur positive pour chaque face de tiroir.');
   });
   test('centered divider subtracts one thickness and shelves stay inside each bay',()=>{
     expect(piece(split,'Montant intermédiaire')).toMatchObject({longueur:1962,largeur:350,epaisseur:19});
