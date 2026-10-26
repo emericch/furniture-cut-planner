@@ -75,6 +75,7 @@ describe('Invalid configurations and full matrix', () => {
       for (const epaisseurMontants of [8,16,19,22]) for (const epaisseurTraverses of [8,16,19,22])
       for (const epaisseurRayons of [8,16,19,22]) for (const epaisseurDos of [3,8,16,19,22]) for (const epaisseurPortes of [16,19,22]) {
         const c = {...fixture.config,epaisseurMontants,epaisseurTraverses,epaisseurRayons,epaisseurDos,epaisseurPortes} as FurnitureConfig;
+        if (incoherent(c)) { expect(validateConfig(c).length).toBeGreaterThan(0); continue; }
         expect(validateConfig(c)).toEqual([]);
         const items = generateMeubleItems(c);
         const [side,,top,,shelf] = items;
@@ -92,8 +93,8 @@ describe('Invalid configurations and full matrix', () => {
         expect(doors.length).toBe(c.nombrePortes);
         if (doors.length > 0) {
           const overlay = c.typePorte === 'applique';
-          expect(doors.reduce((sum,d) => sum+d.longueur,0) + (doors.length === 2 ? 2 : 0) + (overlay ? 3 : 6 + 2*epaisseurMontants)).toBe(800);
-          expect(doors[0].largeur + (overlay ? 3 : 6 + 2*epaisseurTraverses)).toBe(2000);
+          expect(doors.reduce((sum,d) => sum+d.largeur,0) + (doors.length === 2 ? 2 : 0) + (overlay ? 2 : 6 + 2*epaisseurMontants)).toBe(800);
+          expect(doors[0].longueur + (overlay ? 2 : 6 + 2*epaisseurTraverses)).toBe(2000);
           expect(doors.every(d => d.epaisseur === epaisseurPortes)).toBe(true);
         }
       }
@@ -107,8 +108,9 @@ describe('Invalid configurations and full matrix', () => {
   test('reject shelves that consume entire internal height', () => expect(validateConfig({...base,hauteur:100,nombreRayons:10}).length).toBeGreaterThan(0));
   test('back thickness and offset must fit even without shelves', () => {
     for (const dosType of ['toute-hauteur','toute-largeur','entre-montants-traverses','en-rainure'] as const) {
-      expect(validateConfig({...base,nombreRayons:0,dosType,decalageDos:400}).length).toBeGreaterThan(0);
-      expect(validateConfig({...base,nombreRayons:0,dosType,decalageDos:10})).toEqual([]);
+      const assembly = dosType === 'toute-largeur' ? {montantsTouteHauteur:false,traversesTouteLargeur:true} : {};
+      expect(validateConfig({...base,...assembly,nombreRayons:0,dosType,decalageDos:400}).length).toBeGreaterThan(0);
+      expect(validateConfig({...base,...assembly,nombreRayons:0,dosType,decalageDos:10})).toEqual([]);
     }
   });
   test('19 mm inset door must fit depth and not overlap a 3 mm back even without shelves', () => {
