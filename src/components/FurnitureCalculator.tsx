@@ -106,8 +106,7 @@ const FurnitureCalculator: React.FC = () => {
         : g));
       toast.success(`${nomMeuble} mis à jour`);
       setEditingConfigId(null);
-      setMeubleNom('');
-      setConfig(defaultConfig);
+      restoreFormBackup();
       return;
     }
     const nomMeuble = meubleNom.trim() || `Meuble ${meubleCounter}`;
@@ -125,6 +124,7 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const startEditMeubleConfig = (groupe: MeubleGroup) => {
+    if (!editingConfigId) setFormBackup({ config, meubleNom });
     setEditingConfigId(groupe.id);
     setConfig({ ...groupe.config });
     setMeubleNom(groupe.nom);
