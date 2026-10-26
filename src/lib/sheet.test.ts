@@ -221,6 +221,40 @@ describe('sauvegarde locale', () => {
     expect(restored).not.toBeNull();
     expect(restored!.customItems.map(i => i.nom)).toEqual(['Tablette', 'Tiroir']);
   });
+
+  test('options imbriquées corrompues : le formulaire est ignoré sans perdre les meubles', () => {
+    const brokenOptions = [
+      { tiroirs: { position: 'haut', hauteurs: null } },
+      { tiroirsCompartiments: { position: 'haut', gauche: [], droite: {} } },
+      { rayonsCompartiments: { gauche: null, droite: { mobiles: 1, fixes: 0 } } },
+      { bandeauHaut: { hauteur: 150, remplaceTraverse: true } },
+      { epaisseurRayons: null },
+    ];
+    for (const options of brokenOptions) {
+      const raw = JSON.parse(serializeSheet(state));
+      raw.config = { ...raw.config, ...options };
+      const restored = parseSheet(JSON.stringify(raw));
+      expect(restored?.config).toBeUndefined();
+      expect(restored?.meubleGroups.map(g => g.nom)).toEqual(['Cuisine']);
+      expect(restored?.customItems).toHaveLength(1);
+    }
+  });
+
+  test('un meuble aux tiroirs corrompus est ignoré seul', () => {
+    const raw = JSON.parse(serializeSheet({ ...state, meubleGroups: [makeGroup('m1', 'Cuisine'), makeGroup('m2', 'Salon')] }));
+    raw.meubleGroups[0].config.tiroirs = { position: 'haut', hauteurs: null };
+    expect(parseSheet(JSON.stringify(raw))?.meubleGroups.map(g => g.nom)).toEqual(['Salon']);
+  });
+
+  test('dates corrompues et pièces négatives ne font pas perdre les entrées valides', () => {
+    const raw = JSON.parse(serializeSheet(state));
+    raw.meubleGroups[0].dateAjout = { toString: 42 };
+    raw.customItems.push(custom('Invalide', -1, 300), custom('Fraction', 500, 300, 19, 1.5));
+    const restored = parseSheet(JSON.stringify(raw));
+    expect(restored?.meubleGroups).toHaveLength(1);
+    expect(restored?.meubleGroups[0].dateAjout).toBeInstanceOf(Date);
+    expect(restored?.customItems.map(i => i.nom)).toEqual(['Tablette']);
+  });
 });
 
 describe('bandeau caché (correctifs F)', () => {

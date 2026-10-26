@@ -1,5 +1,7 @@
 # Optimisation
 
+- [ ] Deep debug of latest sheet changes: verify restoration, edit/cancel/update/delete/undo, pivots and exports; harden malformed nested storage without changing formulas, dependencies or presentation.
+
 - [x] Step 2 fixes: tolerant sheet parsing (invalid form config or single corrupt entries no longer wipe the sheet) and form backup restored on edit cancel/update/delete; 104 tests pass, build OK, Chromium verified both scenarios.
 
 

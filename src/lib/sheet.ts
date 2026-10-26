@@ -144,20 +144,48 @@ export const serializeSheet = (state: SheetState): string =>
     })),
   });
 
-const isItem = (v: unknown): v is CutSheetItem =>
-  !!v && typeof v === 'object' &&
-  typeof (v as CutSheetItem).nom === 'string' &&
-  (['longueur', 'largeur', 'epaisseur', 'quantite'] as const).every(
-    k => typeof (v as CutSheetItem)[k] === 'number' && Number.isFinite((v as CutSheetItem)[k]),
-  );
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  !!v && typeof v === 'object' && !Array.isArray(v);
+const isFiniteNumber = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const isNumberArray = (v: unknown) => Array.isArray(v) && v.every(isFiniteNumber);
 
-const isConfig = (v: unknown): v is FurnitureConfig =>
-  !!v && typeof v === 'object' &&
-  (['hauteur', 'largeur', 'profondeur'] as const).every(
-    k => typeof (v as FurnitureConfig)[k] === 'number' && Number.isFinite((v as FurnitureConfig)[k]),
-  ) &&
-  typeof (v as FurnitureConfig).montantsTouteHauteur === 'boolean' &&
-  typeof (v as FurnitureConfig).traversesTouteLargeur === 'boolean';
+const isItem = (v: unknown): v is CutSheetItem =>
+  isRecord(v) && typeof v.nom === 'string' &&
+  ['longueur', 'largeur', 'epaisseur'].every(k => isFiniteNumber(v[k]) && v[k] > 0) &&
+  isFiniteNumber(v.quantite) && Number.isInteger(v.quantite) && v.quantite > 0 &&
+  (v.filPivote === undefined || typeof v.filPivote === 'boolean');
+
+// Check the complete stored shape before calling layout/calculation code.
+// Semantic validation remains in furniture.ts; invalid drafts never discard saved furniture.
+const isConfig = (v: unknown): v is FurnitureConfig => {
+  if (!isRecord(v)) return false;
+  if (!['hauteur', 'largeur', 'profondeur', 'epaisseurMontants', 'epaisseurTraverses',
+    'epaisseurRayons', 'epaisseurDos', 'epaisseurPortes', 'nombreRayons', 'retraitRayons',
+    'decalageDos'].every(k => isFiniteNumber(v[k]))) return false;
+  if (typeof v.montantsTouteHauteur !== 'boolean' || typeof v.traversesTouteLargeur !== 'boolean') return false;
+  if (![0, 1, 2].includes(v.nombrePortes as number) || !['applique', 'interieur'].includes(v.typePorte as string) ||
+    !['aucun', 'toute-hauteur', 'toute-largeur', 'en-applique', 'entre-montants-traverses', 'en-rainure'].includes(v.dosType as string)) return false;
+  if (v.nombreRayonsFixes !== undefined && !isFiniteNumber(v.nombreRayonsFixes)) return false;
+  if (v.montantIntermediaire !== undefined && !['entre-traverses', 'toute-hauteur'].includes(v.montantIntermediaire as string)) return false;
+  if (v.dosParCompartiment !== undefined && typeof v.dosParCompartiment !== 'boolean') return false;
+  for (const band of [v.bandeauHaut, v.bandeauBas]) {
+    if (band !== undefined && (!isRecord(band) || !isFiniteNumber(band.hauteur) ||
+      typeof band.remplaceTraverse !== 'boolean' || typeof band.faceApplique !== 'boolean' ||
+      (band.cachePorte !== undefined && typeof band.cachePorte !== 'boolean'))) return false;
+  }
+  if (v.tiroirs !== undefined && (!isRecord(v.tiroirs) || !['haut', 'bas'].includes(v.tiroirs.position as string) || !isNumberArray(v.tiroirs.hauteurs))) return false;
+  if (v.tiroirsCompartiments !== undefined && (!isRecord(v.tiroirsCompartiments) ||
+    !['haut', 'bas'].includes(v.tiroirsCompartiments.position as string) ||
+    !isNumberArray(v.tiroirsCompartiments.gauche) || !isNumberArray(v.tiroirsCompartiments.droite))) return false;
+  if (v.rayonsCompartiments !== undefined) {
+    if (!isRecord(v.rayonsCompartiments)) return false;
+    for (const side of ['gauche', 'droite']) {
+      const counts = v.rayonsCompartiments[side];
+      if (!isRecord(counts) || !isFiniteNumber(counts.mobiles) || !isFiniteNumber(counts.fixes)) return false;
+    }
+  }
+  return true;
+};
 
 // Ne rejette tout que si le JSON est illisible ou n'est pas un objet :
 // une entrée invalide est ignorée seule, une config de formulaire invalide est simplement absente.
@@ -172,7 +200,7 @@ export const parseSheet = (raw: string | null): SheetState | null => {
       if (!g || typeof g.id !== 'string' || typeof g.nom !== 'string') continue;
       if (!Array.isArray(g.items) || !g.items.every(isItem)) continue;
       if (!isConfig(g.config)) continue;
-      const date = new Date(g.dateAjout);
+      const date = new Date(typeof g.dateAjout === 'string' || typeof g.dateAjout === 'number' ? g.dateAjout : NaN);
       meubleGroups.push({ ...g, dateAjout: Number.isNaN(date.getTime()) ? new Date() : date });
     }
     const config = isConfig(v.config) ? v.config : undefined;
