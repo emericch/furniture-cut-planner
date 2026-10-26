@@ -43,5 +43,6 @@
 - [x] Add manifest-only installation and document GitHub Pages free hosting option.
 - [x] Verify calculation flows, exports, print document and Chromium/Firefox presentation.
 - [x] Add a side view next to the front view showing back panel, shelves and fronts at their true depths (pure helper + 6 tests, checked at 586/1280 px).
+- [ ] Side view: place shelves against the back panel so the clearance shows between shelf and door, not between shelf and back.
 - [ ] Physical Safari/iOS, AirPrint and home-screen installation checks: unavailable hardware; WebKit unavailable.
 - [ ] Publish updated app or configure external free hosting: awaits user's explicit deployment request and hosting account.
