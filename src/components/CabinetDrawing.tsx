@@ -27,6 +27,9 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
   const sxSide = 156 / Math.max(1, size(c.profondeur));
   const sideW = (mm: number) => mm <= 40 ? size(mm) * T / sxSide : size(mm);
   const sideH = (mm: number) => mm <= 40 ? size(mm) * T / sy : size(mm);
+  // Jeux entre façades exagérés (3 px à l'écran) pour rester lisibles, comme les épaisseurs.
+  const frontNames = new Set(getFrontRectangles(c).map(f => f.name));
+  const joint = 3 / sy;
   return <figure className="min-w-0 space-y-3">
     <div className="flex flex-wrap items-start justify-center gap-3">
       <div className="w-full max-w-[300px]">
@@ -63,7 +66,10 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
         <div className="aspect-[2/3]">
           <svg viewBox="0 0 200 300" className="h-full w-full" role="img" aria-label="Vue de côté : profondeur du meuble avec dos, rayons et façades">
             <g transform={`translate(22 12) scale(${sxSide} ${sy})`}>
-              {getSideRectangles(c).map((r, i) => <rect key={`${r.name}-${i}`} data-piece={r.name} x={coordinate(r.x)} y={coordinate(r.y)} width={sideW(r.width)} height={sideH(r.height)} className={r.name === 'Montant' ? 'fill-secondary stroke-foreground' : 'fill-background stroke-foreground'} />)}
+              {getSideRectangles(c).map((r, i) => {
+                const isFront = frontNames.has(r.name);
+                return <rect key={`${r.name}-${i}`} data-piece={r.name} x={coordinate(r.x)} y={coordinate(r.y) + (isFront ? joint / 2 : 0)} width={sideW(r.width)} height={Math.max(1, sideH(r.height) - (isFront ? joint : 0))} vectorEffect="non-scaling-stroke" strokeWidth="1.5" className={r.name === 'Montant' ? 'fill-secondary stroke-foreground' : 'fill-background stroke-foreground'} />;
+              })}
             </g>
           </svg>
         </div>
