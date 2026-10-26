@@ -310,7 +310,8 @@ describe('Split-back and decimal regression fixes', () => {
     expect(validateConfig({...c,tiroirsCompartiments:{...c.tiroirsCompartiments,droite:[352.02]}})).toHaveLength(1);
   });
   test('decimal cabinet dimensions yield an exact 538.4 mm shelf depth', () => {
-    const c = {...base,largeur:600,profondeur:580.7,dosType:'entre-montants-traverses' as const,nombrePortes:1,decalageDos:10} satisfies FurnitureConfig;
+    // 580.7 - 3 mm back - 10 mm back offset - 29 mm inset-door clearance - 0.3 mm shelf setback.
+    const c = {...base,largeur:600,profondeur:580.7,dosType:'entre-montants-traverses' as const,nombrePortes:1,decalageDos:10,retraitRayons:0.3} satisfies FurnitureConfig;
     expect(validateConfig(c)).toEqual([]);
     expect(piece(c,'Rayon')).toMatchObject({longueur:561,largeur:538.4});
   });
