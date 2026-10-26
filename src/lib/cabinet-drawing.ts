@@ -9,7 +9,8 @@ export function getFrontRectangles(c: FurnitureConfig): FrontRectangle[] {
   const items = generateMeubleItems(c);
   const add = (name: string, x: number, y: number) => {
     const item = items.find(i => i.nom === name);
-    if (item) result.push({ name, x, y, width: item.longueur, height: item.largeur });
+    // Fronts store grain length as longueur (height); the drawing uses geometric width/height.
+    if (item) result.push({ name, x, y, width: item.largeur, height: item.longueur });
   };
   const left = c.typePorte === 'applique' ? 1 : c.epaisseurMontants + 3;
   const doors = items.filter(i => i.nom.startsWith('Porte'));

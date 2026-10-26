@@ -30,7 +30,8 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
             {view === 'interieur' && divided && <rect x={coordinate((c.largeur-c.epaisseurMontants)/2)} y={coordinate(c.montantIntermediaire==='toute-hauteur' ? 0 : layout.topInset)} width={size(c.epaisseurMontants)} height={size(c.montantIntermediaire==='toute-hauteur' ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset)} />}
             {view === 'interieur' && bays.map(side => {
               const count = divided ? (c.rayonsCompartiments?.[side]?.mobiles ?? 0)+(c.rayonsCompartiments?.[side]?.fixes ?? 0) : c.nombreRayons+(c.nombreRayonsFixes ?? 0);
-              return Array.from({length:Math.min(count,8)},(_,i)=><rect key={`${side}-${i}`} x={coordinate(side==='droite' ? (c.largeur+c.epaisseurMontants)/2 : c.epaisseurMontants)} y={coordinate(layout.topBandEnd+(c.hauteur-layout.topBandEnd-layout.bottomBandEnd)*(i+1)/(Math.min(count,8)+1))} width={size(divided ? layout.bayWidth : c.largeur-2*c.epaisseurMontants)} height={size(c.epaisseurRayons)} />);
+              const zone = layout.shelfZones[side];
+              return Array.from({length:Math.min(count,8)},(_,i)=><rect key={`${side}-${i}`} x={coordinate(side==='droite' ? (c.largeur+c.epaisseurMontants)/2 : c.epaisseurMontants)} y={coordinate(zone.top+(zone.bottom-zone.top)*(i+1)/(Math.min(count,8)+1))} width={size(divided ? layout.bayWidth : c.largeur-2*c.epaisseurMontants)} height={size(c.epaisseurRayons)} />);
             })}
           </g>
           {view === 'facades' && <g className="fill-background stroke-foreground">{getFrontRectangles(c).map(front=><rect key={front.name} data-piece={front.name} x={coordinate(front.x)} y={coordinate(front.y)} width={size(front.width)} height={size(front.height)} vectorEffect="non-scaling-stroke" strokeWidth="1.5" />)}</g>}
