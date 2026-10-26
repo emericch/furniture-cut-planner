@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Columns2, Layers, PanelTop, DoorOpen } from 'lucide-react';
 import { getFurnitureLayout, formatMm, type FurnitureConfig } from '@/lib/furniture';
-import { getFrontRectangles, getSideRectangles } from '@/lib/cabinet-drawing';
+import { getFrontRectangles, getSideRectangles, getThumbnailViews, type ThumbnailRect } from '@/lib/cabinet-drawing';
 
 const coordinate = (n: number) => Number.isFinite(n) ? n : 0;
 const size = (n: number) => Number.isFinite(n) && n > 0 ? n : 0;
