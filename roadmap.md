@@ -1,5 +1,7 @@
 # Optimisation
 
+- [ ] Fix the requested dependency advisories, verify resolved lockfile versions, run regression tests and check the working app; keep the pending optimization plan and visual presentation unchanged.
+
 - [x] Apply only the requested split-back dimensions, equal drawer-stack validation, 0.01 mm rounding and decimal input keyboard fixes; 62 tests pass (53 existing + 9 new), and 147.5 reads back in the cutting sheet; no visual changes. Security optimization plan remains pending approval.
 
 - [x] Review recorded security scan results and dependency alerts; 53 regression tests pass. Recorded scans are stale, dependency advisories exist, and lockfiles disagree with installed jsPDF.
