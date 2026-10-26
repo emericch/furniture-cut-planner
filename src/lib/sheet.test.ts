@@ -177,15 +177,49 @@ describe('sauvegarde locale', () => {
     expect(restored!.config.hauteur).toBe(2000);
   });
 
-  test('données absentes ou corrompues : parseSheet renvoie null sans planter', () => {
+  test('données absentes ou illisibles : parseSheet renvoie null sans planter', () => {
     expect(parseSheet(null)).toBeNull();
     expect(parseSheet('')).toBeNull();
     expect(parseSheet('pas du json {')).toBeNull();
     expect(parseSheet('42')).toBeNull();
+    expect(parseSheet('[1,2]')).toBeNull();
     expect(parseSheet('{"meubleGroups":"oui"}')).toBeNull();
-    expect(parseSheet(JSON.stringify({ ...state, meubleGroups: [{ id: 1 }] }))).toBeNull();
-    expect(parseSheet(JSON.stringify({ ...state, customItems: [{ nom: 'X' }] }))).toBeNull();
-    expect(parseSheet(JSON.stringify({ ...state, config: { hauteur: 'grand' } }))).toBeNull();
+  });
+
+  test('config de formulaire invalide (largeur NaN sérialisée en null) : les meubles sont conservés, la config est absente', () => {
+    const corrupt: SheetState = {
+      ...state,
+      meubleGroups: [makeGroup('m1', 'Cuisine'), makeGroup('m2', 'Salon')],
+      config: { ...baseConfig, largeur: NaN },
+    };
+    const restored = parseSheet(serializeSheet(corrupt));
+    expect(restored).not.toBeNull();
+    expect(restored!.meubleGroups.map(g => g.nom)).toEqual(['Cuisine', 'Salon']);
+    expect(restored!.customItems).toHaveLength(1);
+    expect(restored!.config).toBeUndefined();
+    expect(restored!.meubleNom).toBe('');
+  });
+
+  test('un meuble corrompu parmi 3 : les 2 autres sont conservés', () => {
+    const raw = JSON.parse(serializeSheet({
+      ...state,
+      meubleGroups: [makeGroup('m1', 'Cuisine'), makeGroup('m2', 'Salon'), makeGroup('m3', 'Entrée')],
+    }));
+    raw.meubleGroups[1] = { id: 42, items: 'pas un tableau' };
+    const restored = parseSheet(JSON.stringify(raw));
+    expect(restored).not.toBeNull();
+    expect(restored!.meubleGroups.map(g => g.nom)).toEqual(['Cuisine', 'Entrée']);
+  });
+
+  test('une pièce personnalisée corrompue : les autres sont conservées', () => {
+    const raw = JSON.parse(serializeSheet({
+      ...state,
+      customItems: [custom('Tablette', 500, 300), custom('Tiroir', 400, 200)],
+    }));
+    raw.customItems.splice(1, 0, { nom: 'Sans dimensions' });
+    const restored = parseSheet(JSON.stringify(raw));
+    expect(restored).not.toBeNull();
+    expect(restored!.customItems.map(i => i.nom)).toEqual(['Tablette', 'Tiroir']);
   });
 });
 

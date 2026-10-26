@@ -60,6 +60,7 @@ const FurnitureCalculator: React.FC = () => {
   const [editingMeubleId, setEditingMeubleId] = useState<string | null>(null);
   const [editingNom, setEditingNom] = useState('');
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
+  const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
 
   const [order, setOrder] = useState<SheetOrder>(saved?.order ?? 'meuble');
   const [groupIdentical, setGroupIdentical] = useState(saved?.groupIdentical ?? false);
@@ -77,10 +78,20 @@ const FurnitureCalculator: React.FC = () => {
   const epaisseurs = [8, 16, 19, 22];
   const epaisseursDos = [3, 8, 16, 19, 22];
 
+  const restoreFormBackup = () => {
+    if (formBackup) {
+      setConfig(formBackup.config);
+      setMeubleNom(formBackup.meubleNom);
+    } else {
+      setConfig(defaultConfig);
+      setMeubleNom('');
+    }
+    setFormBackup(null);
+  };
+
   const cancelEditMeuble = () => {
     setEditingConfigId(null);
-    setMeubleNom('');
-    setConfig(defaultConfig);
+    restoreFormBackup();
   };
 
   const addMeubleToSheet = () => {
@@ -95,8 +106,7 @@ const FurnitureCalculator: React.FC = () => {
         : g));
       toast.success(`${nomMeuble} mis à jour`);
       setEditingConfigId(null);
-      setMeubleNom('');
-      setConfig(defaultConfig);
+      restoreFormBackup();
       return;
     }
     const nomMeuble = meubleNom.trim() || `Meuble ${meubleCounter}`;
@@ -114,6 +124,7 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const startEditMeubleConfig = (groupe: MeubleGroup) => {
+    if (!editingConfigId) setFormBackup({ config, meubleNom });
     setEditingConfigId(groupe.id);
     setConfig({ ...groupe.config });
     setMeubleNom(groupe.nom);
