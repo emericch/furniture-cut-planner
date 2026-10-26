@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
 import { FurnitureDesigner } from './FurnitureDesigner';
 import { NumberField } from './NumberField';
+import { CabinetThumbnail } from './CabinetDrawing';
+import { getThumbnailViews, thumbnailSvgMarkup } from '@/lib/cabinet-drawing';
 
 const defaultConfig: FurnitureConfig = {
   hauteur: 2000,
@@ -64,12 +66,13 @@ const FurnitureCalculator: React.FC = () => {
 
   const [order, setOrder] = useState<SheetOrder>(saved?.order ?? 'meuble');
   const [groupIdentical, setGroupIdentical] = useState(saved?.groupIdentical ?? false);
+  const [showThumbnails, setShowThumbnails] = useState(saved?.showThumbnails ?? false);
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, config: formBackup?.config ?? config, meubleNom: formBackup?.meubleNom ?? meubleNom }));
+      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config: formBackup?.config ?? config, meubleNom: formBackup?.meubleNom ?? meubleNom }));
     } catch { /* stockage indisponible : la feuille reste en mémoire */ }
-  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, config, meubleNom, formBackup]);
+  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config, meubleNom, formBackup]);
 
   const validationErrors = validateConfig(config);
   const sections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
