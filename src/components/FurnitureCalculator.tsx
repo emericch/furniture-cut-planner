@@ -361,6 +361,7 @@ const FurnitureCalculator: React.FC = () => {
 
 
                 {validationErrors.length > 0 && <p role="alert" className="text-sm text-destructive">{validationErrors[0]}</p>}
+                {getWarnings(config).length > 0 && <div role="status" className="space-y-1">{getWarnings(config).map((warning, index) => <p key={index} className="text-sm text-muted-foreground">{warning}</p>)}</div>}
                 <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="w-full" size="lg">
                   <Plus className="mr-2 h-4 w-4" />
                   Ajouter à la feuille de débit
