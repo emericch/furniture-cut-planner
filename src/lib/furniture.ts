@@ -199,10 +199,10 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
     for (const [label,band,span] of [['haut',config.bandeauHaut,layout.topBandEnd],['bas',config.bandeauBas,layout.bottomBandEnd]] as const) {
       if (!band) continue;
       items.push({nom:`Bandeau ${label}`,longueur:config.largeur-2*config.epaisseurMontants,largeur:band.hauteur,epaisseur:config.epaisseurTraverses,quantite:1});
-      if (band.faceApplique) items.push({nom:`Face fixe ${label} (applique)`,longueur:config.largeur-3,largeur:span-2.5,epaisseur:config.epaisseurPortes,quantite:1});
+      if (band.faceApplique) items.push({nom:`Face fixe ${label} (applique)`,longueur:span-2,largeur:config.largeur-2,epaisseur:config.epaisseurPortes,quantite:1});
     }
-    config.tiroirs?.hauteurs.forEach((height,index) => items.push({nom:`Face tiroir ${index+1} (${config.tiroirs?.position === 'haut' ? 'haut' : 'bas'})`,longueur:config.largeur-3,largeur:height,epaisseur:config.epaisseurPortes,quantite:1}));
-    if (config.tiroirsCompartiments) for (const side of ['gauche','droite'] as const) config.tiroirsCompartiments[side].forEach((height,index) => items.push({nom:`Face tiroir ${side} ${index+1}`,longueur:(config.largeur-5)/2,largeur:height,epaisseur:config.epaisseurPortes,quantite:1}));
+    config.tiroirs?.hauteurs.forEach((height,index) => items.push({nom:`Face tiroir ${index+1} (${config.tiroirs?.position === 'haut' ? 'haut' : 'bas'})`,longueur:height,largeur:config.largeur-2,epaisseur:config.epaisseurPortes,quantite:1}));
+    if (config.tiroirsCompartiments) for (const side of ['gauche','droite'] as const) config.tiroirsCompartiments[side].forEach((height,index) => items.push({nom:`Face tiroir ${side} ${index+1}`,longueur:height,largeur:(config.largeur-4)/2,epaisseur:config.epaisseurPortes,quantite:1}));
 
     // Calcul du dos (si présent)
     if (config.dosType !== 'aucun') {
@@ -234,8 +234,8 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
       }
       items.push({
         nom: 'Dos',
-        longueur: largeurDos,
-        largeur: hauteurDos,
+        longueur: hauteurDos,
+        largeur: largeurDos,
         epaisseur: config.epaisseurDos,
         quantite: config.montantIntermediaire && config.dosParCompartiment ? 2 : 1
       });
