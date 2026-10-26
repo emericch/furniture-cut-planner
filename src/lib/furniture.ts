@@ -74,9 +74,9 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   const drawerHeights = stacks.reduce((largest,stack) => stack.reduce((s,h) => s+h+2,0) > largest.reduce((s,h) => s+h+2,0) ? stack : largest, [] as number[]);
   const stackSpace = (heights:number[]) => heights.reduce((sum,h) => sum+h,0) + Math.max(0,heights.length-1)*2 + (heights.length > 0 && c.nombrePortes > 0 ? 2 : 0);
   const drawerSpace = stackSpace(drawerHeights);
-  // A covered band shares the 2 mm joint symmetrically with the next front.
-  const topOverlay = topBandEnd ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1.5;
-  const bottomOverlay = bottomBandEnd ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1.5;
+  // A covered band shares the 2 mm joint symmetrically with the next front; outer edges keep 1 mm.
+  const topOverlay = topBandEnd && !hiddenTopAll ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1;
+  const bottomOverlay = bottomBandEnd && !hiddenBottomAll ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1;
   const position = c.tiroirsCompartiments?.position ?? c.tiroirs?.position;
   const pile = (h: number[]) => h.reduce((s,x) => s+x,0) + Math.max(0,h.length-1)*2;
   const sidePile = (side: 'gauche' | 'droite') => c.tiroirsCompartiments ? pile(c.tiroirsCompartiments[side]) : pile(c.tiroirs?.hauteurs ?? []);
