@@ -1,6 +1,6 @@
 # Optimisation
 
-- [ ] Fix the four requested browser bugs only: invalid numeric drafts, 32 mm shelf clearance, empty split-drawer validation and independent shelf/drawer sides; run regression tests and browser checks without changing presentation, cutting formulas, dependencies or the pending plan.
+- [x] Fix the four requested browser bugs only: invalid numeric drafts, 32 mm shelf clearance, empty split-drawer validation and independent shelf/drawer sides; 76 tests pass, build OK, Chromium confirms disabled invalid submissions and independent sides with saved drawer pieces; no input/runtime errors, existing preview ref warnings remain; presentation, cutting formulas, dependencies and pending plan untouched.
 
 - [x] Fix the five requested bugs only: French decimal entry, safe drawing sizes, blank rename cancellation, overlay defaults when adding doors to drawers, and consistent French dimensions; 70 tests pass (62 existing + 8 new), build OK, Chromium fr-FR flows and PDF download verified; presentation, formulas and pending plan untouched.
 
