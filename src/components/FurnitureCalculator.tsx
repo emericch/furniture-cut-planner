@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { generateMeubleItems, validateConfig, compareSize, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
+import { generateMeubleItems, validateConfig, getWarnings, compareSize, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
 import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
@@ -361,6 +361,7 @@ const FurnitureCalculator: React.FC = () => {
 
 
                 {validationErrors.length > 0 && <p role="alert" className="text-sm text-destructive">{validationErrors[0]}</p>}
+                {getWarnings(config).length > 0 && <div role="status" className="space-y-1">{getWarnings(config).map((warning, index) => <p key={index} className="text-sm text-muted-foreground">{warning}</p>)}</div>}
                 <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="w-full" size="lg">
                   <Plus className="mr-2 h-4 w-4" />
                   Ajouter à la feuille de débit

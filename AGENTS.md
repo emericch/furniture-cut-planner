@@ -1,6 +1,7 @@
 # Architecture
 
 - Keep furniture dimensions and validation in a pure calculation module with regression tests so screen, print and PDF use identical validated results.
+- A piece's longueur always follows the grain direction: vertical (height) for doors, drawer and band fronts, sides, dividers and backs; horizontal (width) for traverses, bands and shelves; the drawing converts back to geometric width/height.
 - Keep numeric cutting-list audit fixtures separate from production formulas to detect regressions against independently calculated reference dimensions.
 - Derive panel presence, opening heights and front depth allowances through one shared layout helper; reveal optional band and drawer controls in a dedicated conditional form to avoid duplicating dimension logic.
 - Keep centered-divider bay widths and front/back clearance planes in the pure layout helper; split horizontal panels for full-height dividers to avoid intersections and use the same generated rows for all outputs.
