@@ -367,7 +367,8 @@ const FurnitureCalculator: React.FC = () => {
           </tbody>
         </table>
       </div>
-    `).join('');
+    `;
+    }).join('');
   };
 
   const handleExportPDF = async () => {
@@ -379,10 +380,38 @@ const FurnitureCalculator: React.FC = () => {
       pdf.setFontSize(9); pdf.text(new Date().toLocaleDateString('fr-FR'), 14, 21);
       pdf.text(GRAIN_LEGEND, 14, 26);
       const pdfSections = order === 'taille'
-        ? [{ title: 'Pièces par taille décroissante', rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }]
-        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }));
-      const body = pdfSections.flatMap(section => [[{ content: section.title, colSpan: 5, styles: { fontStyle: 'bold' as const, fillColor: 255 } }], ...section.rows]);
-      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid' });
+        ? [{ title: 'Pièces par taille décroissante', config: undefined as FurnitureConfig | undefined, rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }]
+        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, config: meubleGroups.find(g => g.id === s.id)?.config, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }));
+      const thumbByRow = new Map<number, FurnitureConfig>();
+      const body = pdfSections.flatMap((section, sectionIndex) => {
+        const withThumb = showThumbnails && section.config;
+        if (withThumb) thumbByRow.set(sectionIndex === 0 ? 0 : thumbByRow.size ? Math.max(...thumbByRow.keys()) + pdfSections[sectionIndex - 1].rows.length + 1 : 0, section.config!);
+        return [[{ content: section.title, colSpan: 5, styles: { fontStyle: 'bold' as const, fillColor: 255, minCellHeight: withThumb ? 24 : undefined } }], ...section.rows];
+      });
+      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
+        didDrawCell: (data) => {
+          const cfg = thumbByRow.get(data.row.index);
+          if (!cfg || data.section !== 'body' || data.column.index !== 0) return;
+          const { front, side, largeur, hauteur, profondeur } = getThumbnailViews(cfg);
+          const H = 18; // hauteur miniature en mm
+          const s = H / Math.max(1, hauteur);
+          const draw = (rects: { x: number; y: number; width: number; height: number }[], w: number, x0: number) => {
+            const minT = 0.5 / s;
+            pdf.setDrawColor(0); pdf.setLineWidth(0.15);
+            for (const r of rects) {
+              const rw = Math.max(r.width, Math.min(minT, w));
+              const rh = Math.max(r.height, Math.min(minT, hauteur));
+              const x = Math.max(0, Math.min(r.x, w - rw));
+              const y = Math.max(0, Math.min(r.y, hauteur - rh));
+              pdf.rect(x0 + x * s, data.cell.y + 3 + y * s, rw * s, rh * s);
+            }
+            return w * s;
+          };
+          const totalW = (largeur + profondeur) * s + 2;
+          const x0 = data.cell.x + data.cell.width - 4 - totalW;
+          const wf = draw(front, largeur, x0);
+          draw(side, profondeur, x0 + wf + 2);
+        } });
       const page = pdf.getNumberOfPages(); pdf.setPage(page);
       pdf.setFontSize(8); pdf.text('Emeric Chenay · 2026 · superdebitcoupe@proton.me', 14, 285);
       pdf.addImage('/favicon.png', 'PNG', 183, 278, 10, 10);
