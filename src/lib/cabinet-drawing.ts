@@ -38,7 +38,7 @@ export function getFrontRectangles(c: FurnitureConfig): FrontRectangle[] {
 
 export interface SideRectangle { name: string; x: number; y: number; width: number; height: number }
 
-// Coupe latérale en millimètres : x = profondeur depuis l'avant du caisson, y = hauteur depuis le haut.
+// Coupe latérale en millimètres : x = profondeur depuis l'avant hors-tout (façades comprises), y = hauteur depuis le haut.
 // Les profondeurs reprennent les largeurs exactes de la liste de débit.
 export function getSideRectangles(c: FurnitureConfig): SideRectangle[] {
   const layout = getFurnitureLayout(c);
@@ -46,15 +46,17 @@ export function getSideRectangles(c: FurnitureConfig): SideRectangle[] {
   const result: SideRectangle[] = [];
   const depthOf = (name: string, fallback: number) => items.find(i => i.nom === name)?.largeur ?? fallback;
 
-  const carcassBack = layout.depth; // arrière du caisson (hors dos en applique)
-  result.push({ name: 'Montant', x: 0, y: 0, width: depthOf('Montant gauche', carcassBack), height: c.hauteur });
+  // L'avant du caisson recule quand des façades en applique le précèdent (épaisseur + jeu de 2 mm).
+  const frontOffset = layout.overlay ? c.epaisseurPortes + 2 : 0;
+  const carcassBack = layout.depth; // profondeur du caisson (hors façades et dos en applique)
+  result.push({ name: 'Montant', x: frontOffset, y: 0, width: depthOf('Montant gauche', carcassBack), height: c.hauteur });
 
   const traverseDepth = depthOf('Traverse haute', carcassBack);
-  if (layout.topPanel) result.push({ name: 'Traverse haute', x: 0, y: 0, width: traverseDepth, height: c.epaisseurTraverses });
-  if (layout.bottomPanel) result.push({ name: 'Traverse basse', x: 0, y: c.hauteur - c.epaisseurTraverses, width: traverseDepth, height: c.epaisseurTraverses });
+  if (layout.topPanel) result.push({ name: 'Traverse haute', x: frontOffset, y: 0, width: traverseDepth, height: c.epaisseurTraverses });
+  if (layout.bottomPanel) result.push({ name: 'Traverse basse', x: frontOffset, y: c.hauteur - c.epaisseurTraverses, width: traverseDepth, height: c.epaisseurTraverses });
 
-  if (c.bandeauHaut) result.push({ name: 'Bandeau haut', x: 0, y: layout.topInset, width: c.epaisseurTraverses, height: c.bandeauHaut.hauteur });
-  if (c.bandeauBas) result.push({ name: 'Bandeau bas', x: 0, y: c.hauteur - layout.bottomBandEnd, width: c.epaisseurTraverses, height: c.bandeauBas.hauteur });
+  if (c.bandeauHaut) result.push({ name: 'Bandeau haut', x: frontOffset, y: layout.topInset, width: c.epaisseurTraverses, height: c.bandeauHaut.hauteur });
+  if (c.bandeauBas) result.push({ name: 'Bandeau bas', x: frontOffset, y: c.hauteur - layout.bottomBandEnd, width: c.epaisseurTraverses, height: c.bandeauBas.hauteur });
 
   // Rayons : mêmes hauteurs que la vue de face, profondeur du débit.
   const shelfDepth = items.find(i => i.nom.startsWith('Rayon'))?.largeur ?? carcassBack;
