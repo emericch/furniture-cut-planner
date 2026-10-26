@@ -67,9 +67,9 @@ const FurnitureCalculator: React.FC = () => {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, config, meubleNom }));
+      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, config: formBackup?.config ?? config, meubleNom: formBackup?.meubleNom ?? meubleNom }));
     } catch { /* stockage indisponible : la feuille reste en mémoire */ }
-  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, config, meubleNom]);
+  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, config, meubleNom, formBackup]);
 
   const validationErrors = validateConfig(config);
   const sections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
