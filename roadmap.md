@@ -1,5 +1,8 @@
 # Optimisation
 
+- [x] Fix requested production advisories: remove unused @react-three/drei, update jspdf 4.2.1, react-router-dom 7.18.4 and zod 4.6.7; resolve fflate 0.8.3, dompurify 3.4.17 and lodash 4.18.1 in both text lockfiles. Production scan clear; 62 tests and PDF download pass, build OK; pending optimization plan and presentation untouched.
+- [ ] Resolve six moderate development-tool advisories in @tailwindcss/typography, postcss-selector-parser, postcss-nested, tailwindcss, tailwindcss-animate and lovable-tagger: upstream constraints do not permit a patched parser; awaits approval for a potentially visual-affecting tooling migration, without forced transitive overrides.
+
 - [x] Apply only the requested split-back dimensions, equal drawer-stack validation, 0.01 mm rounding and decimal input keyboard fixes; 62 tests pass (53 existing + 9 new), and 147.5 reads back in the cutting sheet; no visual changes. Security optimization plan remains pending approval.
 
 - [x] Review recorded security scan results and dependency alerts; 53 regression tests pass. Recorded scans are stale, dependency advisories exist, and lockfiles disagree with installed jsPDF.

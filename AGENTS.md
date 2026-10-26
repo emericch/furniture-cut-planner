@@ -8,3 +8,4 @@
 - Keep sheet ordering in a shared pure helper so screen and exports cannot diverge; preserve source identity when deleting custom pieces.
 - Generate PDFs with text and table pagination rather than a full-document canvas to keep dimensions readable and avoid cut rows.
 - Home-screen installation uses manifest metadata and local icons only; do not introduce app-shell service workers without an explicit offline requirement.
+- Keep bun.lock and package-lock.json consistent for security-sensitive dependency resolutions; use text lockfiles so scanners can verify installed fixes without forced transitive overrides.
