@@ -1,10 +1,11 @@
 /// <reference types="bun" />
 import { describe, expect, test } from 'bun:test';
-import { generateMeubleItems, getFurnitureLayout, validateConfig, compareSize, escapeHtml, parseDecimal, type FurnitureConfig } from './furniture';
+import { generateMeubleItems, getFurnitureLayout, validateConfig, compareSize, escapeHtml, parseDecimal, formatMm, type FurnitureConfig } from './furniture';
 import auditFixtures from './furniture.audit-fixtures.json';
 
 const base: FurnitureConfig = {hauteur:2000,largeur:800,profondeur:350,epaisseurMontants:19,epaisseurTraverses:19,epaisseurRayons:19,epaisseurDos:3,epaisseurPortes:19,montantsTouteHauteur:true,traversesTouteLargeur:false,nombreRayons:2,dosType:'aucun',nombrePortes:0,typePorte:'interieur',retraitRayons:0,decalageDos:0};
 describe('Decimal input parsing', () => {
+  test('nonfinite dimensions display a dash', () => expect(formatMm(NaN)).toBe('—'));
   for (const [raw, expected] of [['600,5',600.5],['600.5',600.5],['1 200',1200],['600,',600],['',null],['abc',null],['-5',-5],['6,0,0',null]] as const) {
     test(`${JSON.stringify(raw)} parses as ${expected}`, () => expect(parseDecimal(raw)).toBe(expected));
   }
@@ -49,6 +50,15 @@ describe('Concrete manufacturing rules', () => {
   test('22 mm supported on every panel', () => expect(validateConfig({...base,epaisseurMontants:22,epaisseurTraverses:22,epaisseurRayons:22,epaisseurDos:22,epaisseurPortes:22})).toEqual([]));
 });
 describe('Invalid configurations and full matrix', () => {
+  test('90 shelves in a 2000 mm cabinet violate the 32 mm minimum clearance', () => {
+    expect(validateConfig({...base,nombreRayons:90})).toContain('Trop de rayons : il faut au moins 32 mm entre deux rayons.');
+  });
+  test('37 shelves fit a 2000 mm cabinet with 32 mm minimum clearance', () => {
+    expect(validateConfig({...base,nombreRayons:37})).toEqual([]);
+  });
+  test('38 shelves do not fit a 2000 mm cabinet with 32 mm minimum clearance', () => {
+    expect(validateConfig({...base,nombreRayons:38})).toContain('Trop de rayons : il faut au moins 32 mm entre deux rayons.');
+  });
   test('all 60 complete cutting lists match independently calculated numeric references', () => {
     for (const fixture of auditFixtures) {
       const config = fixture.config as FurnitureConfig;
@@ -216,6 +226,12 @@ describe('Fixed bands, drawer fronts and fixed shelves', () => {
 
 describe('Centered divider and compartment clearances', () => {
   const split={...base,montantIntermediaire:'entre-traverses' as const,rayonsCompartiments:{gauche:{mobiles:2,fixes:1},droite:{mobiles:1,fixes:2}}};
+  test('empty drawer bays request a face or full-width drawers', () => {
+    expect(validateConfig({...split,tiroirsCompartiments:{position:'haut',gauche:[],droite:[]}})).toEqual(['Ajoutez au moins une face de tiroir, ou choisissez des tiroirs sur toute la largeur.']);
+  });
+  test('zero and negative split drawer heights retain the positive-height error', () => {
+    for (const height of [0,-1]) expect(validateConfig({...split,tiroirsCompartiments:{position:'haut',gauche:[height],droite:[]}})).toEqual(['Saisissez une hauteur positive pour chaque face de tiroir.']);
+  });
   test('centered divider subtracts one thickness and shelves stay inside each bay',()=>{
     expect(piece(split,'Montant intermédiaire')).toMatchObject({longueur:1962,largeur:350,epaisseur:19});
     expect(piece(split,'Rayon fixe gauche').longueur).toBe(371.5);

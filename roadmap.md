@@ -1,5 +1,7 @@
 # Optimisation
 
+- [ ] Fix the four requested browser bugs only: invalid numeric drafts, 32 mm shelf clearance, empty split-drawer validation and independent shelf/drawer sides; run regression tests and browser checks without changing presentation, cutting formulas, dependencies or the pending plan.
+
 - [x] Fix the five requested bugs only: French decimal entry, safe drawing sizes, blank rename cancellation, overlay defaults when adding doors to drawers, and consistent French dimensions; 70 tests pass (62 existing + 8 new), build OK, Chromium fr-FR flows and PDF download verified; presentation, formulas and pending plan untouched.
 
 - [x] Fix requested production advisories: remove unused @react-three/drei, update jspdf 4.2.1, react-router-dom 7.18.4 and zod 4.6.7; resolve fflate 0.8.3, dompurify 3.4.17 and lodash 4.18.1 in both text lockfiles. Production scan clear; 62 tests and PDF download pass, build OK; pending optimization plan and presentation untouched.

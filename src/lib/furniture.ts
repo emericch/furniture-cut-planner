@@ -289,7 +289,7 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
   if (layout.openingHeight <= 0 || layout.frontFreeHeight < 0) errors.push('Les bandeaux et façades dépassent la hauteur disponible.');
   if (c.nombrePortes > 0 && layout.doorHeight <= 0) errors.push('Les façades ne laissent plus de hauteur pour la porte.');
   if (c.dosType === 'en-rainure' && (!layout.topPanel || !layout.bottomPanel)) errors.push('Un dos en rainure nécessite les deux traverses horizontales.');
-  if (![c.retraitRayons, c.decalageDos].every(n => Number.isFinite(n) && n >= 0)) errors.push('Les retraits et décalages ne peuvent pas être négatifs.');
+  if (![c.retraitRayons, c.decalageDos].every(n => Number.isFinite(n) && n >= 0)) errors.push('Les retraits et décalages doivent être des nombres positifs ou nuls.');
   if (c.montantsTouteHauteur === c.traversesTouteLargeur) errors.push('Choisissez un seul montage.');
   if (![0,1,2].includes(c.nombrePortes) || !['applique','interieur'].includes(c.typePorte) || !['aucun','toute-hauteur','toute-largeur','en-applique','entre-montants-traverses','en-rainure'].includes(c.dosType)) errors.push('Configuration de portes ou de dos non autorisée.');
   if (![8,16,19,22].includes(c.epaisseurMontants) || ![8,16,19,22].includes(c.epaisseurTraverses) || ![8,16,19,22].includes(c.epaisseurRayons) || ![3,8,16,19,22].includes(c.epaisseurDos) || ![16,19,22].includes(c.epaisseurPortes)) errors.push('Épaisseur de panneau non autorisée.');
@@ -300,7 +300,11 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
   if (c.montantIntermediaire && layout.bayWidth <= 1) errors.push('Le montant ne laisse pas assez de largeur aux compartiments.');
   if (c.tiroirs && c.tiroirsCompartiments) errors.push('Choisissez des tiroirs communs ou séparés, pas les deux.');
   if (c.tiroirsCompartiments && !c.montantIntermediaire) errors.push('Les tiroirs séparés nécessitent un montant intermédiaire.');
-  if (c.tiroirsCompartiments && (!['haut','bas'].includes(c.tiroirsCompartiments.position) || ![...c.tiroirsCompartiments.gauche,...c.tiroirsCompartiments.droite].length || [...c.tiroirsCompartiments.gauche,...c.tiroirsCompartiments.droite].some(h => !Number.isFinite(h) || h <= 0))) errors.push('Saisissez une hauteur positive pour chaque face de tiroir.');
+  if (c.tiroirsCompartiments) {
+    const heights = [...c.tiroirsCompartiments.gauche,...c.tiroirsCompartiments.droite];
+    if (!heights.length) errors.push('Ajoutez au moins une face de tiroir, ou choisissez des tiroirs sur toute la largeur.');
+    else if (!['haut','bas'].includes(c.tiroirsCompartiments.position) || heights.some(h => !Number.isFinite(h) || h <= 0)) errors.push('Saisissez une hauteur positive pour chaque face de tiroir.');
+  }
   if (c.tiroirsCompartiments && c.nombrePortes > 0) {
     const stack = (h: number[]) => h.reduce((s,x) => s+x,0) + Math.max(0,h.length-1)*2;
     if (Math.abs(stack(c.tiroirsCompartiments.gauche) - stack(c.tiroirsCompartiments.droite)) > 0.01) errors.push('Avec une porte, les tiroirs gauche et droite doivent avoir la même hauteur totale, joints compris.');
@@ -308,7 +312,7 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
   const counts = c.montantIntermediaire ? [c.rayonsCompartiments?.gauche ?? {mobiles:0,fixes:0},c.rayonsCompartiments?.droite ?? {mobiles:0,fixes:0}] : [{mobiles:c.nombreRayons,fixes:c.nombreRayonsFixes ?? 0}];
   if (counts.some(v => ![v.mobiles,v.fixes].every(n => Number.isInteger(n) && n >= 0))) errors.push('Les nombres de rayons doivent être des entiers positifs ou nuls.');
   const shelfCount = Math.max(...counts.map(v => v.mobiles+v.fixes));
-  if (shelfCount*c.epaisseurRayons >= layout.openingHeight && shelfCount > 0) errors.push('Les rayons ne tiennent pas dans la hauteur disponible.');
+  if (shelfCount > 0 && shelfCount*c.epaisseurRayons + (shelfCount+1)*32 > layout.openingHeight) errors.push('Trop de rayons : il faut au moins 32 mm entre deux rayons.');
   const profondeurCaisson = layout.depth;
   const dosInterieur = c.dosType !== 'aucun' && c.dosType !== 'en-applique';
   const profondeurLibre = profondeurCaisson - (dosInterieur ? c.epaisseurDos + c.decalageDos : 0);
@@ -320,5 +324,5 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
 };
 export const compareSize = (a: CutSheetItem, b: CutSheetItem) => Math.max(b.longueur,b.largeur)-Math.max(a.longueur,a.largeur) || Math.min(b.longueur,b.largeur)-Math.min(a.longueur,a.largeur) || b.epaisseur-a.epaisseur;
 export const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] ?? c));
-export const formatMm = (n: number) => n.toLocaleString('fr-FR', {maximumFractionDigits: 2, useGrouping: false});
+export const formatMm = (n: number) => Number.isFinite(n) ? n.toLocaleString('fr-FR', {maximumFractionDigits: 2, useGrouping: false}) : '—';
 export const parseDecimal = (raw: string): number | null => { const s = raw.replace(/[\s  ]/g, '').replace(',', '.'); if (!/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return null; const n = Number(s); return Number.isFinite(n) ? n : null; };
