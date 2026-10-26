@@ -194,9 +194,9 @@ export const parseSheet = (raw: string | null): SheetState | null => {
   try {
     const v = JSON.parse(raw);
     if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
-    if (!Array.isArray(v.meubleGroups) || !Array.isArray(v.customItems)) return null;
+    if (!Array.isArray(v.meubleGroups) && !Array.isArray(v.customItems)) return null;
     const meubleGroups: MeubleGroup[] = [];
-    for (const g of v.meubleGroups) {
+    for (const g of Array.isArray(v.meubleGroups) ? v.meubleGroups : []) {
       if (!g || typeof g.id !== 'string' || typeof g.nom !== 'string') continue;
       if (!Array.isArray(g.items) || !g.items.every(isItem)) continue;
       if (!isConfig(g.config)) continue;
@@ -206,7 +206,7 @@ export const parseSheet = (raw: string | null): SheetState | null => {
     const config = isConfig(v.config) ? v.config : undefined;
     return {
       meubleGroups,
-      customItems: v.customItems.filter(isItem),
+      customItems: Array.isArray(v.customItems) ? v.customItems.filter(isItem) : [],
       meubleCounter: Number.isInteger(v.meubleCounter) && v.meubleCounter > 0 ? v.meubleCounter : 1,
       order: v.order === 'taille' ? 'taille' : 'meuble',
       groupIdentical: v.groupIdentical === true,

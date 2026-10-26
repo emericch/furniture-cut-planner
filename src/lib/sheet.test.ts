@@ -246,6 +246,14 @@ describe('sauvegarde locale', () => {
     expect(parseSheet(JSON.stringify(raw))?.meubleGroups.map(g => g.nom)).toEqual(['Salon']);
   });
 
+  test('une collection corrompue ne supprime pas l’autre collection', () => {
+    const raw = JSON.parse(serializeSheet(state));
+    expect(parseSheet(JSON.stringify({ ...raw, meubleGroups: null }))?.customItems.map(i => i.nom)).toEqual(['Tablette']);
+    expect(parseSheet(JSON.stringify({ ...raw, customItems: null }))?.meubleGroups.map(g => g.nom)).toEqual(['Cuisine']);
+    expect(parseSheet(JSON.stringify({ ...raw, meubleGroups: null }))?.meubleGroups).toEqual([]);
+    expect(parseSheet(JSON.stringify({ ...raw, customItems: null }))?.customItems).toEqual([]);
+  });
+
   test('dates corrompues et pièces négatives ne font pas perdre les entrées valides', () => {
     const raw = JSON.parse(serializeSheet(state));
     raw.meubleGroups[0].dateAjout = { toString: 42 };
