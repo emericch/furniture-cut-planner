@@ -8,6 +8,7 @@ export interface SheetState {
   meubleCounter: number;
   order: SheetOrder;
   groupIdentical: boolean;
+  showThumbnails?: boolean;
   config?: FurnitureConfig;
   meubleNom: string;
 }
@@ -210,6 +211,7 @@ export const parseSheet = (raw: string | null): SheetState | null => {
       meubleCounter: Number.isInteger(v.meubleCounter) && v.meubleCounter > 0 ? v.meubleCounter : 1,
       order: v.order === 'taille' ? 'taille' : 'meuble',
       groupIdentical: v.groupIdentical === true,
+      showThumbnails: v.showThumbnails === true,
       config,
       meubleNom: config && typeof v.meubleNom === 'string' ? v.meubleNom : '',
     };

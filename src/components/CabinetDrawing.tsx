@@ -83,3 +83,21 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
     </div>
   </figure>;
 }
+
+// Miniature sans texte ni boutons pour la feuille de débit : vue de face + vue de côté.
+export function CabinetThumbnail({ config: c, className }: { config: FurnitureConfig; className?: string }) {
+  const { front, side, largeur, hauteur, profondeur } = getThumbnailViews(c);
+  const H = 96;
+  const render = (rects: ThumbnailRect[], w: number, h: number, label: string) => {
+    const s = H / Math.max(1, size(h));
+    const minT = 1.5 / s;
+    return <svg width={Math.max(1, size(w) * s)} height={H} viewBox={`0 0 ${Math.max(1, size(w) * s)} ${H}`} role="img" aria-label={label} className="shrink-0">
+      {rects.map((r, i) => {
+        const rw = Math.max(size(r.width), minT);
+        const rh = Math.max(size(r.height), minT);
+        return <rect key={`${r.name}-${i}`} x={Math.max(0, Math.min(coordinate(r.x), w - rw)) * s} y={Math.max(0, Math.min(coordinate(r.y), h - rh)) * s} width={rw * s} height={rh * s} vectorEffect="non-scaling-stroke" strokeWidth="1" className={r.kind === 'front' ? 'fill-background stroke-foreground' : 'fill-secondary stroke-foreground'} />;
+      })}
+    </svg>;
+  };
+  return <div className={`flex items-start gap-1 ${className ?? ''}`}>{render(front, largeur, hauteur, 'Vue de face miniature')}{render(side, profondeur, hauteur, 'Vue de côté miniature')}</div>;
+}
