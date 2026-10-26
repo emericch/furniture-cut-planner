@@ -1,5 +1,8 @@
 # Optimisation
 
+- [x] Step 2 fixes: tolerant sheet parsing (invalid form config or single corrupt entries no longer wipe the sheet) and form backup restored on edit cancel/update/delete; 104 tests pass, build OK, Chromium verified both scenarios.
+
+
 - [x] Step 1 of validated calculation rules: 1 mm overlay edges, grain-direction lengths, shelf zones outside drawer stacks, coherent assembly/back pairing, hidden bands behind full-height doors and small-piece warnings; 85 tests pass, build OK, Chromium verifies full-height door, hidden band, warnings and blocked incoherent pairs; cut-sheet functions (step 2) untouched.
 - [x] Step 2: cut-sheet workflow — grain pivot per row with filPivote re-applied on edit, optional identical-piece grouping in both orderings, localStorage save/restore with corruption guard, meuble edit/update/cancel, undo-delete toasts, hidden-band fixes; shared pure sheet module feeds screen, print and PDF; 101 tests pass, build OK, Chromium verified persistence, edit, undo, pivot in PDF, grouping and corrupted-storage startup.
 
