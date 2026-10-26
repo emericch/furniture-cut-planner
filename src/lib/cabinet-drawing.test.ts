@@ -59,16 +59,19 @@ describe('Side view shares cutting-list depths', () => {
   test('overlay back sits behind the carcass at full height', () => {
     const c = { ...base, dosType: 'en-applique' as const };
     const layout = getFurnitureLayout(c);
-    expect(getSideRectangles(c)).toContainEqual({ name: 'Dos', x: layout.depth, y: 0, width: 3, height: 2000 });
+    // frontOffset = 21 (porte applique 19 + jeu 2) : le dos termine exactement la profondeur hors-tout.
+    expect(getSideRectangles(c)).toContainEqual({ name: 'Dos', x: 21 + layout.depth, y: 0, width: 3, height: 2000 });
   });
   test('inset back sits inside the carcass with its offset, between traverses', () => {
     const c = { ...base, dosType: 'entre-montants-traverses' as const, decalageDos: 5 };
     const layout = getFurnitureLayout(c);
-    expect(getSideRectangles(c)).toContainEqual({ name: 'Dos', x: layout.depth - 8, y: 19, width: 3, height: 1962 });
+    expect(getSideRectangles(c)).toContainEqual({ name: 'Dos', x: 21 + layout.depth - 8, y: 19, width: 3, height: 1962 });
   });
-  test('overlay door stands 2 mm in front of the carcass, inset door inside it', () => {
-    const overlay = getSideRectangles(base).find(r => r.name.startsWith('Porte'));
-    expect(overlay).toMatchObject({ x: getFurnitureLayout(base).depth + 2, width: 19 });
+  test('overlay door stands at the front edge, 2 mm before the carcass, inset door inside it', () => {
+    const rects = getSideRectangles(base);
+    const overlay = rects.find(r => r.name.startsWith('Porte'));
+    expect(overlay).toMatchObject({ x: 0, width: 19 });
+    expect(rects.find(r => r.name === 'Montant')).toMatchObject({ x: 21 });
     const inset = getSideRectangles({ ...base, typePorte: 'interieur' as const }).find(r => r.name.startsWith('Porte'));
     expect(inset).toMatchObject({ x: 0, width: 19 });
   });
