@@ -296,3 +296,13 @@ describe('bandeau caché (correctifs F)', () => {
     expect(validateConfig(config)).toHaveLength(0);
   });
 });
+
+describe('Miniatures option persistence', () => {
+  test('showThumbnails survives a save/load roundtrip and defaults to false', () => {
+    const state = { meubleGroups: [], customItems: [], meubleCounter: 1, order: 'meuble' as const, groupIdentical: false, showThumbnails: true, meubleNom: '' };
+    expect(parseSheet(serializeSheet(state))?.showThumbnails).toBe(true);
+    const without = { ...state } as Record<string, unknown>;
+    delete without.showThumbnails;
+    expect(parseSheet(JSON.stringify(without))?.showThumbnails).toBe(false);
+  });
+});

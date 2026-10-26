@@ -112,3 +112,36 @@ describe('Side view shares cutting-list depths', () => {
     }
   });
 });
+
+describe('Thumbnail views for the cutting sheet', () => {
+  test('front shows structure and fronts, side matches the side view', async () => {
+    const { getThumbnailViews } = await import('./cabinet-drawing');
+    const v = getThumbnailViews(base);
+    expect(v.front.filter(r => r.kind === 'structure').map(r => r.name)).toContain('Montant gauche');
+    expect(v.front.filter(r => r.kind === 'front').map(r => r.name)).toContain('Porte (applique)');
+    expect(v.side.length).toBe(getSideRectangles(base).length);
+    expect(v.largeur).toBe(800);
+  });
+  test('all thumbnail rectangles stay inside their view bounds', async () => {
+    const { getThumbnailViews } = await import('./cabinet-drawing');
+    for (const c of [base, { ...base, typePorte: 'interieur' as const, dosType: 'en-rainure' as const, montantIntermediaire: 'toute-hauteur' as const }]) {
+      const v = getThumbnailViews(c);
+      for (const r of v.front) {
+        expect(r.x).toBeGreaterThanOrEqual(0);
+        expect(r.x + r.width).toBeLessThanOrEqual(v.largeur + 0.001);
+        expect(r.y + r.height).toBeLessThanOrEqual(v.hauteur + 0.001);
+      }
+      for (const r of v.side) {
+        expect(r.x).toBeGreaterThanOrEqual(0);
+        expect(r.x + r.width).toBeLessThanOrEqual(v.profondeur + 0.001);
+      }
+    }
+  });
+  test('print SVG markup is monochrome and finite', async () => {
+    const { thumbnailSvgMarkup } = await import('./cabinet-drawing');
+    const svg = thumbnailSvgMarkup(base);
+    expect(svg).toContain('<rect');
+    expect(svg).not.toMatch(/NaN|Infinity/);
+    expect(svg.match(/<svg/g)?.length).toBe(2);
+  });
+});
