@@ -18,9 +18,9 @@ const piece = (c: Partial<FurnitureConfig>, name: string) => {
 describe('Concrete manufacturing rules', () => {
   test('full-height sides deduct two side thicknesses from top/bottom', () => expect(piece({},'Traverse haute').longueur).toBe(762));
   test('full-width top/bottom deduct two top/bottom thicknesses from sides', () => expect(piece({montantsTouteHauteur:false,traversesTouteLargeur:true},'Montant gauche').longueur).toBe(1962));
-  test('overlay door has 1.5 mm on each edge', () => expect(piece({nombrePortes:1,typePorte:'applique'},'Porte (applique)')).toMatchObject({longueur:797,largeur:1997}));
-  test('two overlay doors have 2 mm center gap', () => expect(piece({nombrePortes:2,typePorte:'applique'},'Porte gauche (applique)').longueur).toBe(397.5));
-  test('two inset doors retain 3 mm per edge and 2 mm center gap', () => expect(piece({nombrePortes:2},'Porte gauche (intérieur)')).toMatchObject({longueur:377,largeur:1956}));
+  test('overlay door has 1 mm on each edge and vertical grain', () => expect(piece({nombrePortes:1,typePorte:'applique'},'Porte (applique)')).toMatchObject({longueur:1998,largeur:798}));
+  test('two overlay doors have 2 mm center gap', () => expect(piece({nombrePortes:2,typePorte:'applique'},'Porte gauche (applique)').largeur).toBe(398));
+  test('two inset doors retain 3 mm per edge and 2 mm center gap', () => expect(piece({nombrePortes:2},'Porte gauche (intérieur)')).toMatchObject({longueur:1956,largeur:377}));
   test('inset door deducts thickness plus 10 mm from shelf only', () => {
     expect(piece({nombrePortes:1},'Rayon').largeur).toBe(321);
     expect(piece({nombrePortes:1},'Montant gauche').largeur).toBe(350);
@@ -39,9 +39,9 @@ describe('Concrete manufacturing rules', () => {
   test('overlay door and back deduct each thickness and operating gap exactly once', () => expect(piece({nombrePortes:1,typePorte:'applique',dosType:'en-applique'},'Rayon').largeur).toBe(326));
   test('shelf setback is additional to inset-door clearance', () => expect(piece({nombrePortes:1,retraitRayons:5},'Rayon').largeur).toBe(316));
   test('full-height back shortens top/bottom by thickness plus rear offset', () => expect(piece({dosType:'toute-hauteur',decalageDos:10},'Traverse haute').largeur).toBe(337));
-  test('full-width back shortens sides by thickness plus rear offset', () => expect(piece({dosType:'toute-largeur',decalageDos:10},'Montant gauche').largeur).toBe(337));
+  test('full-width back shortens sides by thickness plus rear offset', () => expect(piece({dosType:'toute-largeur',decalageDos:10,montantsTouteHauteur:false,traversesTouteLargeur:true},'Montant gauche').largeur).toBe(337));
   test('between-panel back deducts thickness and rear offset from shelves', () => expect(piece({dosType:'entre-montants-traverses',decalageDos:10,nombrePortes:1},'Rayon').largeur).toBe(308));
-  test('5 mm groove engagement adds 10 mm to each back dimension', () => expect(piece({dosType:'en-rainure'},'Dos')).toMatchObject({longueur:772,largeur:1972}));
+  test('5 mm groove engagement adds 10 mm to each back dimension', () => expect(piece({dosType:'en-rainure'},'Dos')).toMatchObject({longueur:1972,largeur:772}));
   test('5 mm exterior grooves allow 8 mm panels', () => expect(validateConfig({...base,dosType:'en-rainure',epaisseurMontants:8,epaisseurTraverses:8})).toEqual([]));
   test('3 mm only allowed for back and 8 mm not allowed for doors', () => {
     expect(validateConfig({...base,epaisseurMontants:3}).length).toBeGreaterThan(0);
@@ -51,20 +51,23 @@ describe('Concrete manufacturing rules', () => {
 });
 describe('Invalid configurations and full matrix', () => {
   test('90 shelves in a 2000 mm cabinet violate the 32 mm minimum clearance', () => {
-    expect(validateConfig({...base,nombreRayons:90})).toContain('Trop de rayons : il faut au moins 32 mm entre deux rayons.');
+    expect(validateConfig({...base,nombreRayons:90})).toContain('Trop de rayons pour la place restante hors tiroirs : il faut au moins 32 mm entre deux rayons.');
   });
   test('37 shelves fit a 2000 mm cabinet with 32 mm minimum clearance', () => {
     expect(validateConfig({...base,nombreRayons:37})).toEqual([]);
   });
   test('38 shelves do not fit a 2000 mm cabinet with 32 mm minimum clearance', () => {
-    expect(validateConfig({...base,nombreRayons:38})).toContain('Trop de rayons : il faut au moins 32 mm entre deux rayons.');
+    expect(validateConfig({...base,nombreRayons:38})).toContain('Trop de rayons pour la place restante hors tiroirs : il faut au moins 32 mm entre deux rayons.');
   });
+  const incoherent = (c: FurnitureConfig) => (c.montantsTouteHauteur && c.dosType === 'toute-largeur') || (c.traversesTouteLargeur && c.dosType === 'toute-hauteur');
   test('all 60 complete cutting lists match independently calculated numeric references', () => {
     for (const fixture of auditFixtures) {
       const config = fixture.config as FurnitureConfig;
+      // Incoherent assembly/back pairs are now rejected; every other combination stays valid.
+      if (incoherent(config)) { expect(validateConfig(config).length).toBeGreaterThan(0); continue; }
       expect(validateConfig(config)).toEqual([]);
-      // Historic references predate the confirmed 1 mm mobile-shelf clearance.
-      expect(generateMeubleItems(config)).toEqual(fixture.expected.map(i => i.nom === 'Rayon' ? {...i,longueur:i.longueur-1} : i.nom === 'Dos' && config.dosType === 'en-rainure' ? {...i,longueur:i.longueur-10,largeur:i.largeur-10} : i));
+      // Historic references predate the confirmed 1 mm mobile-shelf clearance and the 5 mm grooves.
+      expect(generateMeubleItems(config)).toEqual(fixture.expected.map(i => i.nom === 'Rayon' ? {...i,longueur:i.longueur-1} : i.nom === 'Dos' && config.dosType === 'en-rainure' ? {...i,longueur:i.longueur+10,largeur:i.largeur+10} : i));
     }
   });
   test('all permitted panel thickness combinations reconstruct overall dimensions and door clearances', () => {
