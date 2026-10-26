@@ -74,9 +74,6 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   const drawerHeights = stacks.reduce((largest,stack) => stack.reduce((s,h) => s+h+2,0) > largest.reduce((s,h) => s+h+2,0) ? stack : largest, [] as number[]);
   const stackSpace = (heights:number[]) => heights.reduce((sum,h) => sum+h,0) + Math.max(0,heights.length-1)*2 + (heights.length > 0 && c.nombrePortes > 0 ? 2 : 0);
   const drawerSpace = stackSpace(drawerHeights);
-  // A covered band shares the 2 mm joint symmetrically with the next front; outer edges keep 1 mm.
-  const topOverlay = topBandEnd && !hiddenTopAll ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1;
-  const bottomOverlay = bottomBandEnd && !hiddenBottomAll ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1;
   const position = c.tiroirsCompartiments?.position ?? c.tiroirs?.position;
   const pile = (h: number[]) => h.reduce((s,x) => s+x,0) + Math.max(0,h.length-1)*2;
   const sidePile = (side: 'gauche' | 'droite') => c.tiroirsCompartiments ? pile(c.tiroirsCompartiments[side]) : pile(c.tiroirs?.hauteurs ?? []);
@@ -85,8 +82,18 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   const hiddenBottom = (side: 'gauche' | 'droite') => !!c.bandeauBas?.cachePorte && !(position === 'bas' && sidePile(side) > 0);
   const hiddenTopAll = hiddenTop('gauche') && hiddenTop('droite');
   const hiddenBottomAll = hiddenBottom('gauche') && hiddenBottom('droite');
+  // A covered band shares the 2 mm joint symmetrically with the next front; outer edges keep 1 mm.
+  const topOverlay = topBandEnd && !hiddenTopAll ? topBandEnd + (c.bandeauHaut?.faceApplique ? 1 : 2) : 1;
+  const bottomOverlay = bottomBandEnd && !hiddenBottomAll ? bottomBandEnd + (c.bandeauBas?.faceApplique ? 1 : 2) : 1;
   const topDrawers = position === 'haut' ? drawerSpace : 0;
   const bottomDrawers = position === 'bas' ? drawerSpace : 0;
+  // Free shelf zone per side, measured in y from the top; drawers are never shelved.
+  const openTop = topInset + (c.bandeauHaut?.hauteur ?? 0);
+  const openBottom = c.hauteur - bottomInset - (c.bandeauBas?.hauteur ?? 0);
+  const shelfZone = (side: 'gauche' | 'droite') => ({
+    top: position === 'haut' ? Math.max(openTop, topOverlay + sidePile(side)) : openTop,
+    bottom: position === 'bas' ? Math.min(openBottom, c.hauteur - bottomOverlay - sidePile(side)) : openBottom,
+  });
   const doorTop = c.typePorte === 'applique' ? topOverlay + topDrawers : Math.max(topInset + 3, topBandEnd + (topBandEnd ? 3 : 0), topDrawers ? topOverlay + topDrawers : 0);
   const doorBottom = c.typePorte === 'applique' ? bottomOverlay + bottomDrawers : Math.max(bottomInset + 3, bottomBandEnd + (bottomBandEnd ? 3 : 0), bottomDrawers ? bottomOverlay + bottomDrawers : 0);
   const bayWidth = (c.largeur-3*c.epaisseurMontants)/2;
@@ -96,6 +103,7 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
     doorHeight: c.hauteur - doorTop - doorBottom,
     frontFreeHeight: c.hauteur - topOverlay - bottomOverlay - drawerSpace,
     drawerRemaining: {gauche:c.hauteur-topOverlay-bottomOverlay-stackSpace(c.tiroirsCompartiments?.gauche ?? []),droite:c.hauteur-topOverlay-bottomOverlay-stackSpace(c.tiroirsCompartiments?.droite ?? [])},
+    shelfZones: {gauche: shelfZone('gauche'), droite: shelfZone('droite')},
     openingHeight: c.hauteur - topInset - bottomInset - (c.bandeauHaut?.hauteur ?? 0) - (c.bandeauBas?.hauteur ?? 0)};
 };
 
