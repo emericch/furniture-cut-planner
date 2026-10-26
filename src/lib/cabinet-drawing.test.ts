@@ -28,14 +28,18 @@ describe('Front positions share manufacturing dimensions', () => {
       { ...base, bandeauHaut: { hauteur: 150, remplaceTraverse: true, faceApplique: true }, tiroirs: { position: 'bas' as const, hauteurs: [120] } },
       { ...base, nombrePortes: 0 as const, tiroirs: { position: 'bas' as const, hauteurs: [300, 400] } },
     ]) {
-      const fronts = [...getFrontRectangles(c)].sort((a, b) => a.y - b.y);
+      const fronts = getFrontRectangles(c);
       expect(fronts.length).toBeGreaterThan(0);
-      expect(fronts[0].y).toBe(1);
-      expect(fronts[fronts.length - 1].y + fronts[fronts.length - 1].height).toBe(1999);
-      for (let i = 1; i < fronts.length; i++) expect(fronts[i].y - (fronts[i - 1].y + fronts[i - 1].height)).toBe(2);
-      for (const front of fronts) {
-        expect(front.x).toBe(1);
-        expect(front.x + front.width).toBe(799);
+      // Group side-by-side faces into rows, then check vertical and horizontal joints.
+      const rows = [...new Set(fronts.map(f => f.y))].sort((a, b) => a - b).map(y => fronts.filter(f => f.y === y).sort((a, b) => a.x - b.x));
+      expect(rows[0][0].y).toBe(1);
+      const lastRow = rows[rows.length - 1];
+      expect(lastRow[0].y + lastRow[0].height).toBe(1999);
+      for (let i = 1; i < rows.length; i++) expect(rows[i][0].y - (rows[i - 1][0].y + rows[i - 1][0].height)).toBe(2);
+      for (const row of rows) {
+        expect(row[0].x).toBe(1);
+        expect(row[row.length - 1].x + row[row.length - 1].width).toBe(799);
+        for (let i = 1; i < row.length; i++) expect(row[i].x - (row[i - 1].x + row[i - 1].width)).toBe(2);
       }
     }
   });
