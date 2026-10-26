@@ -15,6 +15,7 @@ const piece = (c: Partial<FurnitureConfig>, name: string) => {
   if (!found) throw new Error('Missing piece: '+name);
   return found;
 };
+const incoherent = (c: FurnitureConfig) => (c.montantsTouteHauteur && c.dosType === 'toute-largeur') || (c.traversesTouteLargeur && c.dosType === 'toute-hauteur');
 describe('Concrete manufacturing rules', () => {
   test('full-height sides deduct two side thicknesses from top/bottom', () => expect(piece({},'Traverse haute').longueur).toBe(762));
   test('full-width top/bottom deduct two top/bottom thicknesses from sides', () => expect(piece({montantsTouteHauteur:false,traversesTouteLargeur:true},'Montant gauche').longueur).toBe(1962));
@@ -59,7 +60,6 @@ describe('Invalid configurations and full matrix', () => {
   test('38 shelves do not fit a 2000 mm cabinet with 32 mm minimum clearance', () => {
     expect(validateConfig({...base,nombreRayons:38})).toContain('Trop de rayons pour la place restante hors tiroirs : il faut au moins 32 mm entre deux rayons.');
   });
-  const incoherent = (c: FurnitureConfig) => (c.montantsTouteHauteur && c.dosType === 'toute-largeur') || (c.traversesTouteLargeur && c.dosType === 'toute-hauteur');
   test('all 60 complete cutting lists match independently calculated numeric references', () => {
     for (const fixture of auditFixtures) {
       const config = fixture.config as FurnitureConfig;
@@ -170,7 +170,7 @@ describe('Fixed bands, drawer fronts and fixed shelves', () => {
     expect(generateMeubleItems(c).some(i => i.nom === 'Traverse haute')).toBe(false);
     expect(piece(c,'Bandeau haut')).toMatchObject({longueur:762,largeur:150,epaisseur:19});
     expect(piece({...c,montantsTouteHauteur:false,traversesTouteLargeur:true},'Montant gauche').longueur).toBe(1981);
-    expect(piece({...c,nombrePortes:1},'Porte (intérieur)').largeur).toBe(1825);
+    expect(piece({...c,nombrePortes:1},'Porte (intérieur)').longueur).toBe(1825);
   });
   test('bottom band replaces bottom panel and lengthens sides when full-width panel is removed', () => {
     const c={...base,bandeauBas:band,montantsTouteHauteur:false,traversesTouteLargeur:true};
@@ -181,7 +181,7 @@ describe('Fixed bands, drawer fronts and fixed shelves', () => {
   test('additional band retains its horizontal panel and deducts panel thickness from opening', () => {
     const c={bandeauHaut:{...band,remplaceTraverse:false},nombrePortes:1 as const};
     expect(piece(c,'Traverse haute').longueur).toBe(762);
-    expect(piece(c,'Porte (intérieur)').largeur).toBe(1806);
+    expect(piece(c,'Porte (intérieur)').longueur).toBe(1806);
   });
   test('covered top band respects 1 mm outer gap and 2 mm face-to-door joint', () => {
     const c={bandeauHaut:{...band,faceApplique:true},nombrePortes:1 as const,typePorte:'applique' as const};
@@ -274,7 +274,7 @@ describe('Centered divider and compartment clearances', () => {
   test('drawer-only bays independently fill available height with actual front joints',()=>{
     const c={...split,tiroirsCompartiments:{position:'haut' as const,gauche:[150,200],droite:[352]}};
     expect(getFurnitureLayout(c).drawerRemaining).toEqual({gauche:1646,droite:1646});
-    const filled={...c,tiroirsCompartiments:{position:'haut' as const,gauche:[150,1846],droite:[1998]}};
+    const filled={...c,rayonsCompartiments:{gauche:{mobiles:0,fixes:0},droite:{mobiles:0,fixes:0}},tiroirsCompartiments:{position:'haut' as const,gauche:[150,1846],droite:[1998]}};
     expect(getFurnitureLayout(filled).drawerRemaining).toEqual({gauche:0,droite:0});
     expect(validateConfig(filled)).toEqual([]);
   });
