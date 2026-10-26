@@ -1,6 +1,6 @@
 /// <reference types="bun" />
 import { describe, expect, test } from 'bun:test';
-import { generateMeubleItems, getFurnitureLayout, validateConfig, compareSize, escapeHtml, parseDecimal, formatMm, type FurnitureConfig } from './furniture';
+import { generateMeubleItems, getFurnitureLayout, validateConfig, getWarnings, compareSize, escapeHtml, parseDecimal, formatMm, type FurnitureConfig } from './furniture';
 import auditFixtures from './furniture.audit-fixtures.json';
 
 const base: FurnitureConfig = {hauteur:2000,largeur:800,profondeur:350,epaisseurMontants:19,epaisseurTraverses:19,epaisseurRayons:19,epaisseurDos:3,epaisseurPortes:19,montantsTouteHauteur:true,traversesTouteLargeur:false,nombreRayons:2,dosType:'aucun',nombrePortes:0,typePorte:'interieur',retraitRayons:0,decalageDos:0};
