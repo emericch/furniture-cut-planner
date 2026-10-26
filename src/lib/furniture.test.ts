@@ -140,26 +140,26 @@ describe('Invalid configurations and full matrix', () => {
 
 describe('Fixed bands, drawer fronts and fixed shelves', () => {
   const band = {hauteur:150,remplaceTraverse:true,faceApplique:false};
-  test('drawer-only remaining height counts 1.5 mm outer edges and only actual 2 mm joints', () => {
+  test('drawer-only remaining height counts 1 mm outer edges and only actual 2 mm joints', () => {
     for (const position of ['haut','bas'] as const) {
       const c={...base,nombreRayons:0,tiroirs:{position,hauteurs:[150,200]}};
-      expect(getFurnitureLayout(c).frontFreeHeight).toBe(1645);
+      expect(getFurnitureLayout(c).frontFreeHeight).toBe(1646);
       expect(generateMeubleItems(c).filter(i => i.nom.startsWith('Porte'))).toHaveLength(0);
       expect(validateConfig(c)).toEqual([]);
-      const filled={...c,tiroirs:{position,hauteurs:[150,1845]}};
+      const filled={...c,tiroirs:{position,hauteurs:[150,1846]}};
       expect(getFurnitureLayout(filled).frontFreeHeight).toBe(0);
       expect(validateConfig(filled)).toEqual([]);
-      expect(validateConfig({...c,tiroirs:{position,hauteurs:[150,1846]}}).length).toBeGreaterThan(0);
+      expect(validateConfig({...c,tiroirs:{position,hauteurs:[150,1847]}}).length).toBeGreaterThan(0);
     }
   });
   test('remaining door height includes drawer joint while drawer-only bands reserve the fixed-front joint', () => {
-    expect(getFurnitureLayout({...base,nombrePortes:1,typePorte:'applique',tiroirs:{position:'haut',hauteurs:[150,200]}}).doorHeight).toBe(1643);
+    expect(getFurnitureLayout({...base,nombrePortes:1,typePorte:'applique',tiroirs:{position:'haut',hauteurs:[150,200]}}).doorHeight).toBe(1644);
     const c={...base,nombreRayons:0,bandeauHaut:{...band,faceApplique:true},tiroirs:{position:'haut' as const,hauteurs:[100,120]}};
-    expect(getFurnitureLayout(c).frontFreeHeight).toBe(1625.5);
-    const filled={...c,tiroirs:{position:'haut' as const,hauteurs:[100,1745.5]}};
+    expect(getFurnitureLayout(c).frontFreeHeight).toBe(1626);
+    const filled={...c,tiroirs:{position:'haut' as const,hauteurs:[100,1746]}};
     expect(validateConfig(filled)).toEqual([]);
     const faces=generateMeubleItems(filled).filter(i => i.nom.startsWith('Face'));
-    expect(faces.reduce((sum,i) => sum+i.largeur,0)+2*2+3).toBe(2000);
+    expect(faces.reduce((sum,i) => sum+i.longueur,0)+2*2+2).toBe(2000);
   });
   test('mobile shelves deduct 1 mm total while fixed shelves have no width clearance', () => {
     expect(piece({},'Rayon').longueur).toBe(761);
@@ -183,21 +183,21 @@ describe('Fixed bands, drawer fronts and fixed shelves', () => {
     expect(piece(c,'Traverse haute').longueur).toBe(762);
     expect(piece(c,'Porte (intérieur)').largeur).toBe(1806);
   });
-  test('covered top band respects 1.5 mm outer gap and 2 mm face-to-door joint', () => {
+  test('covered top band respects 1 mm outer gap and 2 mm face-to-door joint', () => {
     const c={bandeauHaut:{...band,faceApplique:true},nombrePortes:1 as const,typePorte:'applique' as const};
     const face=piece(c,'Face fixe haut (applique)'); const door=piece(c,'Porte (applique)');
-    expect(face).toMatchObject({longueur:797,largeur:147.5,epaisseur:19});
-    expect(door.largeur).toBe(1847.5);
-    expect(face.largeur+door.largeur+2+3).toBe(2000);
+    expect(face).toMatchObject({longueur:148,largeur:798,epaisseur:19});
+    expect(door.longueur).toBe(1848);
+    expect(face.longueur+door.longueur+2+2).toBe(2000);
     expect(piece(c,'Montant gauche').largeur).toBe(329);
   });
   test('fixed overlay face without any doors still deducts thickness plus 2 mm in depth', () => expect(piece({bandeauBas:{...band,faceApplique:true}},'Montant gauche').largeur).toBe(329));
   test('drawer fronts above and below overlay doors have 2 mm joints and do not change width', () => {
     for (const position of ['haut','bas'] as const) {
       const c={tiroirs:{position,hauteurs:[150,200]},nombrePortes:2 as const,typePorte:'applique' as const};
-      expect(piece(c,`Face tiroir 1 (${position})`)).toMatchObject({longueur:797,largeur:150,epaisseur:19});
-      expect(piece(c,'Porte gauche (applique)')).toMatchObject({longueur:397.5,largeur:1643});
-      expect(150+200+1643+2*2+3).toBe(2000);
+      expect(piece(c,`Face tiroir 1 (${position})`)).toMatchObject({longueur:150,largeur:798,epaisseur:19});
+      expect(piece(c,'Porte gauche (applique)')).toMatchObject({longueur:1644,largeur:398});
+      expect(150+200+1644+2*2+2).toBe(2000);
       expect(piece(c,'Montant gauche').largeur).toBe(329);
     }
   });
