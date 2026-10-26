@@ -51,3 +51,48 @@ describe('Front positions share manufacturing dimensions', () => {
     expect(droite!.x - (gauche!.x + gauche!.width)).toBe(2);
   });
 });
+
+describe('Side view shares cutting-list depths', () => {
+  test('no back panel when dosType is aucun', () => {
+    expect(getSideRectangles(base).find(r => r.name === 'Dos')).toBeUndefined();
+  });
+  test('overlay back sits behind the carcass at full height', () => {
+    const c = { ...base, dosType: 'en-applique' as const };
+    const layout = getFurnitureLayout(c);
+    expect(getSideRectangles(c)).toContainEqual({ name: 'Dos', x: layout.depth, y: 0, width: 3, height: 2000 });
+  });
+  test('inset back sits inside the carcass with its offset, between traverses', () => {
+    const c = { ...base, dosType: 'entre-montants-traverses' as const, decalageDos: 5 };
+    const layout = getFurnitureLayout(c);
+    expect(getSideRectangles(c)).toContainEqual({ name: 'Dos', x: layout.depth - 8, y: 19, width: 3, height: 1962 });
+  });
+  test('overlay door stands 2 mm in front of the carcass, inset door inside it', () => {
+    const overlay = getSideRectangles(base).find(r => r.name.startsWith('Porte'));
+    expect(overlay).toMatchObject({ x: getFurnitureLayout(base).depth + 2, width: 19 });
+    const inset = getSideRectangles({ ...base, typePorte: 'interieur' as const }).find(r => r.name.startsWith('Porte'));
+    expect(inset).toMatchObject({ x: 0, width: 19 });
+  });
+  test('side and shelf depths equal the cutting list widths', () => {
+    const items = generateMeubleItems(base);
+    const rects = getSideRectangles(base);
+    expect(rects.find(r => r.name === 'Montant')?.width).toBe(items.find(i => i.nom === 'Montant gauche')?.largeur);
+    expect(rects.find(r => r.name === 'Rayon')?.width).toBe(items.find(i => i.nom === 'Rayon')?.largeur);
+  });
+  test('everything stays within the overall depth', () => {
+    for (const c of [
+      base,
+      { ...base, dosType: 'en-applique' as const },
+      { ...base, typePorte: 'interieur' as const, dosType: 'en-rainure' as const },
+      { ...base, nombrePortes: 0 as const, tiroirs: { position: 'haut' as const, hauteurs: [150, 200] } },
+    ]) {
+      const rects = getSideRectangles(c);
+      expect(rects.length).toBeGreaterThan(0);
+      for (const r of rects) {
+        expect(r.x).toBeGreaterThanOrEqual(0);
+        expect(r.x + r.width).toBeLessThanOrEqual(c.profondeur);
+        expect(r.y).toBeGreaterThanOrEqual(0);
+        expect(r.y + r.height).toBeLessThanOrEqual(c.hauteur);
+      }
+    }
+  });
+});
