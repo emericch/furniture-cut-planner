@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { getFrontRectangles } from './cabinet-drawing';
-import { getFurnitureLayout, type FurnitureConfig } from './furniture';
+import { getFrontRectangles, getSideRectangles } from './cabinet-drawing';
+import { generateMeubleItems, getFurnitureLayout, type FurnitureConfig } from './furniture';
 const base: FurnitureConfig = { hauteur: 2000, largeur: 800, profondeur: 350, epaisseurMontants: 19, epaisseurTraverses: 19, epaisseurRayons: 19, epaisseurDos: 3, epaisseurPortes: 19, montantsTouteHauteur: true, traversesTouteLargeur: false, nombreRayons: 2, dosType: 'aucun', nombrePortes: 1, typePorte: 'applique', retraitRayons: 0, decalageDos: 0 };
 describe('Front positions share manufacturing dimensions', () => {
   test('overlay covers sides and full height except 1 mm per edge', () => {
