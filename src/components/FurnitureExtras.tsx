@@ -1,4 +1,4 @@
-import { Input } from '@/components/ui/input';
+import { NumberField } from './NumberField';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ export function FurnitureExtras({config, onChange, showDrawers=true}: Props) {
         if (!band) return null;
         return <div key={position} className="space-y-3">
           <div className="grid grid-cols-1 gap-3">
-            <div><Label className="block leading-5" htmlFor={`band-height-${position}`}>Hauteur bandeau {position} (mm)</Label><Input id={`band-height-${position}`} type="number" min="1" value={band.hauteur} onChange={e => onChange({...config,[key]:{...band,hauteur:Number(e.target.value)}})} /></div>
+            <div><NumberField id={`band-height-${position}`} label={`Hauteur bandeau ${position} (mm)`} value={band.hauteur} min="1" onCommit={v => onChange({...config,[key]:{...band,hauteur:v}})} /></div>
             <div><Label className="block leading-5" htmlFor={`band-mode-${position}`}>Traverse {position === 'haut' ? 'haute' : 'basse'}</Label><Select value={band.remplaceTraverse ? 'replace' : 'keep'} onValueChange={value => onChange({...config,[key]:{...band,remplaceTraverse:value === 'replace'}})}><SelectTrigger className="h-auto min-h-11 text-left [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:pr-2 [&>svg]:shrink-0" id={`band-mode-${position}`}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="replace">Remplacée par le bandeau</SelectItem><SelectItem value="keep">Conservée avec le bandeau</SelectItem></SelectContent></Select></div>
           </div>
           <div className="flex items-center gap-3 [&>button]:shrink-0"><Checkbox id={`band-front-${position}`} checked={band.faceApplique} onCheckedChange={checked => onChange({...config,[key]:{...band,faceApplique:checked === true}})} /><Label className="block leading-5" htmlFor={`band-front-${position}`}>Face fixe en applique · {position}</Label></div>
@@ -49,7 +49,7 @@ export function FurnitureExtras({config, onChange, showDrawers=true}: Props) {
       <div className="flex items-center gap-3 [&>button]:shrink-0"><Checkbox id="drawers-with-door" checked={config.nombrePortes > 0} onCheckedChange={checked => onChange({...config,nombrePortes:checked ? 1 : 0})} /><Label className="block leading-5" htmlFor="drawers-with-door">Avec porte</Label></div>
       <div><Label className="block leading-5" htmlFor="drawer-position">Position des tiroirs</Label><Select value={config.tiroirs.position} onValueChange={(position:'haut'|'bas') => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,position}});}}><SelectTrigger className="h-auto min-h-11 text-left [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:pr-2 [&>svg]:shrink-0" id="drawer-position"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="haut">{config.nombrePortes > 0 ? 'Au-dessus de la porte' : 'En haut'}</SelectItem><SelectItem value="bas">{config.nombrePortes > 0 ? 'Au-dessous de la porte' : 'En bas'}</SelectItem></SelectContent></Select></div>
       {config.tiroirs.hauteurs.map((height,index) => <div key={index} className="flex items-end gap-2">
-        <div className="min-w-0 flex-1"><Label className="block leading-5" htmlFor={`drawer-height-${index}`}>Hauteur face tiroir {index+1} (mm)</Label><Input id={`drawer-height-${index}`} type="number" min="1" value={height} onChange={e => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,hauteurs:config.tiroirs.hauteurs.map((h,i) => i === index ? Number(e.target.value) : h)}});}} /></div>
+        <div className="min-w-0 flex-1"><NumberField id={`drawer-height-${index}`} label={`Hauteur face tiroir ${index+1} (mm)`} value={height} min="1" onCommit={v => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,hauteurs:config.tiroirs.hauteurs.map((h,i) => i === index ? v : h)}});}} /></div>
         <Button variant="ghost" size="icon" title={`Supprimer la face tiroir ${index+1}`} aria-label={`Supprimer la face tiroir ${index+1}`} onClick={() => {if (!config.tiroirs) return; const heights=config.tiroirs.hauteurs.filter((_,i) => i !== index); onChange({...config,tiroirs:heights.length ? {...config.tiroirs,hauteurs:heights} : undefined});}}><Trash2 className="h-4 w-4" /></Button>
       </div>)}
       <p aria-live="polite" className="text-sm text-muted-foreground">Hauteur restante, jeux déduits : <span className="font-medium text-foreground">{formatMm(layout.frontFreeHeight)} mm</span></p>

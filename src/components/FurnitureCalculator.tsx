@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
 import { AssemblyIllustration } from './FurnitureIllustrations';
 import { FurnitureDesigner } from './FurnitureDesigner';
+import { NumberField } from './NumberField';
 
 const FurnitureCalculator: React.FC = () => {
   const [config, setConfig] = useState<FurnitureConfig>({
@@ -445,20 +446,10 @@ const FurnitureCalculator: React.FC = () => {
                       
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div>
-                          <Label className="text-xs">Longueur (mm)</Label>
-                          <Input
-                            type="number"
-                            value={newItem.longueur || ''}
-                            onChange={(e) => setNewItem({ ...newItem, longueur: Number(e.target.value) })}
-                          />
+                          <NumberField id="custom-longueur" label="Longueur (mm)" labelClassName="text-xs" value={newItem.longueur || undefined} onCommit={v => setNewItem({ ...newItem, longueur: v })} />
                         </div>
                         <div>
-                          <Label className="text-xs">Largeur (mm)</Label>
-                          <Input
-                            type="number"
-                            value={newItem.largeur || ''}
-                            onChange={(e) => setNewItem({ ...newItem, largeur: Number(e.target.value) })}
-                          />
+                          <NumberField id="custom-largeur" label="Largeur (mm)" labelClassName="text-xs" value={newItem.largeur || undefined} onCommit={v => setNewItem({ ...newItem, largeur: v })} />
                         </div>
                         <div>
                           <Label className="text-xs">Épaisseur</Label>
@@ -477,13 +468,7 @@ const FurnitureCalculator: React.FC = () => {
                           </Select>
                         </div>
                         <div>
-                          <Label className="text-xs">Quantité</Label>
-                          <Input
-                            type="number"
-                            min="1"
-                            value={newItem.quantite ?? ''}
-                            onChange={(e) => setNewItem({ ...newItem, quantite: Number(e.target.value) })}
-                          />
+                          <NumberField id="custom-quantite" label="Quantité" labelClassName="text-xs" value={newItem.quantite} min="1" onCommit={v => setNewItem({ ...newItem, quantite: v })} />
                         </div>
                       </div>
 
