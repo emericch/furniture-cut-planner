@@ -84,7 +84,7 @@ export const getFurnitureLayout = (c: FurnitureConfig) => {
   const bayWidth = (c.largeur-3*c.epaisseurMontants)/2;
   const innerBack = c.dosType !== 'aucun' && c.dosType !== 'en-applique' ? c.epaisseurDos+c.decalageDos : 0;
   const dividerFront = Math.max(c.nombrePortes > 0 && c.typePorte === 'interieur' ? c.epaisseurPortes : 0, c.bandeauHaut || c.bandeauBas ? c.epaisseurTraverses : 0);
-  return {topPanel,bottomPanel,topInset,bottomInset,topBandEnd,bottomBandEnd,topOverlay,bottomOverlay,doorTop,doorBottom,depth,overlay,drawerSpace,bayWidth,dividerDepth:depth-(c.dosParCompartiment && c.dosType === 'en-rainure' ? c.decalageDos : innerBack)-dividerFront,
+  return {topPanel,bottomPanel,topInset,bottomInset,topBandEnd,bottomBandEnd,topOverlay,bottomOverlay,doorTop,doorBottom,depth,overlay,drawerSpace,bayWidth,dividerDepth:depth-(c.dosParCompartiment && (c.dosType === 'en-rainure' || c.dosType === 'entre-montants-traverses') ? c.decalageDos : innerBack)-dividerFront,
     doorHeight: c.hauteur - doorTop - doorBottom,
     frontFreeHeight: c.hauteur - topOverlay - bottomOverlay - drawerSpace,
     drawerRemaining: {gauche:c.hauteur-topOverlay-bottomOverlay-stackSpace(c.tiroirsCompartiments?.gauche ?? []),droite:c.hauteur-topOverlay-bottomOverlay-stackSpace(c.tiroirsCompartiments?.droite ?? [])},
@@ -214,7 +214,7 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
       }
       
       if (config.montantIntermediaire && config.dosParCompartiment) {
-        largeurDos = config.dosType === 'en-applique' || config.dosType === 'toute-largeur' ? config.largeur/2 : layout.bayWidth + (config.dosType === 'en-rainure' ? 10 : 0);
+        largeurDos = config.dosType === 'en-applique' || config.dosType === 'toute-largeur' ? config.largeur/2 : config.dosType === 'toute-hauteur' ? (config.largeur - 2*config.epaisseurMontants)/2 : layout.bayWidth + (config.dosType === 'en-rainure' ? 10 : 0);
       }
       items.push({
         nom: 'Dos',
@@ -273,7 +273,8 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
       }
     }
 
-    return items;
+    const round = (n: number) => Math.round(n * 100) / 100;
+    return items.map(i => ({...i, longueur: round(i.longueur), largeur: round(i.largeur)}));
   };
 
 
@@ -300,6 +301,10 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
   if (c.tiroirs && c.tiroirsCompartiments) errors.push('Choisissez des tiroirs communs ou séparés, pas les deux.');
   if (c.tiroirsCompartiments && !c.montantIntermediaire) errors.push('Les tiroirs séparés nécessitent un montant intermédiaire.');
   if (c.tiroirsCompartiments && (!['haut','bas'].includes(c.tiroirsCompartiments.position) || ![...c.tiroirsCompartiments.gauche,...c.tiroirsCompartiments.droite].length || [...c.tiroirsCompartiments.gauche,...c.tiroirsCompartiments.droite].some(h => !Number.isFinite(h) || h <= 0))) errors.push('Saisissez une hauteur positive pour chaque face de tiroir.');
+  if (c.tiroirsCompartiments && c.nombrePortes > 0) {
+    const stack = (h: number[]) => h.reduce((s,x) => s+x,0) + Math.max(0,h.length-1)*2;
+    if (Math.abs(stack(c.tiroirsCompartiments.gauche) - stack(c.tiroirsCompartiments.droite)) > 0.01) errors.push('Avec une porte, les tiroirs gauche et droite doivent avoir la même hauteur totale, joints compris.');
+  }
   const counts = c.montantIntermediaire ? [c.rayonsCompartiments?.gauche ?? {mobiles:0,fixes:0},c.rayonsCompartiments?.droite ?? {mobiles:0,fixes:0}] : [{mobiles:c.nombreRayons,fixes:c.nombreRayonsFixes ?? 0}];
   if (counts.some(v => ![v.mobiles,v.fixes].every(n => Number.isInteger(n) && n >= 0))) errors.push('Les nombres de rayons doivent être des entiers positifs ou nuls.');
   const shelfCount = Math.max(...counts.map(v => v.mobiles+v.fixes));

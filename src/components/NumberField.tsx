@@ -25,7 +25,7 @@ export function NumberField({ id, label, labelClassName, value, min, placeholder
     <Input
       id={id}
       type="number"
-      inputMode="numeric"
+      inputMode="decimal"
       min={min}
       placeholder={placeholder}
       className={className}

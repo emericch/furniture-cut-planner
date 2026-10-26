@@ -260,3 +260,63 @@ describe('Centered divider and compartment clearances', () => {
     }
   });
 });
+
+describe('Split-back and decimal regression fixes', () => {
+  const split: FurnitureConfig = {...base,montantIntermediaire:'entre-traverses',dosParCompartiment:true,decalageDos:10};
+  test('split full-height backs meet behind the divider without a 19 mm center gap', () => {
+    const c = {...split,dosType:'toute-hauteur' as const};
+    expect(validateConfig(c)).toEqual([]);
+    expect(piece(c,'Dos')).toMatchObject({longueur:381,largeur:2000,epaisseur:3,quantite:2});
+    expect(piece(c,'Dos').longueur * 2).toBe(762);
+    expect(getFurnitureLayout(c).dividerDepth).toBe(337);
+    expect(piece(c,'Montant intermédiaire').largeur).toBe(337);
+  });
+  test('split between-panel backs fit beside a divider reaching the rear back plane', () => {
+    const c = {...split,dosType:'entre-montants-traverses' as const};
+    expect(validateConfig(c)).toEqual([]);
+    expect(piece(c,'Dos')).toMatchObject({longueur:371.5,largeur:1962,epaisseur:3,quantite:2});
+    expect(piece(c,'Dos').longueur * 2 + c.epaisseurMontants).toBe(762);
+    expect(getFurnitureLayout(c).dividerDepth).toBe(340);
+    expect(piece(c,'Montant intermédiaire').largeur).toBe(340);
+  });
+  test('split grooved backs keep their 5 mm engagement and divider depth', () => {
+    const c = {...split,dosType:'en-rainure' as const};
+    expect(piece(c,'Dos')).toMatchObject({longueur:381.5,largeur:1972,quantite:2});
+    expect(piece(c,'Montant intermédiaire').largeur).toBe(340);
+  });
+  test('split full-width backs keep their half-width and divider depth', () => {
+    const c = {...split,dosType:'toute-largeur' as const};
+    expect(piece(c,'Dos')).toMatchObject({longueur:400,largeur:1962,quantite:2});
+    expect(piece(c,'Montant intermédiaire').largeur).toBe(337);
+  });
+  test('split overlay backs keep their half-width and divider depth', () => {
+    const c = {...split,dosType:'en-applique' as const};
+    expect(piece(c,'Dos')).toMatchObject({longueur:400,largeur:2000,quantite:2});
+    expect(piece(c,'Montant intermédiaire').largeur).toBe(347);
+  });
+  test('a common door rejects unequal 150 mm and 300 mm compartment drawer stacks', () => {
+    for (const position of ['haut','bas'] as const) {
+      const c = {...split,tiroirsCompartiments:{position,gauche:[150],droite:[300]}};
+      expect(validateConfig({...c,nombrePortes:1})).toHaveLength(1);
+      expect(validateConfig({...c,nombrePortes:2})).toHaveLength(1);
+      expect(validateConfig(c)).toEqual([]);
+    }
+  });
+  test('a common door compares drawer totals including 2 mm joints and 0.01 mm tolerance', () => {
+    const c = {...split,nombrePortes:1 as const,tiroirsCompartiments:{position:'haut' as const,gauche:[150,200],droite:[352]}};
+    expect(validateConfig(c)).toEqual([]);
+    expect(validateConfig({...c,tiroirsCompartiments:{...c.tiroirsCompartiments,droite:[350]}})).toHaveLength(1);
+    expect(validateConfig({...c,tiroirsCompartiments:{...c.tiroirsCompartiments,droite:[352.005]}})).toEqual([]);
+    expect(validateConfig({...c,tiroirsCompartiments:{...c.tiroirsCompartiments,droite:[352.02]}})).toHaveLength(1);
+  });
+  test('decimal cabinet dimensions yield an exact 538.4 mm shelf depth', () => {
+    const c = {...base,largeur:600,profondeur:580.7,dosType:'entre-montants-traverses' as const,nombrePortes:1,decalageDos:10} satisfies FurnitureConfig;
+    expect(validateConfig(c)).toEqual([]);
+    expect(piece(c,'Rayon')).toMatchObject({longueur:561,largeur:538.4});
+  });
+  test('generated lengths and widths round to 0.01 mm without changing quantities or thicknesses', () => {
+    const c = {...base,hauteur:2000.123,largeur:600.123,profondeur:580.723};
+    expect(piece(c,'Montant gauche')).toMatchObject({longueur:2000.12,largeur:580.72,epaisseur:19,quantite:1});
+    expect(piece(c,'Rayon')).toMatchObject({longueur:561.12,largeur:580.72,epaisseur:19,quantite:2});
+  });
+});
