@@ -3,6 +3,7 @@ import { Columns2, Layers, PanelTop, DoorOpen } from 'lucide-react';
 import { getFurnitureLayout, formatMm, type FurnitureConfig } from '@/lib/furniture';
 import { getFrontRectangles } from '@/lib/cabinet-drawing';
 
+const coordinate = (n: number) => Number.isFinite(n) ? n : 0;
 const size = (n: number) => Number.isFinite(n) && n > 0 ? n : 0;
 
 interface Props {
@@ -18,21 +19,21 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
   return <figure className="min-w-0 space-y-3">
     <div className="relative mx-auto w-full max-w-[320px] aspect-[16/15]">
       <svg viewBox="0 0 320 300" className="h-full w-full" role="img" aria-label={view === 'interieur' ? 'Vue de face de la structure du meuble' : 'Vue de face des portes et tiroirs'}>
-        <g transform={`translate(22 12) scale(${276 / Math.max(1, c.largeur)} ${276 / Math.max(1, c.hauteur)})`}>
+        <g transform={`translate(22 12) scale(${276 / Math.max(1, size(c.largeur))} ${276 / Math.max(1, size(c.hauteur))})`}>
           <g className="fill-secondary stroke-foreground">
-            <rect data-piece="Montant gauche" x="0" y={c.montantsTouteHauteur ? 0 : layout.topInset} width={size(c.epaisseurMontants)} height={size(c.montantsTouteHauteur ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset)} />
-            <rect data-piece="Montant droit" x={c.largeur-c.epaisseurMontants} y={c.montantsTouteHauteur ? 0 : layout.topInset} width={size(c.epaisseurMontants)} height={size(c.montantsTouteHauteur ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset)} />
-            {layout.topPanel && <rect data-piece="Traverse haute" x={c.montantsTouteHauteur ? c.epaisseurMontants : 0} y="0" width={size(c.largeur-(c.montantsTouteHauteur ? 2*c.epaisseurMontants : 0))} height={size(c.epaisseurTraverses)} />}
-            {layout.bottomPanel && <rect data-piece="Traverse basse" x={c.montantsTouteHauteur ? c.epaisseurMontants : 0} y={c.hauteur-c.epaisseurTraverses} width={size(c.largeur-(c.montantsTouteHauteur ? 2*c.epaisseurMontants : 0))} height={size(c.epaisseurTraverses)} />}
-            {c.bandeauHaut && <rect data-piece="Bandeau haut" x={c.epaisseurMontants} y={layout.topInset} width={size(c.largeur-2*c.epaisseurMontants)} height={size(c.bandeauHaut.hauteur)} />}
-            {c.bandeauBas && <rect data-piece="Bandeau bas" x={c.epaisseurMontants} y={c.hauteur-layout.bottomBandEnd} width={size(c.largeur-2*c.epaisseurMontants)} height={size(c.bandeauBas.hauteur)} />}
-            {view === 'interieur' && divided && <rect x={(c.largeur-c.epaisseurMontants)/2} y={c.montantIntermediaire==='toute-hauteur' ? 0 : layout.topInset} width={size(c.epaisseurMontants)} height={size(c.montantIntermediaire==='toute-hauteur' ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset)} />}
+            <rect data-piece="Montant gauche" x="0" y={coordinate(c.montantsTouteHauteur ? 0 : layout.topInset)} width={size(c.epaisseurMontants)} height={size(c.montantsTouteHauteur ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset)} />
+            <rect data-piece="Montant droit" x={coordinate(c.largeur-c.epaisseurMontants)} y={coordinate(c.montantsTouteHauteur ? 0 : layout.topInset)} width={size(c.epaisseurMontants)} height={size(c.montantsTouteHauteur ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset)} />
+            {layout.topPanel && <rect data-piece="Traverse haute" x={coordinate(c.montantsTouteHauteur ? c.epaisseurMontants : 0)} y="0" width={size(c.largeur-(c.montantsTouteHauteur ? 2*c.epaisseurMontants : 0))} height={size(c.epaisseurTraverses)} />}
+            {layout.bottomPanel && <rect data-piece="Traverse basse" x={coordinate(c.montantsTouteHauteur ? c.epaisseurMontants : 0)} y={coordinate(c.hauteur-c.epaisseurTraverses)} width={size(c.largeur-(c.montantsTouteHauteur ? 2*c.epaisseurMontants : 0))} height={size(c.epaisseurTraverses)} />}
+            {c.bandeauHaut && <rect data-piece="Bandeau haut" x={coordinate(c.epaisseurMontants)} y={coordinate(layout.topInset)} width={size(c.largeur-2*c.epaisseurMontants)} height={size(c.bandeauHaut.hauteur)} />}
+            {c.bandeauBas && <rect data-piece="Bandeau bas" x={coordinate(c.epaisseurMontants)} y={coordinate(c.hauteur-layout.bottomBandEnd)} width={size(c.largeur-2*c.epaisseurMontants)} height={size(c.bandeauBas.hauteur)} />}
+            {view === 'interieur' && divided && <rect x={coordinate((c.largeur-c.epaisseurMontants)/2)} y={coordinate(c.montantIntermediaire==='toute-hauteur' ? 0 : layout.topInset)} width={size(c.epaisseurMontants)} height={size(c.montantIntermediaire==='toute-hauteur' ? c.hauteur : c.hauteur-layout.topInset-layout.bottomInset)} />}
             {view === 'interieur' && bays.map(side => {
               const count = divided ? (c.rayonsCompartiments?.[side]?.mobiles ?? 0)+(c.rayonsCompartiments?.[side]?.fixes ?? 0) : c.nombreRayons+(c.nombreRayonsFixes ?? 0);
-              return Array.from({length:Math.min(count,8)},(_,i)=><rect key={`${side}-${i}`} x={side==='droite' ? (c.largeur+c.epaisseurMontants)/2 : c.epaisseurMontants} y={layout.topBandEnd+(c.hauteur-layout.topBandEnd-layout.bottomBandEnd)*(i+1)/(Math.min(count,8)+1)} width={size(divided ? layout.bayWidth : c.largeur-2*c.epaisseurMontants)} height={size(c.epaisseurRayons)} />);
+              return Array.from({length:Math.min(count,8)},(_,i)=><rect key={`${side}-${i}`} x={coordinate(side==='droite' ? (c.largeur+c.epaisseurMontants)/2 : c.epaisseurMontants)} y={coordinate(layout.topBandEnd+(c.hauteur-layout.topBandEnd-layout.bottomBandEnd)*(i+1)/(Math.min(count,8)+1))} width={size(divided ? layout.bayWidth : c.largeur-2*c.epaisseurMontants)} height={size(c.epaisseurRayons)} />);
             })}
           </g>
-          {view === 'facades' && <g className="fill-background stroke-foreground">{getFrontRectangles(c).map(front=><rect key={front.name} data-piece={front.name} x={front.x} y={front.y} width={size(front.width)} height={size(front.height)} vectorEffect="non-scaling-stroke" strokeWidth="1.5" />)}</g>}
+          {view === 'facades' && <g className="fill-background stroke-foreground">{getFrontRectangles(c).map(front=><rect key={front.name} data-piece={front.name} x={coordinate(front.x)} y={coordinate(front.y)} width={size(front.width)} height={size(front.height)} vectorEffect="non-scaling-stroke" strokeWidth="1.5" />)}</g>}
         </g>
       </svg>
       <div className="absolute inset-x-0 top-0 flex justify-center">

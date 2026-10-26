@@ -36,7 +36,7 @@ export function NumberField({ id, label, labelClassName, value, min, placeholder
         const raw = e.target.value;
         setDraft(raw);
         const n = parseDecimal(raw);
-        if (n !== null) onCommit(n);
+        onCommit(n ?? NaN);
       }}
       onBlur={() => setDraft(null)}
     />

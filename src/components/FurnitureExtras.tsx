@@ -54,7 +54,7 @@ export function FurnitureExtras({config, onChange, showDrawers=true}: Props) {
       </div>)}
       <p aria-live="polite" className="text-sm text-muted-foreground">Hauteur restante, jeux déduits : <span className="font-medium text-foreground">{formatMm(layout.frontFreeHeight)} mm</span></p>
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" className="h-auto min-h-11 whitespace-normal text-left" disabled={nextFrontHeight <= 0} onClick={() => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,hauteurs:[...config.tiroirs.hauteurs,Math.min(150,nextFrontHeight)]}});}}><Plus className="mr-2 h-4 w-4" />Ajouter une face de tiroir</Button>
+        <Button variant="outline" size="sm" className="h-auto min-h-11 whitespace-normal text-left" disabled={!(nextFrontHeight > 0)} onClick={() => {if (config.tiroirs) onChange({...config,tiroirs:{...config.tiroirs,hauteurs:[...config.tiroirs.hauteurs,Math.min(150,nextFrontHeight)]}});}}><Plus className="mr-2 h-4 w-4" />Ajouter une face de tiroir</Button>
         {config.nombrePortes === 0 && layout.frontFreeHeight > 0 && <Button variant="outline" size="sm" className="h-auto min-h-11 whitespace-normal text-left" onClick={() => {if (!config.tiroirs) return; const last=config.tiroirs.hauteurs.length-1; onChange({...config,tiroirs:{...config.tiroirs,hauteurs:config.tiroirs.hauteurs.map((h,i) => i === last ? h+layout.frontFreeHeight : h)}});}}>Compléter avec la dernière face</Button>}
       </div>
     </div>}
