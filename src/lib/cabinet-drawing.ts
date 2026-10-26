@@ -59,7 +59,10 @@ export function getSideRectangles(c: FurnitureConfig): SideRectangle[] {
   if (c.bandeauBas) result.push({ name: 'Bandeau bas', x: frontOffset, y: c.hauteur - layout.bottomBandEnd, width: c.epaisseurTraverses, height: c.bandeauBas.hauteur });
 
   // Rayons : mêmes hauteurs que la vue de face, profondeur du débit.
+  // Calés contre le dos : le jeu (retrait + dégagement de porte intérieure) se lit entre rayon et porte.
   const shelfDepth = items.find(i => i.nom.startsWith('Rayon'))?.largeur ?? carcassBack;
+  const backDeduction = c.dosType !== 'aucun' && c.dosType !== 'en-applique' ? c.epaisseurDos + c.decalageDos : 0;
+  const shelfX = frontOffset + Math.max(0, carcassBack - backDeduction - shelfDepth);
   const divided = !!c.montantIntermediaire;
   const bays = divided ? ['gauche', 'droite'] as const : ['gauche'] as const;
   for (const side of bays) {
