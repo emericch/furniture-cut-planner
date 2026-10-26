@@ -1,5 +1,9 @@
 # Optimisation
 
+- [x] Review recorded security scan results and dependency alerts; 53 regression tests pass. Recorded scans are stale, dependency advisories exist, and lockfiles disagree with installed jsPDF.
+- [ ] Review a fresh deep security scan before public presentation: user must run it in the Security tab.
+- [ ] Propose confirmed code-weight and maintainability optimizations for approval; do not modify application code or dependencies before approval.
+
 - [x] Correct front coverage and removed-panel rendering; replace step navigation with continuous menus and assess novice usability (53 tests pass, 320/666/820/1280 px verified; no real-child usability test).
 
 - [x] Simplify the cabinet drawing and option labels; verify all four steps and furniture addition at 320/390/820/1280 px without changing calculations (49 regression tests pass).
