@@ -295,32 +295,32 @@ describe('Split-back and decimal regression fixes', () => {
   test('split full-height backs meet behind the divider without a 19 mm center gap', () => {
     const c = {...split,dosType:'toute-hauteur' as const};
     expect(validateConfig(c)).toEqual([]);
-    expect(piece(c,'Dos')).toMatchObject({longueur:381,largeur:2000,epaisseur:3,quantite:2});
-    expect(piece(c,'Dos').longueur * 2).toBe(762);
+    expect(piece(c,'Dos')).toMatchObject({longueur:2000,largeur:381,epaisseur:3,quantite:2});
+    expect(piece(c,'Dos').largeur * 2).toBe(762);
     expect(getFurnitureLayout(c).dividerDepth).toBe(337);
     expect(piece(c,'Montant intermédiaire').largeur).toBe(337);
   });
   test('split between-panel backs fit beside a divider reaching the rear back plane', () => {
     const c = {...split,dosType:'entre-montants-traverses' as const};
     expect(validateConfig(c)).toEqual([]);
-    expect(piece(c,'Dos')).toMatchObject({longueur:371.5,largeur:1962,epaisseur:3,quantite:2});
-    expect(piece(c,'Dos').longueur * 2 + c.epaisseurMontants).toBe(762);
+    expect(piece(c,'Dos')).toMatchObject({longueur:1962,largeur:371.5,epaisseur:3,quantite:2});
+    expect(piece(c,'Dos').largeur * 2 + c.epaisseurMontants).toBe(762);
     expect(getFurnitureLayout(c).dividerDepth).toBe(340);
     expect(piece(c,'Montant intermédiaire').largeur).toBe(340);
   });
   test('split grooved backs keep their 5 mm engagement and divider depth', () => {
     const c = {...split,dosType:'en-rainure' as const};
-    expect(piece(c,'Dos')).toMatchObject({longueur:381.5,largeur:1972,quantite:2});
+    expect(piece(c,'Dos')).toMatchObject({longueur:1972,largeur:381.5,quantite:2});
     expect(piece(c,'Montant intermédiaire').largeur).toBe(340);
   });
   test('split full-width backs keep their half-width and divider depth', () => {
-    const c = {...split,dosType:'toute-largeur' as const};
-    expect(piece(c,'Dos')).toMatchObject({longueur:400,largeur:1962,quantite:2});
+    const c = {...split,dosType:'toute-largeur' as const,montantsTouteHauteur:false,traversesTouteLargeur:true};
+    expect(piece(c,'Dos')).toMatchObject({longueur:1962,largeur:400,quantite:2});
     expect(piece(c,'Montant intermédiaire').largeur).toBe(337);
   });
   test('split overlay backs keep their half-width and divider depth', () => {
     const c = {...split,dosType:'en-applique' as const};
-    expect(piece(c,'Dos')).toMatchObject({longueur:400,largeur:2000,quantite:2});
+    expect(piece(c,'Dos')).toMatchObject({longueur:2000,largeur:400,quantite:2});
     expect(piece(c,'Montant intermédiaire').largeur).toBe(347);
   });
   test('a common door rejects unequal 150 mm and 300 mm compartment drawer stacks', () => {
