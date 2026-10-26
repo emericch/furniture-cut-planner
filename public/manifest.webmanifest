@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Générateur de Débit Meuble",
-  "short_name": "Débit Meuble",
+  "name": "Débit Rapide",
+  "short_name": "Débit Rapide",
   "description": "Outil de menuiserie par Emeric Chenay",
   "lang": "fr",
   "start_url": "/",
