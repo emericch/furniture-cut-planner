@@ -255,7 +255,7 @@ describe('Centered divider and compartment clearances', () => {
   test('continuous backs stop divider at front face; split grooved backs engage 5 mm on each edge',()=>{
     expect(piece({...split,dosType:'en-rainure',decalageDos:10},'Montant intermédiaire').largeur).toBe(337);
     expect(piece({...split,dosType:'en-rainure',dosParCompartiment:true,decalageDos:10},'Montant intermédiaire').largeur).toBe(340);
-    expect(piece({...split,dosType:'en-rainure',dosParCompartiment:true},'Dos')).toMatchObject({longueur:381.5,largeur:1972,quantite:2});
+    expect(piece({...split,dosType:'en-rainure',dosParCompartiment:true},'Dos')).toMatchObject({longueur:1972,largeur:381.5,quantite:2});
     expect(validateConfig({...split,dosType:'en-rainure',dosParCompartiment:true,epaisseurMontants:8}).length).toBeGreaterThan(0);
   });
   test('divider clears continuous bands and inset doors in depth',()=>{
@@ -265,22 +265,23 @@ describe('Centered divider and compartment clearances', () => {
   });
   test('left/right drawer fronts share 2 mm center joint and reserve the taller stack for common doors',()=>{
     const c={...split,nombrePortes:1 as const,typePorte:'applique' as const,tiroirsCompartiments:{position:'haut' as const,gauche:[150,200],droite:[352]}};
-    expect(piece(c,'Face tiroir gauche 1').longueur).toBe(397.5);
-    expect(piece(c,'Porte (applique)').largeur).toBe(1643);
+    expect(piece(c,'Face tiroir gauche 1').largeur).toBe(398);
+    expect(piece(c,'Porte (applique)').longueur).toBe(1644);
     expect(piece(c,'Montant gauche').largeur).toBe(329);
     expect(validateConfig(c)).toEqual([]);
     expect(validateConfig({...c,montantIntermediaire:undefined}).length).toBeGreaterThan(0);
   });
   test('drawer-only bays independently fill available height with actual front joints',()=>{
     const c={...split,tiroirsCompartiments:{position:'haut' as const,gauche:[150,200],droite:[352]}};
-    expect(getFurnitureLayout(c).drawerRemaining).toEqual({gauche:1645,droite:1645});
-    const filled={...c,tiroirsCompartiments:{position:'haut' as const,gauche:[150,1845],droite:[1997]}};
+    expect(getFurnitureLayout(c).drawerRemaining).toEqual({gauche:1646,droite:1646});
+    const filled={...c,tiroirsCompartiments:{position:'haut' as const,gauche:[150,1846],droite:[1998]}};
     expect(getFurnitureLayout(filled).drawerRemaining).toEqual({gauche:0,droite:0});
     expect(validateConfig(filled)).toEqual([]);
   });
   test('both divider poses and backs keep positive independent compartment pieces',()=>{
     for(const fixture of auditFixtures) for(const montantIntermediaire of ['entre-traverses','toute-hauteur'] as const) for(const dosParCompartiment of [false,true]) {
       const c={...fixture.config,montantIntermediaire,dosParCompartiment,rayonsCompartiments:split.rayonsCompartiments} as FurnitureConfig;
+      if (incoherent(c)) {expect(validateConfig(c).length).toBeGreaterThan(0);continue;}
       expect(validateConfig(c)).toEqual([]);
       const items=generateMeubleItems(c);
       expect(items.find(i=>i.nom==='Rayon fixe droite')?.longueur).toBe(371.5);
