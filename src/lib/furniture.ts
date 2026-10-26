@@ -247,9 +247,9 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
       let hauteurUtile, largeurUtile;
       
       if (config.typePorte === 'applique') {
-        // Porte en applique: dimensions extérieures du meuble
+        // Porte en applique: dimensions extérieures du meuble, 1 mm en rive
         hauteurUtile = layout.doorHeight;
-        largeurUtile = config.largeur - 3;
+        largeurUtile = config.largeur - 2;
       } else {
         // Porte en intérieur: dimensions réduites par les montants/traverses
         hauteurUtile = layout.doorHeight;
@@ -259,30 +259,31 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
       // Profondeur des portes
       let profondeurPortes = config.epaisseurPortes;
       
+      // Fil vertical : la longueur des portes est leur hauteur.
       if (config.nombrePortes === 1) {
         items.push({
           nom: config.typePorte === 'applique' ? 'Porte (applique)' : 'Porte (intérieur)',
-          longueur: largeurUtile,
-          largeur: hauteurUtile,
+          longueur: hauteurUtile,
+          largeur: largeurUtile,
           epaisseur: profondeurPortes,
           quantite: 1
         });
       } else if (config.nombrePortes === 2) {
         const jeuEntrePortes = 2;
         const largeurPorte = (largeurUtile - jeuEntrePortes) / 2;
-        
+
         items.push({
           nom: config.typePorte === 'applique' ? 'Porte gauche (applique)' : 'Porte gauche (intérieur)',
-          longueur: largeurPorte,
-          largeur: hauteurUtile,
+          longueur: hauteurUtile,
+          largeur: largeurPorte,
           epaisseur: profondeurPortes,
           quantite: 1
         });
-        
+
         items.push({
           nom: config.typePorte === 'applique' ? 'Porte droite (applique)' : 'Porte droite (intérieur)',
-          longueur: largeurPorte,
-          largeur: hauteurUtile,
+          longueur: hauteurUtile,
+          largeur: largeurPorte,
           epaisseur: profondeurPortes,
           quantite: 1
         });
