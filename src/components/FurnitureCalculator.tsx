@@ -81,6 +81,7 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const saveEditedMeubleName = () => {
+    if (!editingNom.trim()) { cancelEditingMeuble(); return; }
     if (editingMeubleId && editingNom.trim()) {
       setMeubleGroups(meubleGroups.map(groupe => 
         groupe.id === editingMeubleId 
@@ -246,7 +247,7 @@ const FurnitureCalculator: React.FC = () => {
       content += `
         <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? 'border-top: 1px solid #bbb; padding-top: 6px;' : ''}">
           <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
-            ${escapeHtml(groupe.nom)} (${groupe.config.hauteur}×${groupe.config.largeur}×${groupe.config.profondeur}mm)
+            ${escapeHtml(groupe.nom)} (${formatMm(groupe.config.hauteur)}×${formatMm(groupe.config.largeur)}×${formatMm(groupe.config.profondeur)}mm)
           </div>
           <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
             <thead>
@@ -263,8 +264,8 @@ const FurnitureCalculator: React.FC = () => {
                 <tr style="border-bottom: 1px solid #ddd;">
                   <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.longueur}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.largeur}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.longueur)}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.largeur)}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
                 </tr>
               `).join('')}
@@ -295,8 +296,8 @@ const FurnitureCalculator: React.FC = () => {
                 <tr style="border-bottom: 1px solid #ddd;">
                   <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.longueur}</td>
-                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.largeur}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.longueur)}</td>
+                  <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.largeur)}</td>
                   <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
                 </tr>
               `).join('')}
@@ -320,7 +321,7 @@ const FurnitureCalculator: React.FC = () => {
       pdf.setFontSize(9); pdf.text(new Date().toLocaleDateString('fr-FR'), 14, 21);
       const sections = order === 'taille'
         ? [{title: 'Pièces par taille décroissante', rows: sortedRows.map(({item,meuble}) => [meuble+' · '+item.nom,item.quantite,formatMm(item.longueur),formatMm(item.largeur),item.epaisseur])}]
-        : [...meubleGroups.map(g => ({title: g.nom+' — '+g.config.hauteur+' × '+g.config.largeur+' × '+g.config.profondeur+' mm',rows: g.items.map(i => [i.nom,i.quantite,formatMm(i.longueur),formatMm(i.largeur),i.epaisseur])})), ...(customItems.length ? [{title:'Pièces personnalisées',rows:customItems.map(i => [i.nom,i.quantite,formatMm(i.longueur),formatMm(i.largeur),i.epaisseur])}] : [])];
+        : [...meubleGroups.map(g => ({title: g.nom+' — '+formatMm(g.config.hauteur)+' × '+formatMm(g.config.largeur)+' × '+formatMm(g.config.profondeur)+' mm',rows: g.items.map(i => [i.nom,i.quantite,formatMm(i.longueur),formatMm(i.largeur),i.epaisseur])})), ...(customItems.length ? [{title:'Pièces personnalisées',rows:customItems.map(i => [i.nom,i.quantite,formatMm(i.longueur),formatMm(i.largeur),i.epaisseur])}] : [])];
       const body = sections.flatMap(section => [[{content:section.title,colSpan:5,styles:{fontStyle:'bold' as const,fillColor:255}}], ...section.rows]);
       autoTable(pdf, {startY:27, margin:{left:14,right:14,bottom:24}, head:[['Pièce','Qté','L (mm)','l (mm)','e (mm)']], body, theme:'plain', styles:{fontSize:9,cellPadding:2,textColor:0,lineColor:210,lineWidth:0.1,overflow:'linebreak'}, headStyles:{fillColor:255,textColor:0,fontStyle:'bold'}, rowPageBreak:'avoid'});
       const page = pdf.getNumberOfPages(); pdf.setPage(page);
@@ -552,7 +553,7 @@ const FurnitureCalculator: React.FC = () => {
                              )}
                            </div>
                            <p className="text-xs text-muted-foreground">
-                             {groupe.config.hauteur} × {groupe.config.largeur} × {groupe.config.profondeur}mm
+                             {formatMm(groupe.config.hauteur)} × {formatMm(groupe.config.largeur)} × {formatMm(groupe.config.profondeur)}mm
                            </p>
                          </CardHeader>
                         <CardContent className="space-y-2">
@@ -561,8 +562,8 @@ const FurnitureCalculator: React.FC = () => {
                               <div className="flex-1">
                                 <h5 className="font-medium text-sm">{item.nom}</h5>
                                 <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-4">
-                                  <div>L: {item.longueur}mm</div>
-                                  <div>l: {item.largeur}mm</div>
+                                  <div>L: {formatMm(item.longueur)}mm</div>
+                                  <div>l: {formatMm(item.largeur)}mm</div>
                                   <div>Ép: {item.epaisseur}mm</div>
                                   <div>Qté: {item.quantite}</div>
                                 </div>
@@ -585,8 +586,8 @@ const FurnitureCalculator: React.FC = () => {
                               <div className="flex-1">
                                 <h5 className="font-medium text-sm">{item.nom}</h5>
                                 <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-4">
-                                  <div>L: {item.longueur}mm</div>
-                                  <div>l: {item.largeur}mm</div>
+                                  <div>L: {formatMm(item.longueur)}mm</div>
+                                  <div>l: {formatMm(item.largeur)}mm</div>
                                   <div>Ép: {item.epaisseur}mm</div>
                                   <div>Qté: {item.quantite}</div>
                                 </div>
