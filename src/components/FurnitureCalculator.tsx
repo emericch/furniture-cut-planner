@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { generateMeubleItems, validateConfig, compareSize, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
+import { generateMeubleItems, validateConfig, getWarnings, compareSize, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
 import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
