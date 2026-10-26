@@ -16,6 +16,13 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
   const layout = getFurnitureLayout(c);
   const divided = !!c.montantIntermediaire;
   const bays = divided ? ['gauche', 'droite'] as const : ['gauche'] as const;
+  // Épaisseurs rendues à une échelle visuelle commune (base : échelle horizontale),
+  // pour que 19 mm paraisse identique sur les montants, traverses et rayons.
+  const sx = 276 / Math.max(1, size(c.largeur));
+  const sy = 276 / Math.max(1, size(c.hauteur));
+  const T = Math.max(sx, sy, 5 / 19);
+  const thH = (mm: number) => size(mm) * T / sx; // largeur dessinée d'un panneau vertical
+  const thV = (mm: number) => size(mm) * T / sy; // hauteur dessinée d'un panneau horizontal
   return <figure className="min-w-0 space-y-3">
     <div className="relative mx-auto w-full max-w-[320px] aspect-[16/15]">
       <svg viewBox="0 0 320 300" className="h-full w-full" role="img" aria-label={view === 'interieur' ? 'Vue de face de la structure du meuble' : 'Vue de face des portes et tiroirs'}>
