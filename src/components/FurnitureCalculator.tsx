@@ -337,10 +337,12 @@ const FurnitureCalculator: React.FC = () => {
 
   const generatePrintContent = () => {
     if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
-    return sections.map((section, index) => `
+    return sections.map((section, index) => {
+      const groupe = meubleGroups.find(g => g.id === section.id);
+      return `
       <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? 'border-top: 1px solid #bbb; padding-top: 6px;' : ''}">
         <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
-          ${escapeHtml(section.nom)}${section.detail ? ` (${section.detail})` : ''}
+          ${showThumbnails && groupe ? thumbnailSvgMarkup(groupe.config, 56) : ''}${escapeHtml(section.nom)}${section.detail ? ` (${section.detail})` : ''}
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
           <thead>
