@@ -66,6 +66,7 @@ const FurnitureCalculator: React.FC = () => {
   const [editingNom, setEditingNom] = useState('');
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
+  const [editingListNom, setEditingListNom] = useState<string | null>(null);
 
   const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
   const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
@@ -79,6 +80,7 @@ const FurnitureCalculator: React.FC = () => {
     order,
     groupIdentical,
     showThumbnails,
+    thumbChoiceSaved: true,
     config: formBackup?.config ?? config,
     meubleNom: formBackup?.meubleNom ?? meubleNom,
   });
@@ -146,6 +148,18 @@ const FurnitureCalculator: React.FC = () => {
     setCollection(next);
     loadStateIntoFields(next.sheets.find(s => s.id === next.activeId)!.state);
     toast.success('Liste supprimée');
+  };
+
+  const renameActiveSheet = () => {
+    const nom = editingListNom?.trim();
+    if (!nom) {
+      toast.error('Le nom de la liste ne peut pas être vide');
+      return;
+    }
+    const updated = saveCurrentInto(collection);
+    setCollection({ ...updated, sheets: updated.sheets.map(s => (s.id === updated.activeId ? { ...s, nom } : s)) });
+    setEditingListNom(null);
+    toast.success(`Liste renommée en « ${nom} »`);
   };
 
   const validationErrors = validateConfig(config);
