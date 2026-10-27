@@ -803,7 +803,6 @@ const FurnitureCalculator: React.FC = () => {
 
                 {(meubleGroups.length > 0 || customItems.length > 0) ? (
                   <div className="space-y-4">
-                    {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
                     {thicknesses.length > 0 && <div role="group" aria-label="Filtrer par épaisseur" className="flex flex-wrap gap-2">
                       {[{ epaisseur: null as number | null, count: thicknesses.reduce((a, t) => a + t.count, 0) }, ...thicknesses].map(t => {
                         const active = t.epaisseur === activeThickness;
@@ -814,6 +813,7 @@ const FurnitureCalculator: React.FC = () => {
                         </button>;
                       })}
                     </div>}
+                    {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
                     {order === 'meuble' && sections.length > 1 && <div className="flex justify-end"><Button size="sm" variant="ghost" onClick={() => setCollapsed(collapsed.size >= sections.length ? new Set() : new Set(sections.map(x => x.id)))}>{collapsed.size >= sections.length ? 'Tout déplier' : 'Tout réduire'}</Button></div>}
                     {/* Groupes de meubles */}
                     {order === 'meuble' && sections.map((section) => {
