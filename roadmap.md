@@ -1,7 +1,7 @@
 # Optimisation
 
-- [ ] Renommer la liste de débit active (menu déroulant côté liste) : édition du nom, persistance automatique, validation d'un nom non vide ; tests + vérification navigateur.
-- [x] Défauts d'ouverture : miniature activée par défaut et meuble standard H765 L600 P550, porte en applique, 2 rayons, dos en applique.
+- [x] Renommer la liste de débit active : bouton « Renommer » à côté du menu des listes, édition en ligne (Entrée valide, Échap annule, vide refusé), persistance vérifiée ; 125 tests passent.
+- [x] Défauts d'ouverture : miniature activée par défaut (même pour les listes stockées avant ce changement) et meuble standard H765 L600 P550, porte en applique, 2 rayons, dos en applique ; vérifié dans Chromium.
 
 - [x] Deep debug of latest sheet changes: 108 tests pass and build OK; Chromium verified reload/edit/cancel/update/delete/undo, switching edited cabinets, grouping and pivots in screen/print/PDF, 586 px layout and corrupted storage; 168 malformed-storage mutations checked. Fixed nested-config startup crashes, independent collection recovery and creation-draft loss on reload during editing. Existing preview instrumentation ref warnings remain non-blocking; physical Safari/AirPrint not verified. A cabinet with corrupt cutting rows remains rejected as a whole to avoid presenting an incomplete cutting list as usable; formulas, dependencies, presentation and pending plan untouched.
 
