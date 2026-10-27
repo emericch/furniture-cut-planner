@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Columns2, Layers, PanelTop, DoorOpen } from 'lucide-react';
+import { Layers, PanelTop, DoorOpen } from 'lucide-react';
 import { getFurnitureLayout, formatMm, type FurnitureConfig } from '@/lib/furniture';
 import { getFrontRectangles, getSideRectangles, getThumbnailViews, type ThumbnailRect } from '@/lib/cabinet-drawing';
 
