@@ -31,8 +31,8 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
   const frontNames = new Set(getFrontRectangles(c).map(f => f.name));
   const joint = 3 / sy;
   return <figure className="min-w-0 space-y-3">
-    <div className="flex flex-wrap items-start justify-center gap-3">
-      <div className="w-full max-w-[300px]">
+    <div className="flex items-start justify-center gap-3">
+      <div className="min-w-0 max-w-[300px] flex-[1.58]">
         <div className="relative aspect-[16/15]">
           <svg viewBox="0 0 320 300" className="h-full w-full" role="img" aria-label={view === 'interieur' ? 'Vue de face de la structure du meuble' : 'Vue de face des portes et tiroirs'}>
             <g transform={`translate(22 12) scale(${276 / Math.max(1, size(c.largeur))} ${276 / Math.max(1, size(c.hauteur))})`}>
@@ -62,7 +62,7 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
         </div>
         <p className="mt-1 text-center text-xs text-muted-foreground">Vue de face</p>
       </div>
-      <div className="w-full max-w-[190px]">
+      <div className="min-w-0 max-w-[190px] flex-1">
         <div className="aspect-[2/3]">
           <svg viewBox="0 0 200 300" className="h-full w-full" role="img" aria-label="Vue de côté : profondeur du meuble avec dos, rayons et façades">
             <g transform={`translate(22 12) scale(${sxSide} ${sy})`}>
