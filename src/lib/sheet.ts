@@ -249,3 +249,32 @@ export const parseSheet = (raw: string | null): SheetState | null => {
     return null;
   }
 };
+
+// Une entrée invalide est ignorée seule ; la collection survit tant qu'une liste valide reste.
+export const parseCollection = (raw: string | null): SheetCollection | null => {
+  if (!raw) return null;
+  try {
+    const v = JSON.parse(raw);
+    if (!v || typeof v !== 'object' || Array.isArray(v) || !Array.isArray(v.sheets)) return null;
+    const sheets: SheetEntry[] = [];
+    for (const s of v.sheets) {
+      if (!s || typeof s.id !== 'string' || typeof s.nom !== 'string') continue;
+      const state = parseSheet(JSON.stringify(s.state));
+      if (state) sheets.push({ id: s.id, nom: s.nom, state });
+    }
+    if (!sheets.length) return null;
+    const activeId = sheets.some(s => s.id === v.activeId) ? v.activeId : sheets[0].id;
+    return { sheets, activeId };
+  } catch {
+    return null;
+  }
+};
+
+// Charge la collection, en migrant l'ancien format mono-liste si présent.
+export const loadCollection = (getItem: (key: string) => string | null): SheetCollection => {
+  const existing = parseCollection(getItem(COLLECTION_STORAGE_KEY));
+  if (existing) return existing;
+  const legacy = parseSheet(getItem(SHEET_STORAGE_KEY));
+  const first: SheetEntry = { id: crypto.randomUUID(), nom: 'Liste 1', state: legacy ?? emptySheetState() };
+  return { sheets: [first], activeId: first.id };
+};
