@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
@@ -335,6 +336,13 @@ const FurnitureCalculator: React.FC = () => {
     } else { toast.error('Autorisez les fenêtres d’impression dans votre navigateur.'); }
   };
 
+  const handleClearSheet = () => {
+    setMeubleGroups([]);
+    setCustomItems([]);
+    setMeubleCounter(1);
+    toast.success('Feuille de débit vidée.');
+  };
+
   const generatePrintContent = () => {
     if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
     return sections.map((section, index) => {
@@ -511,6 +519,30 @@ const FurnitureCalculator: React.FC = () => {
                           <Download className="h-3 w-3" />
                           Export PDF
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex items-center gap-1"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Vider la feuille
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Vider la feuille de débit ?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tous les meubles et pièces personnalisées seront supprimés définitivement. Cette action est irréversible.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleClearSheet}>Vider la feuille</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </>
                     )}
                     <Button
