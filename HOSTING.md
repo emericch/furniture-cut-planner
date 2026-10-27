@@ -7,23 +7,19 @@ L’application possède un manifeste, des icônes et un lancement autonome. Ell
 - iPhone/iPad : ouvrir le site publié dans Safari, puis Partager → Sur l’écran d’accueil.
 - Android : ouvrir le site publié et utiliser le menu d’installation ou d’ajout à l’écran d’accueil.
 - PC/Mac : utiliser l’installation proposée par Chrome ou Edge ; la disponibilité dépend du navigateur et du système.
-- Les feuilles en cours sont conservées uniquement pendant la session de page : un rechargement les efface. Exporter le PDF avant de fermer.
+- Les feuilles sont enregistrées dans le navigateur de l'appareil (stockage local) : elles ne sont pas partagées entre appareils. Exporter le PDF pour les conserver ailleurs.
 
-## Hébergement gratuit
+## Hébergement
 
-**GitHub Pages** propose un hébergement statique gratuit pour un dépôt public sur GitHub Free, sous réserve des limites de service. L’application n’a pas besoin de serveur pour ses calculs.
+Le site est hébergé gratuitement sur **Cloudflare Pages** : https://debit-rapide.pages.dev
 
-La connexion Git depuis Lovable crée un dépôt privé ; GitHub Pages gratuit exige de le rendre public. Le code et le logo deviennent alors accessibles publiquement. Il faut exporter les fichiers compilés et préparer le chemin de publication. Privilégier une page utilisateur `https://UTILISATEUR.github.io/`, servie à la racine, pour conserver les chemins des icônes et du manifeste. Pour une page de projet dans un sous-dossier, adapter d’abord les chemins absolus, le manifeste et la configuration Vite.
+- Projet Pages `debit-rapide`, relié au dépôt GitHub `emericch/furniture-cut-planner`, branche `main`.
+- Build : `npm run build`, dossier publié : `dist`.
+- Chaque commit sur `main` déclenche automatiquement un nouveau build et la mise en ligne (1 à 2 minutes).
+- Offre gratuite : 500 builds par mois. Les adresses inconnues renvoient vers l'application (comportement par défaut de Pages pour une application monopage).
+- Le logo est intégré au code : aucun service d'images externe n'est nécessaire.
 
-Le logo affiché dispose d’un remplacement local à partir de l’icône de l’application lorsque le service d’images Lovable n’est pas disponible ailleurs.
-
-Aucun hébergement externe ni compte GitHub n’a été configuré dans cette intervention.
-
-Sources : https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages
-
-**Lovable** : la publication depuis le dialogue est gratuite, mais la documentation actuelle indique que l’usage de l’hébergement consomme des crédits Run. Ce n’est donc pas une garantie d’hébergement illimité gratuit. Le site déjà publié ne reçoit pas ces modifications tant que l’on n’a pas cliqué sur Mettre à jour.
-
-Source : https://docs.lovable.dev/features/publish
+Sources : https://developers.cloudflare.com/pages/configuration/git-integration/ · https://developers.cloudflare.com/pages/platform/limits/
 
 ## Vérifications
 
