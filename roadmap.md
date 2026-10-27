@@ -1,5 +1,7 @@
 # Optimisation
 
+- [ ] Correct the four requested sheet bugs only: fixed-dimension grain pivots and one-time legacy migration, grain-aware grouped pivots, undo in the originating list, and exit editing when clearing; verify unit tests, browser scenarios and PDF without changing appearance, formulas, dependencies or plan.
+
 - [x] Retiré les boutons « Montants et dos » et « Bandeaux et façades » sous le dessin : seules les icônes cliquables posées sur le schéma restent (125 tests, build OK, Chromium contrôlé à 1280 et 586 px).
 - [x] Renommer la liste de débit active : bouton « Renommer » à côté du menu des listes, édition en ligne (Entrée valide, Échap annule, vide refusé), persistance vérifiée ; 125 tests passent.
 - [x] Défauts d'ouverture : miniature activée par défaut (même pour les listes stockées avant ce changement) et meuble standard H765 L600 P550, porte en applique, 2 rayons, dos en applique ; vérifié dans Chromium.

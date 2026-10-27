@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -79,6 +79,7 @@ const FurnitureCalculator: React.FC = () => {
 
   // État courant de la liste active (le brouillon du formulaire prime pendant une modification).
   const currentSheetState = (): SheetState => ({
+    filFormat: 2,
     meubleGroups,
     customItems,
     meubleCounter,
@@ -89,6 +90,30 @@ const FurnitureCalculator: React.FC = () => {
     config: formBackup?.config ?? config,
     meubleNom: formBackup?.meubleNom ?? meubleNom,
   });
+
+  // Toast actions outlive their render: read the actual list and fields at click time.
+  const undoContext = useRef({ collection, state: currentSheetState() });
+  undoContext.current = { collection, state: currentSheetState() };
+
+  const restoreInSheet = (originId: string, nom: string, restore: (state: SheetState) => SheetState) => {
+    const latest = undoContext.current;
+    const origin = latest.collection.sheets.find(s => s.id === originId);
+    if (!origin) {
+      toast.error("Impossible d'annuler : la liste d'origine a été supprimée.");
+      return;
+    }
+    if (latest.collection.activeId === originId) {
+      const restored = restore(latest.state);
+      setMeubleGroups(restored.meubleGroups);
+      setCustomItems(restored.customItems);
+    } else {
+      setCollection(current => ({
+        ...current,
+        sheets: current.sheets.map(s => s.id === originId ? { ...s, state: restore(s.state) } : s),
+      }));
+      toast.success(`${nom} restauré dans ${origin.nom}`);
+    }
+  };
 
   // Collection à jour : la liste active reflète les champs courants, les autres sont inchangées.
   const saveCurrentInto = (base: SheetCollection): SheetCollection => ({
@@ -254,6 +279,7 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const removeMeubleGroup = (meubleId: string) => {
+    const originId = collection.activeId;
     const index = meubleGroups.findIndex(g => g.id === meubleId);
     const removed = meubleGroups[index];
     if (!removed) return;
@@ -263,11 +289,11 @@ const FurnitureCalculator: React.FC = () => {
       duration: 6000,
       action: {
         label: 'Annuler',
-        onClick: () => setMeubleGroups(current => {
-          if (current.some(g => g.id === removed.id)) return current;
-          const next = [...current];
+        onClick: () => restoreInSheet(originId, removed.nom, state => {
+          if (state.meubleGroups.some(g => g.id === removed.id)) return state;
+          const next = [...state.meubleGroups];
           next.splice(Math.min(index, next.length), 0, removed);
-          return next;
+          return { ...state, meubleGroups: next };
         })
       }
     });
@@ -295,6 +321,7 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const removeCustomItem = (index: number) => {
+    const originId = collection.activeId;
     const removed = customItems[index];
     if (!removed) return;
     setCustomItems(customItems.filter((_, i) => i !== index));
@@ -302,10 +329,10 @@ const FurnitureCalculator: React.FC = () => {
       duration: 6000,
       action: {
         label: 'Annuler',
-        onClick: () => setCustomItems(current => {
-          const next = [...current];
+        onClick: () => restoreInSheet(originId, removed.nom, state => {
+          const next = [...state.customItems];
           next.splice(Math.min(index, next.length), 0, removed);
-          return next;
+          return { ...state, customItems: next };
         })
       }
     });
@@ -432,6 +459,7 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const handleClearSheet = () => {
+    if (editingConfigId) cancelEditMeuble();
     setMeubleGroups([]);
     setCustomItems([]);
     setMeubleCounter(1);
