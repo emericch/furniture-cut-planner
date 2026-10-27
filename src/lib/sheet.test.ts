@@ -304,12 +304,21 @@ describe('bandeau caché (correctifs F)', () => {
 });
 
 describe('Miniatures option persistence', () => {
-  test('showThumbnails survives a save/load roundtrip and defaults to false', () => {
-    const state = { meubleGroups: [], customItems: [], meubleCounter: 1, order: 'meuble' as const, groupIdentical: false, showThumbnails: true, meubleNom: '' };
+  test('showThumbnails survives a save/load roundtrip and defaults to true without an explicit choice', () => {
+    const state = { meubleGroups: [], customItems: [], meubleCounter: 1, order: 'meuble' as const, groupIdentical: false, showThumbnails: true, thumbChoiceSaved: true, meubleNom: '' };
     expect(parseSheet(serializeSheet(state))?.showThumbnails).toBe(true);
-    const without = { ...state } as Record<string, unknown>;
+    const off = { ...state, showThumbnails: false };
+    expect(parseSheet(serializeSheet(off))?.showThumbnails).toBe(false);
+    // Ancien état stocké sans choix explicite : la nouvelle valeur par défaut s'applique.
+    const legacy = { meubleGroups: [], customItems: [], meubleCounter: 1, order: 'meuble' as const, groupIdentical: false, showThumbnails: false, meubleNom: '' };
+    expect(parseSheet(JSON.stringify(legacy))?.showThumbnails).toBe(true);
+    const without = { ...legacy } as Record<string, unknown>;
     delete without.showThumbnails;
-    expect(parseSheet(JSON.stringify(without))?.showThumbnails).toBe(false);
+    expect(parseSheet(JSON.stringify(without))?.showThumbnails).toBe(true);
+  });
+
+  test('emptySheetState activates thumbnails by default', () => {
+    expect(emptySheetState().showThumbnails).toBe(true);
   });
 });
 

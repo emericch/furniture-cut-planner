@@ -9,6 +9,9 @@ export interface SheetState {
   order: SheetOrder;
   groupIdentical: boolean;
   showThumbnails?: boolean;
+  // Présent dès la première sauvegarde par la version qui active les miniatures par défaut :
+  // sans ce marqueur, un état stocké plus ancien reçoit la nouvelle valeur par défaut (true).
+  thumbChoiceSaved?: boolean;
   config?: FurnitureConfig;
   meubleNom: string;
 }
@@ -35,7 +38,8 @@ export const emptySheetState = (): SheetState => ({
   meubleCounter: 1,
   order: 'meuble',
   groupIdentical: false,
-  showThumbnails: false,
+  showThumbnails: true,
+  thumbChoiceSaved: true,
   meubleNom: '',
 });
 
@@ -241,7 +245,8 @@ export const parseSheet = (raw: string | null): SheetState | null => {
       meubleCounter: Number.isInteger(v.meubleCounter) && v.meubleCounter > 0 ? v.meubleCounter : 1,
       order: v.order === 'taille' ? 'taille' : 'meuble',
       groupIdentical: v.groupIdentical === true,
-      showThumbnails: v.showThumbnails === true,
+      showThumbnails: v.thumbChoiceSaved === true ? v.showThumbnails === true : true,
+      thumbChoiceSaved: v.thumbChoiceSaved === true,
       config,
       meubleNom: config && typeof v.meubleNom === 'string' ? v.meubleNom : '',
     };

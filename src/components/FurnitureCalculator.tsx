@@ -18,9 +18,9 @@ import { CabinetThumbnail } from './CabinetDrawing';
 import { getThumbnailViews, thumbnailSvgMarkup } from '@/lib/cabinet-drawing';
 
 const defaultConfig: FurnitureConfig = {
-  hauteur: 2000,
-  largeur: 800,
-  profondeur: 350,
+  hauteur: 765,
+  largeur: 600,
+  profondeur: 550,
   epaisseurMontants: 19,
   epaisseurTraverses: 19,
   epaisseurRayons: 19,
@@ -30,9 +30,9 @@ const defaultConfig: FurnitureConfig = {
   traversesTouteLargeur: false,
   nombreRayons: 2,
   nombreRayonsFixes: 0,
-  dosType: 'aucun',
-  nombrePortes: 0,
-  typePorte: 'interieur',
+  dosType: 'en-applique',
+  nombrePortes: 1,
+  typePorte: 'applique',
   retraitRayons: 0,
   decalageDos: 0
 };
@@ -66,10 +66,11 @@ const FurnitureCalculator: React.FC = () => {
   const [editingNom, setEditingNom] = useState('');
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
+  const [editingListNom, setEditingListNom] = useState<string | null>(null);
 
   const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
   const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
-  const [showThumbnails, setShowThumbnails] = useState(activeEntry.state.showThumbnails ?? false);
+  const [showThumbnails, setShowThumbnails] = useState(activeEntry.state.showThumbnails ?? true);
 
   // État courant de la liste active (le brouillon du formulaire prime pendant une modification).
   const currentSheetState = (): SheetState => ({
@@ -79,6 +80,7 @@ const FurnitureCalculator: React.FC = () => {
     order,
     groupIdentical,
     showThumbnails,
+    thumbChoiceSaved: true,
     config: formBackup?.config ?? config,
     meubleNom: formBackup?.meubleNom ?? meubleNom,
   });
@@ -104,7 +106,7 @@ const FurnitureCalculator: React.FC = () => {
     setMeubleNom(state.meubleNom);
     setOrder(state.order);
     setGroupIdentical(state.groupIdentical);
-    setShowThumbnails(state.showThumbnails ?? false);
+    setShowThumbnails(state.showThumbnails ?? true);
   };
 
   // Annule toute édition en cours avant de changer de liste.
@@ -146,6 +148,18 @@ const FurnitureCalculator: React.FC = () => {
     setCollection(next);
     loadStateIntoFields(next.sheets.find(s => s.id === next.activeId)!.state);
     toast.success('Liste supprimée');
+  };
+
+  const renameActiveSheet = () => {
+    const nom = editingListNom?.trim();
+    if (!nom) {
+      toast.error('Le nom de la liste ne peut pas être vide');
+      return;
+    }
+    const updated = saveCurrentInto(collection);
+    setCollection({ ...updated, sheets: updated.sheets.map(s => (s.id === updated.activeId ? { ...s, nom } : s)) });
+    setEditingListNom(null);
+    toast.success(`Liste renommée en « ${nom} »`);
   };
 
   const validationErrors = validateConfig(config);
@@ -570,16 +584,44 @@ const FurnitureCalculator: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-2">
                      <FileText className="h-4 w-4 text-primary" />
                     Feuille de débit
-                    <Select value={collection.activeId} onValueChange={switchSheet}>
-                      <SelectTrigger className="h-8 w-[150px]" aria-label="Choisir la liste">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {collection.sheets.map(s => (
-                          <SelectItem key={s.id} value={s.id}>{s.nom}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {editingListNom === null ? (
+                      <>
+                        <Select value={collection.activeId} onValueChange={switchSheet}>
+                          <SelectTrigger className="h-8 w-[150px]" aria-label="Choisir la liste">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {collection.sheets.map(s => (
+                              <SelectItem key={s.id} value={s.id}>{s.nom}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button onClick={() => setEditingListNom(activeEntry.nom)} size="sm" variant="outline" className="flex items-center gap-1" aria-label="Renommer la liste">
+                          <Edit2 className="h-3 w-3" />
+                          Renommer
+                        </Button>
+                      </>
+                    ) : (
+                      <form
+                        onSubmit={e => { e.preventDefault(); renameActiveSheet(); }}
+                        className="flex items-center gap-1"
+                      >
+                        <Input
+                          value={editingListNom}
+                          onChange={e => setEditingListNom(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Escape') setEditingListNom(null); }}
+                          className="h-8 w-[150px]"
+                          aria-label="Nom de la liste"
+                          autoFocus
+                        />
+                        <Button type="submit" size="sm" variant="outline" className="flex items-center gap-1" aria-label="Valider le nom de la liste">
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button type="button" size="sm" variant="outline" className="flex items-center gap-1" aria-label="Annuler le renommage" onClick={() => setEditingListNom(null)}>
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </form>
+                    )}
                     <Button onClick={createSheet} size="sm" variant="outline" className="flex items-center gap-1">
                       <Plus className="h-3 w-3" />
                       Nouvelle liste
