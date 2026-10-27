@@ -14,6 +14,36 @@ export interface SheetState {
 }
 
 export const SHEET_STORAGE_KEY = 'debit-meuble:v1';
+export const COLLECTION_STORAGE_KEY = 'debit-meuble-listes:v1';
+
+// --- Plusieurs listes de débit ---
+
+export interface SheetEntry {
+  id: string;
+  nom: string;
+  state: SheetState;
+}
+
+export interface SheetCollection {
+  sheets: SheetEntry[];
+  activeId: string;
+}
+
+export const emptySheetState = (): SheetState => ({
+  meubleGroups: [],
+  customItems: [],
+  meubleCounter: 1,
+  order: 'meuble',
+  groupIdentical: false,
+  showThumbnails: false,
+  meubleNom: '',
+});
+
+export const serializeCollection = (collection: SheetCollection): string =>
+  JSON.stringify({
+    activeId: collection.activeId,
+    sheets: collection.sheets.map(s => ({ id: s.id, nom: s.nom, state: JSON.parse(serializeSheet(s.state)) })),
+  });
 export const CUSTOM_SECTION_ID = 'custom';
 export const CUSTOM_SECTION_NAME = 'Pièces personnalisées';
 export const GRAIN_LEGEND = 'L = longueur dans le sens du fil';
