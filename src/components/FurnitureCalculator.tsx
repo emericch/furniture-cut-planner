@@ -847,7 +847,7 @@ const FurnitureCalculator: React.FC = () => {
                                 <>
                                   <div className="flex min-w-0 items-center gap-1 flex-1">
                                     {toggle}
-                                    <CardTitle className="min-w-0 break-all text-base">{groupe.nom}</CardTitle>
+                                    <CardTitle className="min-w-0 break-words text-base">{groupe.nom}</CardTitle>
                                     <Button
                                       aria-label={`Renommer ${groupe.nom}`} title="Renommer"
                                       onClick={() => startEditingMeuble(groupe.id, groupe.nom)}
