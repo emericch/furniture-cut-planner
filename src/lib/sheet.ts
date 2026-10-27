@@ -92,7 +92,7 @@ const joinNames = (current: string, added: string) =>
 export const groupItems = (items: CutSheetItem[]): CutSheetItem[] => {
   const merged: CutSheetItem[] = [];
   for (const item of items) {
-    const found = merged.find(m => sameDims(m, item));
+    const found = merged.find(m => samePiece(m, item));
     if (found) {
       found.quantite += item.quantite;
       found.nom = joinNames(found.nom, item.nom);
@@ -164,7 +164,7 @@ export const buildSizeRows = (
   if (!groupIdentical) return flat.sort((a, b) => compareSize(a.item, b.item));
   const merged: SizeRow[] = [];
   for (const row of flat) {
-    const found = merged.find(m => sameDims(m.item, row.item));
+    const found = merged.find(m => samePiece(m.item, row.item));
     if (found) {
       found.item.quantite += row.item.quantite;
       found.item.nom = joinNames(found.item.nom, row.item.nom);
