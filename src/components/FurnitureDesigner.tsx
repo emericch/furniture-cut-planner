@@ -5,6 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, ChevronDown } from "lucide-react";
 import { Segmented, Stepper } from "./ChoiceControls";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { FurnitureExtras } from "./FurnitureExtras";
 import { CabinetDrawing } from "./CabinetDrawing";
 import { getFurnitureLayout, formatMm, type FurnitureConfig } from "@/lib/furniture";
@@ -49,6 +55,60 @@ function Choice({
     </div>
   );
 }
+// Épaisseur compacte : saisie libre + liste des valeurs courantes, alignée sur la ligne des dimensions.
+function Thickness({
+  label,
+  srLabel,
+  value,
+  presets,
+  onChange,
+}: {
+  label: string;
+  srLabel?: string;
+  value: number;
+  presets: number[];
+  onChange: (v: number) => void;
+}) {
+  const id = `Épaisseur ${label}`;
+  return (
+    <div className="min-w-0">
+      <div className="relative space-y-2">
+        <NumberField
+          id={id}
+          label={
+            <>
+              {label}
+              <span className="sr-only">{srLabel} · épaisseur (mm)</span>
+            </>
+          }
+          labelClassName="block truncate whitespace-nowrap leading-5"
+          className="pl-2 pr-8 min-[480px]:pl-3"
+          value={value}
+          min="0"
+          onCommit={onChange}
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Valeurs courantes · ${label}`}
+              className="absolute bottom-0 right-0 flex h-10 w-8 items-center justify-center rounded-r-md text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[6rem]">
+            {presets.map((v) => (
+              <DropdownMenuItem key={v} onSelect={() => onChange(v)}>
+                {v} mm
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+}
 function Numeric({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <div className="min-w-0 flex-1 space-y-2">
@@ -65,6 +125,12 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
   );
   const sameCarcass = c.epaisseurMontants === c.epaisseurTraverses && c.epaisseurMontants === c.epaisseurRayons;
   const [customTh, setCustomTh] = useState(!sameCarcass);
+  const hasFronts =
+    c.nombrePortes > 0 ||
+    !!c.tiroirs ||
+    !!c.tiroirsCompartiments ||
+    !!c.bandeauHaut?.faceApplique ||
+    !!c.bandeauBas?.faceApplique;
   const l = getFurnitureLayout(c);
   const update = (v: Partial<FurnitureConfig>) => onChange({ ...c, ...v });
   const steps = ["Dimensions hors-tout (mm)", "Structure et dos", "Étagères (rayons)", "Portes, bandeaux et tiroirs"];
@@ -210,58 +276,54 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                     {customTh ? "Simplifier" : "Personnaliser"}
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 gap-3">
-                  {customTh ? null : (
-                    <Choice
-                      label="Caisson (montants, traverses, rayons)"
-                      value={String(c.epaisseurMontants)}
-                      options={[8, 16, 19, 22].map((v) => [String(v), String(v)])}
-                      onChange={(v) =>
-                        update({
-                          epaisseurMontants: Number(v),
-                          epaisseurTraverses: Number(v),
-                          epaisseurRayons: Number(v),
-                        })
-                      }
+                <div className="grid grid-cols-3 items-end gap-2 min-[480px]:gap-3">
+                  {customTh ? (
+                    <>
+                      <Thickness
+                        label="Montants"
+                        value={c.epaisseurMontants}
+                        presets={[16, 18, 19, 22]}
+                        onChange={(v) => update({ epaisseurMontants: v })}
+                      />
+                      <Thickness
+                        label="Traverses"
+                        srLabel=" et bandeaux"
+                        value={c.epaisseurTraverses}
+                        presets={[16, 18, 19, 22]}
+                        onChange={(v) => update({ epaisseurTraverses: v })}
+                      />
+                      <Thickness
+                        label="Rayons"
+                        value={c.epaisseurRayons}
+                        presets={[16, 18, 19, 22]}
+                        onChange={(v) => update({ epaisseurRayons: v })}
+                      />
+                    </>
+                  ) : (
+                    <Thickness
+                      label="Caisson"
+                      srLabel=" (montants, traverses, rayons)"
+                      value={c.epaisseurMontants}
+                      presets={[16, 18, 19, 22]}
+                      onChange={(v) => update({ epaisseurMontants: v, epaisseurTraverses: v, epaisseurRayons: v })}
                     />
                   )}
-                  {(
-                    [
-                      ...(customTh
-                        ? [
-                            ["epaisseurMontants", "Montants"],
-                            ["epaisseurTraverses", "Traverses / bandeaux"],
-                            ["epaisseurRayons", "Rayons"],
-                          ]
-                        : []),
-                      ["epaisseurDos", "Dos"],
-                      ["epaisseurPortes", "Façades"],
-                    ] as Array<
-                      [
-                        (
-                          | "epaisseurMontants"
-                          | "epaisseurTraverses"
-                          | "epaisseurRayons"
-                          | "epaisseurDos"
-                          | "epaisseurPortes"
-                        ),
-                        string,
-                      ]
-                    >
-                  ).map(([k, label]) => (
-                    <Choice
-                      key={k}
-                      label={label}
-                      value={String(c[k])}
-                      options={(k === "epaisseurDos"
-                        ? [3, 8, 16, 19, 22]
-                        : k === "epaisseurPortes"
-                          ? [16, 19, 22]
-                          : [8, 16, 19, 22]
-                      ).map((v) => [String(v), String(v)])}
-                      onChange={(v) => update({ [k]: Number(v) })}
+                  {c.dosType !== "aucun" && (
+                    <Thickness
+                      label="Dos"
+                      value={c.epaisseurDos}
+                      presets={[3, 5, 8, 16, 19]}
+                      onChange={(v) => update({ epaisseurDos: v })}
                     />
-                  ))}
+                  )}
+                  {hasFronts && (
+                    <Thickness
+                      label="Façades"
+                      value={c.epaisseurPortes}
+                      presets={[16, 18, 19, 22]}
+                      onChange={(v) => update({ epaisseurPortes: v })}
+                    />
+                  )}
                 </div>
               </>
             )}
