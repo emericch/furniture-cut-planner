@@ -10,7 +10,6 @@
 
 - [x] Step 2 fixes: tolerant sheet parsing (invalid form config or single corrupt entries no longer wipe the sheet) and form backup restored on edit cancel/update/delete; 104 tests pass, build OK, Chromium verified both scenarios.
 
-
 - [x] Step 1 of validated calculation rules: 1 mm overlay edges, grain-direction lengths, shelf zones outside drawer stacks, coherent assembly/back pairing, hidden bands behind full-height doors and small-piece warnings; 85 tests pass, build OK, Chromium verifies full-height door, hidden band, warnings and blocked incoherent pairs; cut-sheet functions (step 2) untouched.
 - [x] Step 2: cut-sheet workflow — grain pivot per row with filPivote re-applied on edit, optional identical-piece grouping in both orderings, localStorage save/restore with corruption guard, meuble edit/update/cancel, undo-delete toasts, hidden-band fixes; shared pure sheet module feeds screen, print and PDF; 101 tests pass, build OK, Chromium verified persistence, edit, undo, pivot in PDF, grouping and corrupted-storage startup.
 
@@ -19,7 +18,7 @@
 - [x] Fix the five requested bugs only: French decimal entry, safe drawing sizes, blank rename cancellation, overlay defaults when adding doors to drawers, and consistent French dimensions; 70 tests pass (62 existing + 8 new), build OK, Chromium fr-FR flows and PDF download verified; presentation, formulas and pending plan untouched.
 
 - [x] Fix requested production advisories: remove unused @react-three/drei, update jspdf 4.2.1, react-router-dom 7.18.4 and zod 4.6.7; resolve fflate 0.8.3, dompurify 3.4.17 and lodash 4.18.1 in both text lockfiles. Production scan clear; 62 tests and PDF download pass, build OK; pending optimization plan and presentation untouched.
-- [ ] Resolve six moderate development-tool advisories in @tailwindcss/typography, postcss-selector-parser, postcss-nested, tailwindcss, tailwindcss-animate and lovable-tagger: upstream constraints do not permit a patched parser; awaits approval for a potentially visual-affecting tooling migration, without forced transitive overrides.
+- [ ] Resolve six moderate development-tool advisories in @tailwindcss/typography, postcss-selector-parser, postcss-nested, tailwindcss, tailwindcss-animate and the editor's component-tagging plugin: upstream constraints do not permit a patched parser; awaits approval for a potentially visual-affecting tooling migration, without forced transitive overrides.
 
 - [x] Apply only the requested split-back dimensions, equal drawer-stack validation, 0.01 mm rounding and decimal input keyboard fixes; 62 tests pass (53 existing + 9 new), and 147.5 reads back in the cutting sheet; no visual changes. Security optimization plan remains pending approval.
 
