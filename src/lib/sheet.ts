@@ -3,6 +3,7 @@ import { compareSize, formatMm, type CutSheetItem, type FurnitureConfig, type Me
 export type SheetOrder = 'meuble' | 'taille';
 
 export interface SheetState {
+  filFormat?: 2;
   meubleGroups: MeubleGroup[];
   customItems: CutSheetItem[];
   meubleCounter: number;
@@ -33,6 +34,7 @@ export interface SheetCollection {
 }
 
 export const emptySheetState = (): SheetState => ({
+  filFormat: 2,
   meubleGroups: [],
   customItems: [],
   meubleCounter: 1,
@@ -59,8 +61,6 @@ export const grainLabel = (item: CutSheetItem): 'L' | 'l' => (item.filPivote ? '
 
 export const pivotItem = (item: CutSheetItem): CutSheetItem => ({
   ...item,
-  longueur: item.largeur,
-  largeur: item.longueur,
   filPivote: !item.filPivote,
 });
 
@@ -76,12 +76,12 @@ const sameGrain = (a: CutSheetItem, b: CutSheetItem) => !!a.filPivote === !!b.fi
 const samePiece = (a: CutSheetItem, b: CutSheetItem) => sameDims(a, b) && sameGrain(a, b);
 
 export const pivotMatching = (items: CutSheetItem[], target: CutSheetItem): CutSheetItem[] =>
-  items.map(item => (sameDims(item, target) ? pivotItem(item) : item));
+  items.map(item => (samePiece(item, target) ? pivotItem(item) : item));
 
 // Réapplique le pivotement après régénération des pièces d'un meuble modifié.
 export const reapplyPivots = (oldItems: CutSheetItem[], newItems: CutSheetItem[]): CutSheetItem[] => {
   const pivotedNames = new Set(oldItems.filter(i => i.filPivote).map(i => i.nom));
-  return newItems.map(item => (pivotedNames.has(item.nom) ? pivotItem(item) : item));
+  return newItems.map(item => (pivotedNames.has(item.nom) ? { ...item, filPivote: true } : item));
 };
 
 // --- Regroupement des pièces identiques ---
@@ -181,6 +181,7 @@ export const buildSizeRows = (
 export const serializeSheet = (state: SheetState): string =>
   JSON.stringify({
     ...state,
+    filFormat: 2,
     meubleGroups: state.meubleGroups.map(g => ({
       ...g,
       dateAjout: g.dateAjout instanceof Date ? g.dateAjout.toISOString() : g.dateAjout,
@@ -238,18 +239,24 @@ export const parseSheet = (raw: string | null): SheetState | null => {
     const v = JSON.parse(raw);
     if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
     if (!Array.isArray(v.meubleGroups) && !Array.isArray(v.customItems)) return null;
+    // Older saves exchanged dimensions as well as the grain flag. Normalize once.
+    const migrateItem = (item: CutSheetItem): CutSheetItem =>
+      v.filFormat !== 2 && item.filPivote
+        ? { ...item, longueur: item.largeur, largeur: item.longueur }
+        : item;
     const meubleGroups: MeubleGroup[] = [];
     for (const g of Array.isArray(v.meubleGroups) ? v.meubleGroups : []) {
       if (!g || typeof g.id !== 'string' || typeof g.nom !== 'string') continue;
       if (!Array.isArray(g.items) || !g.items.every(isItem)) continue;
       if (!isConfig(g.config)) continue;
       const date = new Date(typeof g.dateAjout === 'string' || typeof g.dateAjout === 'number' ? g.dateAjout : NaN);
-      meubleGroups.push({ ...g, dateAjout: Number.isNaN(date.getTime()) ? new Date() : date });
+      meubleGroups.push({ ...g, items: g.items.map(migrateItem), dateAjout: Number.isNaN(date.getTime()) ? new Date() : date });
     }
     const config = isConfig(v.config) ? v.config : undefined;
     return {
+      filFormat: 2,
       meubleGroups,
-      customItems: Array.isArray(v.customItems) ? v.customItems.filter(isItem) : [],
+      customItems: Array.isArray(v.customItems) ? v.customItems.filter(isItem).map(migrateItem) : [],
       meubleCounter: Number.isInteger(v.meubleCounter) && v.meubleCounter > 0 ? v.meubleCounter : 1,
       order: v.order === 'taille' ? 'taille' : 'meuble',
       groupIdentical: v.groupIdentical === true,
