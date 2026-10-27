@@ -569,7 +569,8 @@ const FurnitureCalculator: React.FC = () => {
                   <CabinetThumbnail config={config} className="pointer-events-none flex h-12 shrink-0 gap-1 overflow-hidden md:hidden [&_figcaption]:hidden [&_p]:hidden [&_svg]:h-12 [&_svg]:w-auto" />
                   <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="min-w-0 flex-1 whitespace-normal" size="lg">
                     <Plus className="mr-2 h-4 w-4 shrink-0" />
-                    {editingConfigId ? 'Mettre à jour le meuble' : 'Ajouter à la feuille de débit'}
+                    <span className="md:hidden">{editingConfigId ? 'Mettre à jour' : 'Ajouter à la feuille'}</span>
+                    <span className="hidden md:inline">{editingConfigId ? 'Mettre à jour le meuble' : 'Ajouter à la feuille de débit'}</span>
                   </Button>
                 </div>
                 {editingConfigId && (
