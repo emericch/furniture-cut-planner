@@ -485,8 +485,8 @@ const FurnitureCalculator: React.FC = () => {
       pdf.setFontSize(9); pdf.text(new Date().toLocaleDateString('fr-FR'), 14, 21);
       pdf.text(GRAIN_LEGEND, 14, 26);
       const pdfSections = order === 'taille'
-        ? [{ title: 'Pièces par taille décroissante', config: undefined as FurnitureConfig | undefined, rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }]
-        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, config: meubleGroups.find(g => g.id === s.id)?.config, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }));
+        ? [{ title: 'Pièces par taille décroissante', config: undefined as FurnitureConfig | undefined, rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur, grainLabel(item)]) }]
+        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, config: meubleGroups.find(g => g.id === s.id)?.config, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur, grainLabel(item)]) }));
       const thumbByRow = new Map<number, FurnitureConfig>();
       let rowIndex = 0;
       const body = pdfSections.flatMap(section => {
@@ -495,9 +495,9 @@ const FurnitureCalculator: React.FC = () => {
         rowIndex += 1 + section.rows.length;
         const titleStyles: Record<string, unknown> = { fontStyle: 'bold' as const, fillColor: 255 };
         if (withThumb) titleStyles.minCellHeight = 24;
-        return [[{ content: section.title, colSpan: 5, styles: titleStyles }], ...section.rows];
+        return [[{ content: section.title, colSpan: 6, styles: titleStyles }], ...section.rows];
       });
-      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
+      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)', 'Fil']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
         didDrawCell: (data) => {
           const cfg = thumbByRow.get(data.row.index);
           if (!cfg || data.section !== 'body' || data.column.index !== 0) return;
