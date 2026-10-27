@@ -9,7 +9,7 @@ import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
-import { buildMeubleSections, buildSizeRows, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
+import { buildMeubleSections, buildSizeRows, thicknessCounts, filterSectionsByThickness, filterSizeRowsByThickness, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
 import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
@@ -69,6 +69,7 @@ const FurnitureCalculator: React.FC = () => {
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
   const [editingListNom, setEditingListNom] = useState<string | null>(null);
   const [confirmDeleteList, setConfirmDeleteList] = useState(false);
+  const [thicknessFilter, setThicknessFilter] = useState<number | null>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const toggleCollapsed = (id: string) => setCollapsed(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
 
@@ -167,8 +168,11 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const validationErrors = validateConfig(config);
-  const sections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
-  const sizeRows = buildSizeRows(meubleGroups, customItems, groupIdentical);
+  const allSections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
+  const thicknesses = thicknessCounts(allSections);
+  const activeThickness = thicknessFilter !== null && thicknesses.some(t => t.epaisseur === thicknessFilter) ? thicknessFilter : null;
+  const sections = filterSectionsByThickness(allSections, activeThickness);
+  const sizeRows = filterSizeRowsByThickness(buildSizeRows(meubleGroups, customItems, groupIdentical), activeThickness);
 
   const epaisseurs = [8, 16, 19, 22];
   const epaisseursDos = [3, 8, 16, 19, 22];
@@ -800,6 +804,16 @@ const FurnitureCalculator: React.FC = () => {
                 {(meubleGroups.length > 0 || customItems.length > 0) ? (
                   <div className="space-y-4">
                     {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
+                    {thicknesses.length > 0 && <div role="group" aria-label="Filtrer par épaisseur" className="flex flex-wrap gap-2">
+                      {[{ epaisseur: null as number | null, count: thicknesses.reduce((a, t) => a + t.count, 0) }, ...thicknesses].map(t => {
+                        const active = t.epaisseur === activeThickness;
+                        return <button key={t.epaisseur ?? 'all'} type="button" aria-pressed={active} onClick={() => setThicknessFilter(t.epaisseur)}
+                          className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-background text-foreground hover:bg-muted'}`}>
+                          {t.epaisseur === null ? 'Toutes' : `${t.epaisseur} mm`}
+                          <span className={`rounded-full px-1.5 text-xs tabular-nums ${active ? 'bg-primary-foreground/20' : 'bg-muted text-muted-foreground'}`}>{t.count}</span>
+                        </button>;
+                      })}
+                    </div>}
                     {order === 'meuble' && sections.length > 1 && <div className="flex justify-end"><Button size="sm" variant="ghost" onClick={() => setCollapsed(collapsed.size >= sections.length ? new Set() : new Set(sections.map(x => x.id)))}>{collapsed.size >= sections.length ? 'Tout déplier' : 'Tout réduire'}</Button></div>}
                     {/* Groupes de meubles */}
                     {order === 'meuble' && sections.map((section) => {
