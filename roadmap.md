@@ -51,3 +51,5 @@
 - [x] Optional furniture thumbnails (front + side) per meuble in the cutting sheet: screen, print SVG and PDF vector rects, persisted in localStorage (4 new tests, browser-checked).
 - [ ] Physical Safari/iOS, AirPrint and home-screen installation checks: unavailable hardware; WebKit unavailable.
 - [ ] Publish updated app or configure external free hosting: awaits user's explicit deployment request and hosting account.
+- [ ] F : bouton « Ajouter à la feuille » fixe en bas sur téléphone + miniature du meuble en haut
+- [ ] G : aperçu des sections repliables (à valider avant mise en place)
