@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  COLLECTION_STORAGE_KEY,
+  SHEET_STORAGE_KEY,
+  emptySheetState,
+  loadCollection,
+  parseCollection,
+  serializeCollection,
   buildMeubleSections,
   buildSizeRows,
   groupItems,
@@ -304,5 +310,57 @@ describe('Miniatures option persistence', () => {
     const without = { ...state } as Record<string, unknown>;
     delete without.showThumbnails;
     expect(parseSheet(JSON.stringify(without))?.showThumbnails).toBe(false);
+  });
+});
+
+describe('plusieurs listes de débit', () => {
+  test('serializeCollection puis parseCollection restaure listes et liste active', () => {
+    const a = { id: 'a', nom: 'Liste 1', state: emptySheetState() };
+    const b = { id: 'b', nom: 'Liste 2', state: { ...emptySheetState(), order: 'taille' as const, groupIdentical: true, showThumbnails: true } };
+    const restored = parseCollection(serializeCollection({ sheets: [a, b], activeId: 'b' }));
+    expect(restored).not.toBeNull();
+    expect(restored!.sheets.map(s => s.id)).toEqual(['a', 'b']);
+    expect(restored!.activeId).toBe('b');
+    expect(restored!.sheets[1].state.order).toBe('taille');
+    expect(restored!.sheets[1].state.groupIdentical).toBe(true);
+    expect(restored!.sheets[1].state.showThumbnails).toBe(true);
+  });
+
+  test('parseCollection : une entrée invalide est ignorée seule, activeId inconnu retombe sur la première', () => {
+    const good = { id: 'ok', nom: 'Bonne', state: emptySheetState() };
+    const raw = JSON.stringify({ activeId: 'inconnu', sheets: [good, { id: 42 }, { id: 'x', nom: 'cassée', state: 'non' }] });
+    const restored = parseCollection(raw);
+    expect(restored).not.toBeNull();
+    expect(restored!.sheets).toHaveLength(1);
+    expect(restored!.activeId).toBe('ok');
+  });
+
+  test('parseCollection : tout invalide renvoie null', () => {
+    expect(parseCollection(null)).toBeNull();
+    expect(parseCollection('{')).toBeNull();
+    expect(parseCollection('{"sheets":[]}')).toBeNull();
+    expect(parseCollection('{"sheets":[{"id":1}]}')).toBeNull();
+  });
+
+  test('loadCollection migre l’ancien format mono-liste vers "Liste 1"', () => {
+    const legacy = serializeSheet({ ...emptySheetState(), meubleCounter: 3, order: 'taille' as const });
+    const store = new Map<string, string>([[SHEET_STORAGE_KEY, legacy]]);
+    const collection = loadCollection(k => store.get(k) ?? null);
+    expect(collection.sheets).toHaveLength(1);
+    expect(collection.sheets[0].nom).toBe('Liste 1');
+    expect(collection.sheets[0].state.meubleCounter).toBe(3);
+    expect(collection.sheets[0].state.order).toBe('taille');
+    expect(collection.activeId).toBe(collection.sheets[0].id);
+  });
+
+  test('loadCollection sans rien crée une liste vide ; la collection existante prime sur l’ancien format', () => {
+    const empty = loadCollection(() => null);
+    expect(empty.sheets).toHaveLength(1);
+    expect(empty.sheets[0].state.meubleGroups).toEqual([]);
+    const existing = serializeCollection({ sheets: [{ id: 'a', nom: 'Liste 1', state: emptySheetState() }], activeId: 'a' });
+    const legacy = serializeSheet({ ...emptySheetState(), meubleCounter: 9 });
+    const store = new Map<string, string>([[COLLECTION_STORAGE_KEY, existing], [SHEET_STORAGE_KEY, legacy]]);
+    const collection = loadCollection(k => store.get(k) ?? null);
+    expect(collection.sheets[0].state.meubleCounter).toBe(1);
   });
 });
