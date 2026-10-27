@@ -567,9 +567,43 @@ const FurnitureCalculator: React.FC = () => {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between text-lg">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary" />
+                  <div className="flex flex-wrap items-center gap-2">
+                     <FileText className="h-4 w-4 text-primary" />
                     Feuille de débit
+                    <Select value={collection.activeId} onValueChange={switchSheet}>
+                      <SelectTrigger className="h-8 w-[150px]" aria-label="Choisir la liste">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {collection.sheets.map(s => (
+                          <SelectItem key={s.id} value={s.id}>{s.nom}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={createSheet} size="sm" variant="outline" className="flex items-center gap-1">
+                      <Plus className="h-3 w-3" />
+                      Nouvelle liste
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="outline" className="flex items-center gap-1" aria-label="Supprimer la liste">
+                          <Trash2 className="h-3 w-3" />
+                          Supprimer la liste
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Supprimer « {activeEntry.nom} » ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Toute la liste (meubles et pièces personnalisées) sera supprimée définitivement. Cette action est irréversible.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={deleteActiveSheet}>Supprimer</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     {(meubleGroups.length > 0 || customItems.length > 0) && (
