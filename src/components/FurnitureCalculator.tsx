@@ -37,19 +37,21 @@ const defaultConfig: FurnitureConfig = {
   decalageDos: 0
 };
 
-const loadSavedSheet = () => {
+const loadSavedCollection = (): SheetCollection => {
   try {
-    return parseSheet(window.localStorage.getItem(SHEET_STORAGE_KEY));
+    return loadCollection(k => window.localStorage.getItem(k));
   } catch {
-    return null;
+    const first: SheetEntry = { id: crypto.randomUUID(), nom: 'Liste 1', state: emptySheetState() };
+    return { sheets: [first], activeId: first.id };
   }
 };
 
 const FurnitureCalculator: React.FC = () => {
-  const [saved] = useState(loadSavedSheet);
-  const [config, setConfig] = useState<FurnitureConfig>(saved?.config ?? defaultConfig);
-  const [meubleGroups, setMeubleGroups] = useState<MeubleGroup[]>(saved?.meubleGroups ?? []);
-  const [customItems, setCustomItems] = useState<CutSheetItem[]>(saved?.customItems ?? []);
+  const [collection, setCollection] = useState<SheetCollection>(loadSavedCollection);
+  const activeEntry = collection.sheets.find(s => s.id === collection.activeId) ?? collection.sheets[0];
+  const [config, setConfig] = useState<FurnitureConfig>(activeEntry.state.config ?? defaultConfig);
+  const [meubleGroups, setMeubleGroups] = useState<MeubleGroup[]>(activeEntry.state.meubleGroups);
+  const [customItems, setCustomItems] = useState<CutSheetItem[]>(activeEntry.state.customItems);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState<Partial<CutSheetItem>>({
     nom: '',
