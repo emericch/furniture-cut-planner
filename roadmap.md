@@ -54,3 +54,4 @@
 - [x] F : bouton « Ajouter à la feuille » fixe en bas sur téléphone + miniature du meuble en haut
 - [x] G : sections repliables avec résumé
 - [x] Réduire chaque meuble dans la feuille de débit
+- [x] Colonne « Fil » (L/l) sur chaque pièce de la feuille de débit : écran, impression et PDF, avec légende mise à jour et regroupement sensible au fil (130 tests).

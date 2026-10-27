@@ -9,7 +9,7 @@ import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
-import { buildMeubleSections, buildSizeRows, thicknessCounts, filterSectionsByThickness, filterSizeRowsByThickness, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
+import { buildMeubleSections, buildSizeRows, thicknessCounts, filterSectionsByThickness, filterSizeRowsByThickness, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, grainLabel, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
 import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
@@ -439,7 +439,7 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const generatePrintContent = () => {
-    if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
+    if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th><th>Fil</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td><td style="text-align: center;">${grainLabel(item)}</td></tr>`).join('')}</tbody></table>`;
     return sections.map((section, index) => {
       const groupe = meubleGroups.find(g => g.id === section.id);
       return `
@@ -455,6 +455,7 @@ const FurnitureCalculator: React.FC = () => {
               <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
               <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">l (mm)</th>
               <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">e (mm)</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Fil</th>
             </tr>
           </thead>
           <tbody>
@@ -465,6 +466,7 @@ const FurnitureCalculator: React.FC = () => {
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.longueur)}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.largeur)}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
+                <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${grainLabel(item)}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -483,8 +485,8 @@ const FurnitureCalculator: React.FC = () => {
       pdf.setFontSize(9); pdf.text(new Date().toLocaleDateString('fr-FR'), 14, 21);
       pdf.text(GRAIN_LEGEND, 14, 26);
       const pdfSections = order === 'taille'
-        ? [{ title: 'Pièces par taille décroissante', config: undefined as FurnitureConfig | undefined, rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }]
-        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, config: meubleGroups.find(g => g.id === s.id)?.config, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur]) }));
+        ? [{ title: 'Pièces par taille décroissante', config: undefined as FurnitureConfig | undefined, rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur, grainLabel(item)]) }]
+        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, config: meubleGroups.find(g => g.id === s.id)?.config, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur, grainLabel(item)]) }));
       const thumbByRow = new Map<number, FurnitureConfig>();
       let rowIndex = 0;
       const body = pdfSections.flatMap(section => {
@@ -493,9 +495,9 @@ const FurnitureCalculator: React.FC = () => {
         rowIndex += 1 + section.rows.length;
         const titleStyles: Record<string, unknown> = { fontStyle: 'bold' as const, fillColor: 255 };
         if (withThumb) titleStyles.minCellHeight = 24;
-        return [[{ content: section.title, colSpan: 5, styles: titleStyles }], ...section.rows];
+        return [[{ content: section.title, colSpan: 6, styles: titleStyles }], ...section.rows];
       });
-      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
+      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)', 'Fil']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
         didDrawCell: (data) => {
           const cfg = thumbByRow.get(data.row.index);
           if (!cfg || data.section !== 'body' || data.column.index !== 0) return;
@@ -813,7 +815,7 @@ const FurnitureCalculator: React.FC = () => {
                         </button>;
                       })}
                     </div>}
-                    {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
+                    {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite} · Fil {grainLabel(row.item)}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
                     {order === 'meuble' && sections.length > 1 && <div className="flex justify-end"><Button size="sm" variant="ghost" onClick={() => setCollapsed(collapsed.size >= sections.length ? new Set() : new Set(sections.map(x => x.id)))}>{collapsed.size >= sections.length ? 'Tout déplier' : 'Tout réduire'}</Button></div>}
                     {/* Groupes de meubles */}
                     {order === 'meuble' && sections.map((section) => {
@@ -905,11 +907,12 @@ const FurnitureCalculator: React.FC = () => {
                             <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
                               <div className="flex-1">
                                 <h5 className="font-medium text-sm">{row.item.nom}</h5>
-                                <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-4">
+                                <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-5">
                                   <div>L: {formatMm(row.item.longueur)}mm</div>
                                   <div>l: {formatMm(row.item.largeur)}mm</div>
                                   <div>Ép: {row.item.epaisseur}mm</div>
                                   <div>Qté: {row.item.quantite}</div>
+                                  <div>Fil: {grainLabel(row.item)}</div>
                                 </div>
                               </div>
                               {pivotButton(row.item, () => pivotSectionRow(section.id, row))}

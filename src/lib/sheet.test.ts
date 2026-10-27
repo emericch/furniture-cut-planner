@@ -9,6 +9,7 @@ import {
   buildMeubleSections,
   buildSizeRows,
   groupItems,
+  grainLabel,
   parseSheet,
   pivotAt,
   pivotItem,
@@ -84,6 +85,12 @@ describe('pivotement du sens du fil', () => {
     expect(result[1].longueur).toBe(762);
     expect(result[1].filPivote).toBeUndefined();
   });
+
+  test('grainLabel indique où suit le fil', () => {
+    expect(grainLabel(custom('Porte', 1998, 798))).toBe('L');
+    expect(grainLabel(pivotItem(custom('Porte', 1998, 798)))).toBe('l');
+    expect(grainLabel(pivotItem(pivotItem(custom('Porte', 1998, 798))))).toBe('L');
+  });
 });
 
 describe('regroupement des pièces identiques', () => {
@@ -94,6 +101,14 @@ describe('regroupement des pièces identiques', () => {
     expect(merged[0].nom).toBe('Montant gauche + Montant droit');
     expect(merged[0].quantite).toBe(2);
     expect(merged[1].nom).toBe('Rayon');
+  });
+
+  test('groupItems sépare les pièces de mêmes dimensions mais de fil différent', () => {
+    const pivoted = { ...custom('Montant droit', 2000, 350), filPivote: true };
+    const merged = groupItems([custom('Montant gauche', 2000, 350), pivoted]);
+    expect(merged).toHaveLength(2);
+    expect(merged[0].filPivote).toBeUndefined();
+    expect(merged[1].filPivote).toBe(true);
   });
 
   test('groupItems ne répète pas un nom identique', () => {

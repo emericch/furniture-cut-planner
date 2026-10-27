@@ -1,6 +1,7 @@
 # Architecture
 
 - Keep furniture dimensions and validation in a pure calculation module with regression tests so screen, print and PDF use identical validated results.
+- Grouping of identical sheet rows must also match the grain flag (filPivote): same dimensions but different grain are not interchangeable, so they stay on separate rows to keep the Fil column (grainLabel) exact in every output.
 - A piece's longueur always follows the grain direction: vertical (height) for doors, drawer and band fronts, sides, dividers and backs; horizontal (width) for traverses, bands and shelves; the drawing converts back to geometric width/height.
 - Keep numeric cutting-list audit fixtures separate from production formulas to detect regressions against independently calculated reference dimensions.
 - Derive panel presence, opening heights and front depth allowances through one shared layout helper; reveal optional band and drawer controls in a dedicated conditional form to avoid duplicating dimension logic.
