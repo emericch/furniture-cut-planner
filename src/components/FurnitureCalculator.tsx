@@ -519,6 +519,30 @@ const FurnitureCalculator: React.FC = () => {
                           <Download className="h-3 w-3" />
                           Export PDF
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex items-center gap-1"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Vider la feuille
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Vider la feuille de débit ?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tous les meubles et pièces personnalisées seront supprimés définitivement. Cette action est irréversible.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleClearSheet}>Vider la feuille</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </>
                     )}
                     <Button
