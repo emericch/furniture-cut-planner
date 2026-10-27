@@ -67,15 +67,86 @@ const FurnitureCalculator: React.FC = () => {
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
 
-  const [order, setOrder] = useState<SheetOrder>(saved?.order ?? 'meuble');
-  const [groupIdentical, setGroupIdentical] = useState(saved?.groupIdentical ?? false);
-  const [showThumbnails, setShowThumbnails] = useState(saved?.showThumbnails ?? false);
+  const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
+  const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
+  const [showThumbnails, setShowThumbnails] = useState(activeEntry.state.showThumbnails ?? false);
+
+  // État courant de la liste active (le brouillon du formulaire prime pendant une modification).
+  const currentSheetState = (): SheetState => ({
+    meubleGroups,
+    customItems,
+    meubleCounter,
+    order,
+    groupIdentical,
+    showThumbnails,
+    config: formBackup?.config ?? config,
+    meubleNom: formBackup?.meubleNom ?? meubleNom,
+  });
+
+  // Collection à jour : la liste active reflète les champs courants, les autres sont inchangées.
+  const saveCurrentInto = (base: SheetCollection): SheetCollection => ({
+    ...base,
+    sheets: base.sheets.map(s => (s.id === base.activeId ? { ...s, state: currentSheetState() } : s)),
+  });
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config: formBackup?.config ?? config, meubleNom: formBackup?.meubleNom ?? meubleNom }));
+      window.localStorage.setItem(COLLECTION_STORAGE_KEY, serializeCollection(saveCurrentInto(collection)));
     } catch { /* stockage indisponible : la feuille reste en mémoire */ }
-  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config, meubleNom, formBackup]);
+  }, [collection, meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config, meubleNom, formBackup]);
+
+  // Charge l'état d'une liste dans les champs du formulaire et de la feuille.
+  const loadStateIntoFields = (state: SheetState) => {
+    setConfig(state.config ?? defaultConfig);
+    setMeubleGroups(state.meubleGroups);
+    setCustomItems(state.customItems);
+    setMeubleCounter(state.meubleCounter);
+    setMeubleNom(state.meubleNom);
+    setOrder(state.order);
+    setGroupIdentical(state.groupIdentical);
+    setShowThumbnails(state.showThumbnails ?? false);
+  };
+
+  // Annule toute édition en cours avant de changer de liste.
+  const cancelOngoingEdits = () => {
+    setEditingConfigId(null);
+    setFormBackup(null);
+    setEditingMeubleId(null);
+    setShowAddForm(false);
+  };
+
+  const switchSheet = (id: string) => {
+    if (id === collection.activeId) return;
+    const updated = saveCurrentInto(collection);
+    const target = updated.sheets.find(s => s.id === id);
+    if (!target) return;
+    cancelOngoingEdits();
+    setCollection({ ...updated, activeId: id });
+    loadStateIntoFields(target.state);
+  };
+
+  const createSheet = () => {
+    const updated = saveCurrentInto(collection);
+    let n = updated.sheets.length + 1;
+    while (updated.sheets.some(s => s.nom === `Liste ${n}`)) n++;
+    const entry: SheetEntry = { id: crypto.randomUUID(), nom: `Liste ${n}`, state: emptySheetState() };
+    cancelOngoingEdits();
+    setCollection({ sheets: [...updated.sheets, entry], activeId: entry.id });
+    loadStateIntoFields(entry.state);
+    toast.success(`${entry.nom} créée`);
+  };
+
+  const deleteActiveSheet = () => {
+    const remaining = collection.sheets.filter(s => s.id !== collection.activeId);
+    const next: SheetCollection = remaining.length
+      ? { sheets: remaining, activeId: remaining[0].id }
+      : { sheets: [{ id: crypto.randomUUID(), nom: 'Liste 1', state: emptySheetState() }], activeId: '' };
+    if (!remaining.length) next.activeId = next.sheets[0].id;
+    cancelOngoingEdits();
+    setCollection(next);
+    loadStateIntoFields(next.sheets.find(s => s.id === next.activeId)!.state);
+    toast.success('Liste supprimée');
+  };
 
   const validationErrors = validateConfig(config);
   const sections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
