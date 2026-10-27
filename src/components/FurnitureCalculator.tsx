@@ -8,7 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
-import { buildMeubleSections, buildSizeRows, parseSheet, pivotAt, pivotMatching, reapplyPivots, serializeSheet, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, SHEET_STORAGE_KEY, type SheetOrder } from '@/lib/sheet';
+import { buildMeubleSections, buildSizeRows, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
 import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
