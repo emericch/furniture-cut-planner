@@ -8,7 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
-import { buildMeubleSections, buildSizeRows, parseSheet, pivotAt, pivotMatching, reapplyPivots, serializeSheet, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, SHEET_STORAGE_KEY, type SheetOrder } from '@/lib/sheet';
+import { buildMeubleSections, buildSizeRows, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
 import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
@@ -37,19 +37,21 @@ const defaultConfig: FurnitureConfig = {
   decalageDos: 0
 };
 
-const loadSavedSheet = () => {
+const loadSavedCollection = (): SheetCollection => {
   try {
-    return parseSheet(window.localStorage.getItem(SHEET_STORAGE_KEY));
+    return loadCollection(k => window.localStorage.getItem(k));
   } catch {
-    return null;
+    const first: SheetEntry = { id: crypto.randomUUID(), nom: 'Liste 1', state: emptySheetState() };
+    return { sheets: [first], activeId: first.id };
   }
 };
 
 const FurnitureCalculator: React.FC = () => {
-  const [saved] = useState(loadSavedSheet);
-  const [config, setConfig] = useState<FurnitureConfig>(saved?.config ?? defaultConfig);
-  const [meubleGroups, setMeubleGroups] = useState<MeubleGroup[]>(saved?.meubleGroups ?? []);
-  const [customItems, setCustomItems] = useState<CutSheetItem[]>(saved?.customItems ?? []);
+  const [collection, setCollection] = useState<SheetCollection>(loadSavedCollection);
+  const activeEntry = collection.sheets.find(s => s.id === collection.activeId) ?? collection.sheets[0];
+  const [config, setConfig] = useState<FurnitureConfig>(activeEntry.state.config ?? defaultConfig);
+  const [meubleGroups, setMeubleGroups] = useState<MeubleGroup[]>(activeEntry.state.meubleGroups);
+  const [customItems, setCustomItems] = useState<CutSheetItem[]>(activeEntry.state.customItems);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState<Partial<CutSheetItem>>({
     nom: '',
@@ -58,22 +60,93 @@ const FurnitureCalculator: React.FC = () => {
     epaisseur: 19,
     quantite: 1
   });
-  const [meubleCounter, setMeubleCounter] = useState(saved?.meubleCounter ?? 1);
-  const [meubleNom, setMeubleNom] = useState(saved?.meubleNom ?? '');
+  const [meubleCounter, setMeubleCounter] = useState(activeEntry.state.meubleCounter);
+  const [meubleNom, setMeubleNom] = useState(activeEntry.state.meubleNom);
   const [editingMeubleId, setEditingMeubleId] = useState<string | null>(null);
   const [editingNom, setEditingNom] = useState('');
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
 
-  const [order, setOrder] = useState<SheetOrder>(saved?.order ?? 'meuble');
-  const [groupIdentical, setGroupIdentical] = useState(saved?.groupIdentical ?? false);
-  const [showThumbnails, setShowThumbnails] = useState(saved?.showThumbnails ?? false);
+  const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
+  const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
+  const [showThumbnails, setShowThumbnails] = useState(activeEntry.state.showThumbnails ?? false);
+
+  // État courant de la liste active (le brouillon du formulaire prime pendant une modification).
+  const currentSheetState = (): SheetState => ({
+    meubleGroups,
+    customItems,
+    meubleCounter,
+    order,
+    groupIdentical,
+    showThumbnails,
+    config: formBackup?.config ?? config,
+    meubleNom: formBackup?.meubleNom ?? meubleNom,
+  });
+
+  // Collection à jour : la liste active reflète les champs courants, les autres sont inchangées.
+  const saveCurrentInto = (base: SheetCollection): SheetCollection => ({
+    ...base,
+    sheets: base.sheets.map(s => (s.id === base.activeId ? { ...s, state: currentSheetState() } : s)),
+  });
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(SHEET_STORAGE_KEY, serializeSheet({ meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config: formBackup?.config ?? config, meubleNom: formBackup?.meubleNom ?? meubleNom }));
+      window.localStorage.setItem(COLLECTION_STORAGE_KEY, serializeCollection(saveCurrentInto(collection)));
     } catch { /* stockage indisponible : la feuille reste en mémoire */ }
-  }, [meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config, meubleNom, formBackup]);
+  }, [collection, meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config, meubleNom, formBackup]);
+
+  // Charge l'état d'une liste dans les champs du formulaire et de la feuille.
+  const loadStateIntoFields = (state: SheetState) => {
+    setConfig(state.config ?? defaultConfig);
+    setMeubleGroups(state.meubleGroups);
+    setCustomItems(state.customItems);
+    setMeubleCounter(state.meubleCounter);
+    setMeubleNom(state.meubleNom);
+    setOrder(state.order);
+    setGroupIdentical(state.groupIdentical);
+    setShowThumbnails(state.showThumbnails ?? false);
+  };
+
+  // Annule toute édition en cours avant de changer de liste.
+  const cancelOngoingEdits = () => {
+    setEditingConfigId(null);
+    setFormBackup(null);
+    setEditingMeubleId(null);
+    setShowAddForm(false);
+  };
+
+  const switchSheet = (id: string) => {
+    if (id === collection.activeId) return;
+    const updated = saveCurrentInto(collection);
+    const target = updated.sheets.find(s => s.id === id);
+    if (!target) return;
+    cancelOngoingEdits();
+    setCollection({ ...updated, activeId: id });
+    loadStateIntoFields(target.state);
+  };
+
+  const createSheet = () => {
+    const updated = saveCurrentInto(collection);
+    let n = updated.sheets.length + 1;
+    while (updated.sheets.some(s => s.nom === `Liste ${n}`)) n++;
+    const entry: SheetEntry = { id: crypto.randomUUID(), nom: `Liste ${n}`, state: emptySheetState() };
+    cancelOngoingEdits();
+    setCollection({ sheets: [...updated.sheets, entry], activeId: entry.id });
+    loadStateIntoFields(entry.state);
+    toast.success(`${entry.nom} créée`);
+  };
+
+  const deleteActiveSheet = () => {
+    const remaining = collection.sheets.filter(s => s.id !== collection.activeId);
+    const next: SheetCollection = remaining.length
+      ? { sheets: remaining, activeId: remaining[0].id }
+      : { sheets: [{ id: crypto.randomUUID(), nom: 'Liste 1', state: emptySheetState() }], activeId: '' };
+    if (!remaining.length) next.activeId = next.sheets[0].id;
+    cancelOngoingEdits();
+    setCollection(next);
+    loadStateIntoFields(next.sheets.find(s => s.id === next.activeId)!.state);
+    toast.success('Liste supprimée');
+  };
 
   const validationErrors = validateConfig(config);
   const sections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
@@ -494,9 +567,43 @@ const FurnitureCalculator: React.FC = () => {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between text-lg">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary" />
+                  <div className="flex flex-wrap items-center gap-2">
+                     <FileText className="h-4 w-4 text-primary" />
                     Feuille de débit
+                    <Select value={collection.activeId} onValueChange={switchSheet}>
+                      <SelectTrigger className="h-8 w-[150px]" aria-label="Choisir la liste">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {collection.sheets.map(s => (
+                          <SelectItem key={s.id} value={s.id}>{s.nom}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={createSheet} size="sm" variant="outline" className="flex items-center gap-1">
+                      <Plus className="h-3 w-3" />
+                      Nouvelle liste
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="outline" className="flex items-center gap-1" aria-label="Supprimer la liste">
+                          <Trash2 className="h-3 w-3" />
+                          Supprimer la liste
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Supprimer « {activeEntry.nom} » ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Toute la liste (meubles et pièces personnalisées) sera supprimée définitivement. Cette action est irréversible.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={deleteActiveSheet}>Supprimer</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     {(meubleGroups.length > 0 || customItems.length > 0) && (
