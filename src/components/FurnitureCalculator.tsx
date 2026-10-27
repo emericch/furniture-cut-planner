@@ -388,7 +388,9 @@ const FurnitureCalculator: React.FC = () => {
         const withThumb = showThumbnails && section.config;
         if (withThumb) thumbByRow.set(rowIndex, section.config!);
         rowIndex += 1 + section.rows.length;
-        return [[{ content: section.title, colSpan: 5, styles: { fontStyle: 'bold' as const, fillColor: 255, minCellHeight: withThumb ? 24 : undefined } }], ...section.rows];
+        const titleStyles: Record<string, unknown> = { fontStyle: 'bold' as const, fillColor: 255 };
+        if (withThumb) titleStyles.minCellHeight = 24;
+        return [[{ content: section.title, colSpan: 5, styles: titleStyles }], ...section.rows];
       });
       autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
         didDrawCell: (data) => {
