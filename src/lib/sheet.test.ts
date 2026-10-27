@@ -373,3 +373,24 @@ describe('plusieurs listes de débit', () => {
     expect(collection.sheets[0].state.meubleCounter).toBe(1);
   });
 });
+
+describe('filtre par épaisseur', () => {
+  const { thicknessCounts, filterSectionsByThickness, filterSizeRowsByThickness } = require('./sheet');
+  const it = (nom: string, epaisseur: number, quantite: number) => ({ nom, longueur: 500, largeur: 300, epaisseur, quantite, materiau: '' });
+  const sections = [
+    { id: 'a', nom: 'A', detail: '', rows: [{ item: it('Montant', 19, 2), index: 0 }, { item: it('Dos', 3, 1), index: 1 }] },
+    { id: 'b', nom: 'B', detail: '', rows: [{ item: it('Dos', 3, 1), index: 0 }] },
+  ];
+  test('compte les pièces par épaisseur (quantités cumulées), triées', () => {
+    expect(thicknessCounts(sections)).toEqual([{ epaisseur: 3, count: 2 }, { epaisseur: 19, count: 2 }]);
+  });
+  test('19 mm masque les meubles sans pièce de 19 mm', () => {
+    const f = filterSectionsByThickness(sections, 19);
+    expect(f.map((s: { id: string }) => s.id)).toEqual(['a']);
+    expect(f[0].rows).toHaveLength(1);
+  });
+  test('Toutes (null) ne filtre rien', () => {
+    expect(filterSectionsByThickness(sections, null)).toBe(sections);
+    expect(filterSizeRowsByThickness([{ item: it('X', 3, 1), meuble: 'A', meubleId: 'a', index: 0 }], 19)).toHaveLength(0);
+  });
+});
