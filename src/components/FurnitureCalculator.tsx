@@ -815,7 +815,7 @@ const FurnitureCalculator: React.FC = () => {
                         </button>;
                       })}
                     </div>}
-                    {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
+                    {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite} · Fil {grainLabel(row.item)}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
                     {order === 'meuble' && sections.length > 1 && <div className="flex justify-end"><Button size="sm" variant="ghost" onClick={() => setCollapsed(collapsed.size >= sections.length ? new Set() : new Set(sections.map(x => x.id)))}>{collapsed.size >= sections.length ? 'Tout déplier' : 'Tout réduire'}</Button></div>}
                     {/* Groupes de meubles */}
                     {order === 'meuble' && sections.map((section) => {
@@ -907,11 +907,12 @@ const FurnitureCalculator: React.FC = () => {
                             <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
                               <div className="flex-1">
                                 <h5 className="font-medium text-sm">{row.item.nom}</h5>
-                                <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-4">
+                                <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-5">
                                   <div>L: {formatMm(row.item.longueur)}mm</div>
                                   <div>l: {formatMm(row.item.largeur)}mm</div>
                                   <div>Ép: {row.item.epaisseur}mm</div>
                                   <div>Qté: {row.item.quantite}</div>
+                                  <div>Fil: {grainLabel(row.item)}</div>
                                 </div>
                               </div>
                               {pivotButton(row.item, () => pivotSectionRow(section.id, row))}
