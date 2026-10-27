@@ -53,37 +53,45 @@ const custom = (nom: string, longueur: number, largeur: number, epaisseur = 19, 
   ({ nom, longueur, largeur, epaisseur, quantite });
 
 describe('pivotement du sens du fil', () => {
-  test('pivotItem échange longueur et largeur et marque filPivote', () => {
-    const pivoted = pivotItem(custom('Porte', 1998, 798));
-    expect(pivoted.longueur).toBe(798);
-    expect(pivoted.largeur).toBe(1998);
+  test('pivotItem garde les cotes et deux pivots rendent la pièce d’origine', () => {
+    const original = { ...custom('Porte', 1798, 398), filPivote: false };
+    const pivoted = pivotItem(original);
+    expect(pivoted.longueur).toBe(1798);
+    expect(pivoted.largeur).toBe(398);
     expect(pivoted.filPivote).toBe(true);
-    expect(pivotItem(pivoted).filPivote).toBe(false);
+    expect(pivotItem(pivoted)).toEqual(original);
   });
 
   test('pivotAt ne pivote que la pièce visée', () => {
     const items = [custom('A', 100, 50), custom('B', 100, 50)];
     const result = pivotAt(items, 1);
     expect(result[0].longueur).toBe(100);
-    expect(result[1].longueur).toBe(50);
+    expect(result[0].filPivote).toBeUndefined();
+    expect(result[1].longueur).toBe(100);
+    expect(result[1].filPivote).toBe(true);
   });
 
   test('pivotMatching pivote toutes les pièces de mêmes dimensions', () => {
     const items = [custom('A', 100, 50), custom('B', 100, 50), custom('C', 200, 50)];
     const result = pivotMatching(items, items[0]);
-    expect(result[0].longueur).toBe(50);
-    expect(result[1].longueur).toBe(50);
+    expect(result[0].longueur).toBe(100);
+    expect(result[1].longueur).toBe(100);
+    expect(result[0].filPivote).toBe(true);
+    expect(result[1].filPivote).toBe(true);
+    expect(result[2].filPivote).toBeUndefined();
     expect(result[2].longueur).toBe(200);
   });
 
   test('reapplyPivots réapplique le pivotement aux pièces de même nom', () => {
     const oldItems = [pivotItem(custom('Porte', 1998, 798)), custom('Rayon', 762, 350)];
-    const newItems = [custom('Porte', 1998, 798), custom('Rayon', 762, 350)];
+    const newItems = [custom('Porte', 1798, 398), custom('Rayon', 762, 350)];
     const result = reapplyPivots(oldItems, newItems);
-    expect(result[0].longueur).toBe(798);
+    expect(result[0].longueur).toBe(1798);
+    expect(result[0].largeur).toBe(398);
     expect(result[0].filPivote).toBe(true);
     expect(result[1].longueur).toBe(762);
     expect(result[1].filPivote).toBeUndefined();
+    expect(reapplyPivots(oldItems, result)).toEqual(result);
   });
 
   test('grainLabel indique où suit le fil', () => {
@@ -94,6 +102,17 @@ describe('pivotement du sens du fil', () => {
 });
 
 describe('regroupement des pièces identiques', () => {
+  test('pivoter le montant non pivoté fusionne les deux lignes de fil différent', () => {
+    const items = [pivotItem(custom('Montant gauche', 2000, 350)), custom('Montant droit', 2000, 350)];
+    expect(groupItems(items)).toHaveLength(2);
+    const result = pivotMatching(items, items[1]);
+    expect(result[0].filPivote).toBe(true);
+    const grouped = groupItems(result);
+    expect(grouped).toHaveLength(1);
+    expect(grouped[0].quantite).toBe(2);
+    expect(grainLabel(grouped[0])).toBe('l');
+    expect(buildSizeRows([], result, true)).toHaveLength(1);
+  });
   test('groupItems fusionne mêmes dimensions, additionne les quantités et joint les noms', () => {
     const items = [custom('Montant gauche', 2000, 350), custom('Montant droit', 2000, 350), custom('Rayon', 762, 350)];
     const merged = groupItems(items);
@@ -173,6 +192,34 @@ describe('regroupement des pièces identiques', () => {
 });
 
 describe('sauvegarde locale', () => {
+  test('migration du fil sans marqueur, collection et mono-liste, sans double échange', () => {
+    const legacy = {
+      ...emptySheetState(),
+      filFormat: undefined,
+      meubleGroups: [{ ...makeGroup('m1', 'Cuisine'), items: [{ ...custom('Porte', 398, 1798), filPivote: true }, custom('Dos', 2000, 800, 3)] }],
+      customItems: [{ ...custom('Face', 398, 1798), filPivote: true }],
+    };
+    const raw = JSON.stringify(legacy);
+    const mono = loadCollection(k => k === SHEET_STORAGE_KEY ? raw : null);
+    const collection = parseCollection(JSON.stringify({ activeId: 'a', sheets: [{ id: 'a', nom: 'Liste 1', state: legacy }] }));
+    for (const migrated of [mono.sheets[0].state, collection?.sheets[0].state]) {
+      expect(migrated?.filFormat).toBe(2);
+      expect(migrated?.meubleGroups[0].items[0]).toEqual({ ...custom('Porte', 1798, 398), filPivote: true });
+      expect(migrated?.meubleGroups[0].items[1]).toEqual(custom('Dos', 2000, 800, 3));
+      expect(migrated?.customItems[0]).toEqual({ ...custom('Face', 1798, 398), filPivote: true });
+      if (!migrated) throw new Error('Migration missing');
+      expect(parseSheet(serializeSheet(migrated))?.customItems).toEqual(migrated.customItems);
+      const second = parseCollection(serializeCollection({ activeId: 'a', sheets: [{ id: 'a', nom: 'Liste 1', state: migrated }] }));
+      expect(second?.sheets[0].state.meubleGroups[0].items).toEqual(migrated.meubleGroups[0].items);
+    }
+  });
+
+  test('filFormat 2 conserve les cotes pivotées et est écrit dans chaque sauvegarde', () => {
+    const current = { ...emptySheetState(), customItems: [{ ...custom('Porte', 1798, 398), filPivote: true }] };
+    expect(parseSheet(JSON.stringify(current))?.customItems).toEqual(current.customItems);
+    expect(JSON.parse(serializeSheet({ ...current, filFormat: undefined })).filFormat).toBe(2);
+    expect(emptySheetState().filFormat).toBe(2);
+  });
   const state: SheetState = {
     meubleGroups: [makeGroup('m1', 'Cuisine')],
     customItems: [custom('Tablette', 500, 300)],
