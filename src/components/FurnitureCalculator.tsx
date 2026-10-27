@@ -68,6 +68,7 @@ const FurnitureCalculator: React.FC = () => {
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
   const [editingListNom, setEditingListNom] = useState<string | null>(null);
+  const [confirmDeleteList, setConfirmDeleteList] = useState(false);
 
   const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
   const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
