@@ -77,10 +77,6 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
       </div>
     </div>
     <figcaption className="text-center text-sm text-muted-foreground">H {formatMm(c.hauteur)} · L {formatMm(c.largeur)} · P {formatMm(c.profondeur)} mm</figcaption>
-    <div className="grid grid-cols-2 gap-2">
-      <Button variant="outline" className="h-auto min-h-11 whitespace-normal" onClick={() => onSelect(1)}><Columns2 className="mr-2 h-4 w-4 shrink-0" />Montants et dos</Button>
-      <Button variant="outline" className="h-auto min-h-11 whitespace-normal" onClick={() => onSelect(3)}><PanelTop className="mr-2 h-4 w-4 shrink-0" />Bandeaux et façades</Button>
-    </div>
   </figure>;
 }
 
