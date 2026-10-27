@@ -584,16 +584,44 @@ const FurnitureCalculator: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-2">
                      <FileText className="h-4 w-4 text-primary" />
                     Feuille de débit
-                    <Select value={collection.activeId} onValueChange={switchSheet}>
-                      <SelectTrigger className="h-8 w-[150px]" aria-label="Choisir la liste">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {collection.sheets.map(s => (
-                          <SelectItem key={s.id} value={s.id}>{s.nom}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {editingListNom === null ? (
+                      <>
+                        <Select value={collection.activeId} onValueChange={switchSheet}>
+                          <SelectTrigger className="h-8 w-[150px]" aria-label="Choisir la liste">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {collection.sheets.map(s => (
+                              <SelectItem key={s.id} value={s.id}>{s.nom}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button onClick={() => setEditingListNom(activeEntry.nom)} size="sm" variant="outline" className="flex items-center gap-1" aria-label="Renommer la liste">
+                          <Edit2 className="h-3 w-3" />
+                          Renommer
+                        </Button>
+                      </>
+                    ) : (
+                      <form
+                        onSubmit={e => { e.preventDefault(); renameActiveSheet(); }}
+                        className="flex items-center gap-1"
+                      >
+                        <Input
+                          value={editingListNom}
+                          onChange={e => setEditingListNom(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Escape') setEditingListNom(null); }}
+                          className="h-8 w-[150px]"
+                          aria-label="Nom de la liste"
+                          autoFocus
+                        />
+                        <Button type="submit" size="sm" variant="outline" className="flex items-center gap-1" aria-label="Valider le nom de la liste">
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button type="button" size="sm" variant="outline" className="flex items-center gap-1" aria-label="Annuler le renommage" onClick={() => setEditingListNom(null)}>
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </form>
+                    )}
                     <Button onClick={createSheet} size="sm" variant="outline" className="flex items-center gap-1">
                       <Plus className="h-3 w-3" />
                       Nouvelle liste
