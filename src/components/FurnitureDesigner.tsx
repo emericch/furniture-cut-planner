@@ -184,6 +184,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                             </>
                           }
                           labelClassName="block truncate whitespace-nowrap leading-5"
+                          className="px-2 min-[480px]:px-3"
                           value={c[k]}
                           min="0"
                           onCommit={(v) => update({ [k]: v })}
