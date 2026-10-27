@@ -67,7 +67,12 @@ describe('pivotement du sens du fil', () => {
     expect(result[1].longueur).toBe(50);
   });
 
-  test('pivotMatching pivote toutes les pièces de mêmes dimensions', () => {
+  test('grainLabel indique où suit le fil', () => {
+    expect(grainLabel(custom('Porte', 1998, 798))).toBe('L');
+    expect(grainLabel(pivotItem(custom('Porte', 1998, 798)))).toBe('l');
+    expect(grainLabel(pivotItem(pivotItem(custom('Porte', 1998, 798))))).toBe('L');
+  });
+});
     const items = [custom('A', 100, 50), custom('B', 100, 50), custom('C', 200, 50)];
     const result = pivotMatching(items, items[0]);
     expect(result[0].longueur).toBe(50);
