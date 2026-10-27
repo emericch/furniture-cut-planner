@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal, MoreHorizontal } from 'lucide-react';
+import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal, MoreHorizontal, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
@@ -69,6 +69,8 @@ const FurnitureCalculator: React.FC = () => {
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
   const [editingListNom, setEditingListNom] = useState<string | null>(null);
   const [confirmDeleteList, setConfirmDeleteList] = useState(false);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggleCollapsed = (id: string) => setCollapsed(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
 
   const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
   const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
@@ -798,14 +800,17 @@ const FurnitureCalculator: React.FC = () => {
                 {(meubleGroups.length > 0 || customItems.length > 0) ? (
                   <div className="space-y-4">
                     {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
+                    {order === 'meuble' && sections.length > 1 && <div className="flex justify-end"><Button size="sm" variant="ghost" onClick={() => setCollapsed(collapsed.size >= sections.length ? new Set() : new Set(sections.map(x => x.id)))}>{collapsed.size >= sections.length ? 'Tout déplier' : 'Tout réduire'}</Button></div>}
                     {/* Groupes de meubles */}
                     {order === 'meuble' && sections.map((section) => {
                       const groupe = meubleGroups.find(g => g.id === section.id);
+                      const isCollapsed = collapsed.has(section.id);
+                      const toggle = <Button size="sm" variant="ghost" className="h-11 w-11 shrink-0 p-0 text-muted-foreground" aria-expanded={!isCollapsed} aria-label={`${isCollapsed ? 'Déplier' : 'Réduire'} ${groupe?.nom ?? CUSTOM_SECTION_NAME}`} onClick={() => toggleCollapsed(section.id)}><ChevronDown className={`h-4 w-4 transition-transform ${isCollapsed ? '-rotate-90' : ''}`} /></Button>;
                       return (
                       <Card key={section.id} className={`border-l-4 ${section.id === CUSTOM_SECTION_ID ? 'border-l-secondary' : 'border-l-primary'}`}>
                         <CardHeader className="pb-2">
                           {section.id === CUSTOM_SECTION_ID ? (
-                            <CardTitle className="text-base">{CUSTOM_SECTION_NAME}</CardTitle>
+                            <div className="flex items-center gap-1">{toggle}<CardTitle className="text-base">{CUSTOM_SECTION_NAME}</CardTitle>{isCollapsed && <span className="text-xs text-muted-foreground">· {section.rows.length} pièce{section.rows.length > 1 ? 's' : ''}</span>}</div>
                           ) : groupe && (
                             <>
                             <div className="flex items-center justify-between">
@@ -840,7 +845,8 @@ const FurnitureCalculator: React.FC = () => {
                                 </div>
                               ) : (
                                 <>
-                                  <div className="flex min-w-0 items-center gap-2 flex-1">
+                                  <div className="flex min-w-0 items-center gap-1 flex-1">
+                                    {toggle}
                                     <CardTitle className="min-w-0 break-all text-base">{groupe.nom}</CardTitle>
                                     <Button
                                       aria-label={`Renommer ${groupe.nom}`} title="Renommer"
@@ -873,14 +879,14 @@ const FurnitureCalculator: React.FC = () => {
                                 </>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground">
+                            {!isCollapsed && <p className="text-xs text-muted-foreground">
                               {section.detail}
-                            </p>
-                            {showThumbnails && <CabinetThumbnail config={groupe.config} className="mt-2" />}
+                            </p>}
+                            {showThumbnails && !isCollapsed && <CabinetThumbnail config={groupe.config} className="mt-2" />}
                             </>
                           )}
                         </CardHeader>
-                        <CardContent className="space-y-2">
+                        {!isCollapsed && <CardContent className="space-y-2">
                           {section.rows.map((row, index) => (
                             <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
                               <div className="flex-1">
@@ -905,7 +911,7 @@ const FurnitureCalculator: React.FC = () => {
                               )}
                             </div>
                           ))}
-                        </CardContent>
+                        </CardContent>}
                       </Card>
                       );
                     })}
