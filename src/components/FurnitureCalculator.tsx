@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
+import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal, MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
 import { buildMeubleSections, buildSizeRows, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
@@ -596,10 +597,16 @@ const FurnitureCalculator: React.FC = () => {
                             ))}
                           </SelectContent>
                         </Select>
-                        <Button onClick={() => setEditingListNom(activeEntry.nom)} size="sm" variant="outline" className="flex items-center gap-1" aria-label="Renommer la liste">
-                          <Edit2 className="h-3 w-3" />
-                          Renommer
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline" className="h-8 w-8 p-0" aria-label="Actions de la liste"><MoreHorizontal className="h-4 w-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuItem onSelect={() => setEditingListNom(activeEntry.nom)}><Edit2 className="mr-2 h-4 w-4" />Renommer</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={createSheet}><Plus className="mr-2 h-4 w-4" />Nouvelle liste</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => setConfirmDeleteList(true)} className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" />Supprimer la liste</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     ) : (
                       <form
@@ -622,17 +629,7 @@ const FurnitureCalculator: React.FC = () => {
                         </Button>
                       </form>
                     )}
-                    <Button onClick={createSheet} size="sm" variant="outline" className="flex items-center gap-1">
-                      <Plus className="h-3 w-3" />
-                      Nouvelle liste
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="outline" className="flex items-center gap-1" aria-label="Supprimer la liste">
-                          <Trash2 className="h-3 w-3" />
-                          Supprimer la liste
-                        </Button>
-                      </AlertDialogTrigger>
+                    <AlertDialog open={confirmDeleteList} onOpenChange={setConfirmDeleteList}>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Supprimer « {activeEntry.nom} » ?</AlertDialogTitle>
