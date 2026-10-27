@@ -283,3 +283,20 @@ export const loadCollection = (getItem: (key: string) => string | null): SheetCo
   const first: SheetEntry = { id: crypto.randomUUID(), nom: 'Liste 1', state: legacy ?? emptySheetState() };
   return { sheets: [first], activeId: first.id };
 };
+
+/** Épaisseurs présentes (triées) avec le nombre de pièces (quantités cumulées). */
+export function thicknessCounts(sections: SheetSection[]): Array<{ epaisseur: number; count: number }> {
+  const map = new Map<number, number>();
+  for (const s of sections) for (const r of s.rows) map.set(r.item.epaisseur, (map.get(r.item.epaisseur) ?? 0) + r.item.quantite);
+  return [...map.entries()].sort((a, b) => a[0] - b[0]).map(([epaisseur, count]) => ({ epaisseur, count }));
+}
+
+/** Filtre écran/impression/PDF par épaisseur ; null = toutes. Les sections vides disparaissent. */
+export function filterSectionsByThickness(sections: SheetSection[], epaisseur: number | null): SheetSection[] {
+  if (epaisseur === null) return sections;
+  return sections.map(s => ({ ...s, rows: s.rows.filter(r => r.item.epaisseur === epaisseur) })).filter(s => s.rows.length > 0);
+}
+
+export function filterSizeRowsByThickness(rows: SizeRow[], epaisseur: number | null): SizeRow[] {
+  return epaisseur === null ? rows : rows.filter(r => r.item.epaisseur === epaisseur);
+}
