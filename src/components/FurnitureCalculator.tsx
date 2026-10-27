@@ -567,7 +567,7 @@ const FurnitureCalculator: React.FC = () => {
                 {getWarnings(config).length > 0 && <div role="status" className="space-y-1">{getWarnings(config).map((warning, index) => <p key={index} className="text-sm text-muted-foreground">{warning}</p>)}</div>}
                 <div className="sticky bottom-0 z-20 -mx-6 flex items-center gap-3 border-t border-border bg-card/95 px-6 py-3 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
                   <CabinetThumbnail config={config} className="pointer-events-none flex h-12 shrink-0 gap-1 overflow-hidden md:hidden [&_figcaption]:hidden [&_p]:hidden [&_svg]:h-12 [&_svg]:w-auto" />
-                  <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="min-w-0 flex-1 whitespace-normal" size="lg">
+                  <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="min-w-0 flex-1 whitespace-normal px-4" size="lg">
                     <Plus className="mr-2 h-4 w-4 shrink-0" />
                     <span className="md:hidden">{editingConfigId ? 'Mettre à jour' : 'Ajouter à la feuille'}</span>
                     <span className="hidden md:inline">{editingConfigId ? 'Mettre à jour le meuble' : 'Ajouter à la feuille de débit'}</span>
