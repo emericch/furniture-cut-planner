@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
+import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal, MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
 import { buildMeubleSections, buildSizeRows, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
@@ -67,6 +68,7 @@ const FurnitureCalculator: React.FC = () => {
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
   const [editingListNom, setEditingListNom] = useState<string | null>(null);
+  const [confirmDeleteList, setConfirmDeleteList] = useState(false);
 
   const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
   const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
@@ -563,10 +565,14 @@ const FurnitureCalculator: React.FC = () => {
 
                 {validationErrors.length > 0 && <p role="alert" className="text-sm text-destructive">{validationErrors[0]}</p>}
                 {getWarnings(config).length > 0 && <div role="status" className="space-y-1">{getWarnings(config).map((warning, index) => <p key={index} className="text-sm text-muted-foreground">{warning}</p>)}</div>}
-                <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="w-full" size="lg">
-                  <Plus className="mr-2 h-4 w-4" />
-                  {editingConfigId ? 'Mettre à jour le meuble' : 'Ajouter à la feuille de débit'}
-                </Button>
+                <div className="sticky bottom-0 z-20 -mx-6 flex items-center gap-3 border-t border-border bg-card/95 px-6 py-3 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+                  <CabinetThumbnail config={config} className="pointer-events-none flex h-12 shrink-0 gap-1 overflow-hidden md:hidden [&_figcaption]:hidden [&_p]:hidden [&_svg]:h-12 [&_svg]:w-auto" />
+                  <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="min-w-0 flex-1 whitespace-normal px-4" size="lg">
+                    <Plus className="mr-2 h-4 w-4 shrink-0" />
+                    <span className="md:hidden">{editingConfigId ? 'Mettre à jour' : 'Ajouter à la feuille'}</span>
+                    <span className="hidden md:inline">{editingConfigId ? 'Mettre à jour le meuble' : 'Ajouter à la feuille de débit'}</span>
+                  </Button>
+                </div>
                 {editingConfigId && (
                   <Button onClick={cancelEditMeuble} variant="outline" className="w-full">
                     Annuler la modification
@@ -596,10 +602,16 @@ const FurnitureCalculator: React.FC = () => {
                             ))}
                           </SelectContent>
                         </Select>
-                        <Button onClick={() => setEditingListNom(activeEntry.nom)} size="sm" variant="outline" className="flex items-center gap-1" aria-label="Renommer la liste">
-                          <Edit2 className="h-3 w-3" />
-                          Renommer
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline" className="h-8 w-8 p-0" aria-label="Actions de la liste"><MoreHorizontal className="h-4 w-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuItem onSelect={() => setEditingListNom(activeEntry.nom)}><Edit2 className="mr-2 h-4 w-4" />Renommer</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={createSheet}><Plus className="mr-2 h-4 w-4" />Nouvelle liste</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => setConfirmDeleteList(true)} className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" />Supprimer la liste</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     ) : (
                       <form
@@ -622,17 +634,7 @@ const FurnitureCalculator: React.FC = () => {
                         </Button>
                       </form>
                     )}
-                    <Button onClick={createSheet} size="sm" variant="outline" className="flex items-center gap-1">
-                      <Plus className="h-3 w-3" />
-                      Nouvelle liste
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="outline" className="flex items-center gap-1" aria-label="Supprimer la liste">
-                          <Trash2 className="h-3 w-3" />
-                          Supprimer la liste
-                        </Button>
-                      </AlertDialogTrigger>
+                    <AlertDialog open={confirmDeleteList} onOpenChange={setConfirmDeleteList}>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Supprimer « {activeEntry.nom} » ?</AlertDialogTitle>
