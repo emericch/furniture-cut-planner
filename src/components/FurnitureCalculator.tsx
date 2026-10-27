@@ -60,8 +60,8 @@ const FurnitureCalculator: React.FC = () => {
     epaisseur: 19,
     quantite: 1
   });
-  const [meubleCounter, setMeubleCounter] = useState(saved?.meubleCounter ?? 1);
-  const [meubleNom, setMeubleNom] = useState(saved?.meubleNom ?? '');
+  const [meubleCounter, setMeubleCounter] = useState(activeEntry.state.meubleCounter);
+  const [meubleNom, setMeubleNom] = useState(activeEntry.state.meubleNom);
   const [editingMeubleId, setEditingMeubleId] = useState<string | null>(null);
   const [editingNom, setEditingNom] = useState('');
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
