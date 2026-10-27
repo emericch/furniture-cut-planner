@@ -455,6 +455,7 @@ const FurnitureCalculator: React.FC = () => {
               <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
               <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">l (mm)</th>
               <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">e (mm)</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Fil</th>
             </tr>
           </thead>
           <tbody>
@@ -465,6 +466,7 @@ const FurnitureCalculator: React.FC = () => {
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.longueur)}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.largeur)}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
+                <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${grainLabel(item)}</td>
               </tr>
             `).join('')}
           </tbody>
