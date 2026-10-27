@@ -18,9 +18,9 @@ import { CabinetThumbnail } from './CabinetDrawing';
 import { getThumbnailViews, thumbnailSvgMarkup } from '@/lib/cabinet-drawing';
 
 const defaultConfig: FurnitureConfig = {
-  hauteur: 2000,
-  largeur: 800,
-  profondeur: 350,
+  hauteur: 765,
+  largeur: 600,
+  profondeur: 550,
   epaisseurMontants: 19,
   epaisseurTraverses: 19,
   epaisseurRayons: 19,
@@ -30,9 +30,9 @@ const defaultConfig: FurnitureConfig = {
   traversesTouteLargeur: false,
   nombreRayons: 2,
   nombreRayonsFixes: 0,
-  dosType: 'aucun',
-  nombrePortes: 0,
-  typePorte: 'interieur',
+  dosType: 'en-applique',
+  nombrePortes: 1,
+  typePorte: 'applique',
   retraitRayons: 0,
   decalageDos: 0
 };
@@ -69,7 +69,7 @@ const FurnitureCalculator: React.FC = () => {
 
   const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
   const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
-  const [showThumbnails, setShowThumbnails] = useState(activeEntry.state.showThumbnails ?? false);
+  const [showThumbnails, setShowThumbnails] = useState(activeEntry.state.showThumbnails ?? true);
 
   // État courant de la liste active (le brouillon du formulaire prime pendant une modification).
   const currentSheetState = (): SheetState => ({
@@ -104,7 +104,7 @@ const FurnitureCalculator: React.FC = () => {
     setMeubleNom(state.meubleNom);
     setOrder(state.order);
     setGroupIdentical(state.groupIdentical);
-    setShowThumbnails(state.showThumbnails ?? false);
+    setShowThumbnails(state.showThumbnails ?? true);
   };
 
   // Annule toute édition en cours avant de changer de liste.
