@@ -16,7 +16,6 @@ export type { FurnitureConfig } from '@/lib/furniture';
 import { FurnitureDesigner } from './FurnitureDesigner';
 import { NumberField } from './NumberField';
 import { CabinetThumbnail } from './CabinetDrawing';
-import { CabinetThumbnail } from './CabinetDrawing';
 import { getThumbnailViews, thumbnailSvgMarkup } from '@/lib/cabinet-drawing';
 
 const defaultConfig: FurnitureConfig = {
