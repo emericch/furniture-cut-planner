@@ -1,22 +1,80 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown, SlidersHorizontal, MoreHorizontal, ChevronDown } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
-import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
-import { buildMeubleSections, buildSizeRows, thicknessCounts, filterSectionsByThickness, filterSizeRowsByThickness, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, grainLabel, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
-import logo from '@/assets/ours-logo.png.asset.json';
-import { toast } from 'sonner';
-export type { FurnitureConfig } from '@/lib/furniture';
-import { FurnitureDesigner } from './FurnitureDesigner';
-import { NumberField } from './NumberField';
-import { CabinetThumbnail } from './CabinetDrawing';
-import { getThumbnailViews, thumbnailSvgMarkup } from '@/lib/cabinet-drawing';
+import React, { useEffect, useRef, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  FileText,
+  Plus,
+  X,
+  Trash2,
+  Printer,
+  Download,
+  Edit2,
+  Check,
+  ArrowUpDown,
+  SlidersHorizontal,
+  MoreHorizontal,
+  ChevronDown,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  generateMeubleItems,
+  validateConfig,
+  getWarnings,
+  escapeHtml,
+  formatMm,
+  type FurnitureConfig,
+  type CutSheetItem,
+  type MeubleGroup,
+} from "@/lib/furniture";
+import {
+  buildMeubleSections,
+  buildSizeRows,
+  thicknessCounts,
+  filterSectionsByThickness,
+  filterSizeRowsByThickness,
+  pivotAt,
+  pivotMatching,
+  reapplyPivots,
+  loadCollection,
+  serializeCollection,
+  emptySheetState,
+  CUSTOM_SECTION_ID,
+  CUSTOM_SECTION_NAME,
+  GRAIN_LEGEND,
+  grainLabel,
+  COLLECTION_STORAGE_KEY,
+  type SheetOrder,
+  type SheetState,
+  type SheetEntry,
+  type SheetCollection,
+} from "@/lib/sheet";
+import logo from "@/assets/ours-logo.png.asset.json";
+import { toast } from "sonner";
+export type { FurnitureConfig } from "@/lib/furniture";
+import { FurnitureDesigner } from "./FurnitureDesigner";
+import { NumberField } from "./NumberField";
+import { CabinetThumbnail } from "./CabinetDrawing";
+import { getThumbnailViews, thumbnailSvgMarkup } from "@/lib/cabinet-drawing";
 
 const defaultConfig: FurnitureConfig = {
   hauteur: 765,
@@ -31,47 +89,53 @@ const defaultConfig: FurnitureConfig = {
   traversesTouteLargeur: false,
   nombreRayons: 2,
   nombreRayonsFixes: 0,
-  dosType: 'en-applique',
+  dosType: "en-applique",
   nombrePortes: 1,
-  typePorte: 'applique',
+  typePorte: "applique",
   retraitRayons: 0,
-  decalageDos: 0
+  decalageDos: 0,
 };
 
 const loadSavedCollection = (): SheetCollection => {
   try {
-    return loadCollection(k => window.localStorage.getItem(k));
+    return loadCollection((k) => window.localStorage.getItem(k));
   } catch {
-    const first: SheetEntry = { id: crypto.randomUUID(), nom: 'Liste 1', state: emptySheetState() };
+    const first: SheetEntry = { id: crypto.randomUUID(), nom: "Liste 1", state: emptySheetState() };
     return { sheets: [first], activeId: first.id };
   }
 };
 
 const FurnitureCalculator: React.FC = () => {
   const [collection, setCollection] = useState<SheetCollection>(loadSavedCollection);
-  const activeEntry = collection.sheets.find(s => s.id === collection.activeId) ?? collection.sheets[0];
+  const activeEntry = collection.sheets.find((s) => s.id === collection.activeId) ?? collection.sheets[0];
   const [config, setConfig] = useState<FurnitureConfig>(activeEntry.state.config ?? defaultConfig);
   const [meubleGroups, setMeubleGroups] = useState<MeubleGroup[]>(activeEntry.state.meubleGroups);
   const [customItems, setCustomItems] = useState<CutSheetItem[]>(activeEntry.state.customItems);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState<Partial<CutSheetItem>>({
-    nom: '',
+    nom: "",
     longueur: 0,
     largeur: 0,
     epaisseur: 19,
-    quantite: 1
+    quantite: 1,
   });
   const [meubleCounter, setMeubleCounter] = useState(activeEntry.state.meubleCounter);
   const [meubleNom, setMeubleNom] = useState(activeEntry.state.meubleNom);
   const [editingMeubleId, setEditingMeubleId] = useState<string | null>(null);
-  const [editingNom, setEditingNom] = useState('');
+  const [editingNom, setEditingNom] = useState("");
   const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
   const [formBackup, setFormBackup] = useState<{ config: FurnitureConfig; meubleNom: string } | null>(null);
   const [editingListNom, setEditingListNom] = useState<string | null>(null);
   const [confirmDeleteList, setConfirmDeleteList] = useState(false);
   const [thicknessFilter, setThicknessFilter] = useState<number | null>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const toggleCollapsed = (id: string) => setCollapsed(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
+  const toggleCollapsed = (id: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const [order, setOrder] = useState<SheetOrder>(activeEntry.state.order);
   const [groupIdentical, setGroupIdentical] = useState(activeEntry.state.groupIdentical);
@@ -97,7 +161,7 @@ const FurnitureCalculator: React.FC = () => {
 
   const restoreInSheet = (originId: string, nom: string, restore: (state: SheetState) => SheetState) => {
     const latest = undoContext.current;
-    const origin = latest.collection.sheets.find(s => s.id === originId);
+    const origin = latest.collection.sheets.find((s) => s.id === originId);
     if (!origin) {
       toast.error("Impossible d'annuler : la liste d'origine a été supprimée.");
       return;
@@ -107,9 +171,9 @@ const FurnitureCalculator: React.FC = () => {
       setMeubleGroups(restored.meubleGroups);
       setCustomItems(restored.customItems);
     } else {
-      setCollection(current => ({
+      setCollection((current) => ({
         ...current,
-        sheets: current.sheets.map(s => s.id === originId ? { ...s, state: restore(s.state) } : s),
+        sheets: current.sheets.map((s) => (s.id === originId ? { ...s, state: restore(s.state) } : s)),
       }));
       toast.success(`${nom} restauré dans ${origin.nom}`);
     }
@@ -118,14 +182,27 @@ const FurnitureCalculator: React.FC = () => {
   // Collection à jour : la liste active reflète les champs courants, les autres sont inchangées.
   const saveCurrentInto = (base: SheetCollection): SheetCollection => ({
     ...base,
-    sheets: base.sheets.map(s => (s.id === base.activeId ? { ...s, state: currentSheetState() } : s)),
+    sheets: base.sheets.map((s) => (s.id === base.activeId ? { ...s, state: currentSheetState() } : s)),
   });
 
   useEffect(() => {
     try {
       window.localStorage.setItem(COLLECTION_STORAGE_KEY, serializeCollection(saveCurrentInto(collection)));
-    } catch { /* stockage indisponible : la feuille reste en mémoire */ }
-  }, [collection, meubleGroups, customItems, meubleCounter, order, groupIdentical, showThumbnails, config, meubleNom, formBackup]);
+    } catch {
+      /* stockage indisponible : la feuille reste en mémoire */
+    }
+  }, [
+    collection,
+    meubleGroups,
+    customItems,
+    meubleCounter,
+    order,
+    groupIdentical,
+    showThumbnails,
+    config,
+    meubleNom,
+    formBackup,
+  ]);
 
   // Charge l'état d'une liste dans les champs du formulaire et de la feuille.
   const loadStateIntoFields = (state: SheetState) => {
@@ -150,7 +227,7 @@ const FurnitureCalculator: React.FC = () => {
   const switchSheet = (id: string) => {
     if (id === collection.activeId) return;
     const updated = saveCurrentInto(collection);
-    const target = updated.sheets.find(s => s.id === id);
+    const target = updated.sheets.find((s) => s.id === id);
     if (!target) return;
     cancelOngoingEdits();
     setCollection({ ...updated, activeId: id });
@@ -160,7 +237,7 @@ const FurnitureCalculator: React.FC = () => {
   const createSheet = () => {
     const updated = saveCurrentInto(collection);
     let n = updated.sheets.length + 1;
-    while (updated.sheets.some(s => s.nom === `Liste ${n}`)) n++;
+    while (updated.sheets.some((s) => s.nom === `Liste ${n}`)) n++;
     const entry: SheetEntry = { id: crypto.randomUUID(), nom: `Liste ${n}`, state: emptySheetState() };
     cancelOngoingEdits();
     setCollection({ sheets: [...updated.sheets, entry], activeId: entry.id });
@@ -169,25 +246,25 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const deleteActiveSheet = () => {
-    const remaining = collection.sheets.filter(s => s.id !== collection.activeId);
+    const remaining = collection.sheets.filter((s) => s.id !== collection.activeId);
     const next: SheetCollection = remaining.length
       ? { sheets: remaining, activeId: remaining[0].id }
-      : { sheets: [{ id: crypto.randomUUID(), nom: 'Liste 1', state: emptySheetState() }], activeId: '' };
+      : { sheets: [{ id: crypto.randomUUID(), nom: "Liste 1", state: emptySheetState() }], activeId: "" };
     if (!remaining.length) next.activeId = next.sheets[0].id;
     cancelOngoingEdits();
     setCollection(next);
-    loadStateIntoFields(next.sheets.find(s => s.id === next.activeId)!.state);
-    toast.success('Liste supprimée');
+    loadStateIntoFields(next.sheets.find((s) => s.id === next.activeId)!.state);
+    toast.success("Liste supprimée");
   };
 
   const renameActiveSheet = () => {
     const nom = editingListNom?.trim();
     if (!nom) {
-      toast.error('Le nom de la liste ne peut pas être vide');
+      toast.error("Le nom de la liste ne peut pas être vide");
       return;
     }
     const updated = saveCurrentInto(collection);
-    setCollection({ ...updated, sheets: updated.sheets.map(s => (s.id === updated.activeId ? { ...s, nom } : s)) });
+    setCollection({ ...updated, sheets: updated.sheets.map((s) => (s.id === updated.activeId ? { ...s, nom } : s)) });
     setEditingListNom(null);
     toast.success(`Liste renommée en « ${nom} »`);
   };
@@ -195,7 +272,8 @@ const FurnitureCalculator: React.FC = () => {
   const validationErrors = validateConfig(config);
   const allSections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
   const thicknesses = thicknessCounts(allSections);
-  const activeThickness = thicknessFilter !== null && thicknesses.some(t => t.epaisseur === thicknessFilter) ? thicknessFilter : null;
+  const activeThickness =
+    thicknessFilter !== null && thicknesses.some((t) => t.epaisseur === thicknessFilter) ? thicknessFilter : null;
   const sections = filterSectionsByThickness(allSections, activeThickness);
   const sizeRows = filterSizeRowsByThickness(buildSizeRows(meubleGroups, customItems, groupIdentical), activeThickness);
 
@@ -208,7 +286,7 @@ const FurnitureCalculator: React.FC = () => {
       setMeubleNom(formBackup.meubleNom);
     } else {
       setConfig(defaultConfig);
-      setMeubleNom('');
+      setMeubleNom("");
     }
     setFormBackup(null);
   };
@@ -219,15 +297,25 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const addMeubleToSheet = () => {
-    if (validationErrors.length) { toast.error(validationErrors[0]); return; }
+    if (validationErrors.length) {
+      toast.error(validationErrors[0]);
+      return;
+    }
     const items = generateMeubleItems(config);
     if (editingConfigId) {
-      const existing = meubleGroups.find(g => g.id === editingConfigId);
-      if (!existing) { cancelEditMeuble(); return; }
+      const existing = meubleGroups.find((g) => g.id === editingConfigId);
+      if (!existing) {
+        cancelEditMeuble();
+        return;
+      }
       const nomMeuble = meubleNom.trim() || existing.nom;
-      setMeubleGroups(meubleGroups.map(g => g.id === editingConfigId
-        ? { ...g, nom: nomMeuble, config: { ...config }, items: reapplyPivots(g.items, items) }
-        : g));
+      setMeubleGroups(
+        meubleGroups.map((g) =>
+          g.id === editingConfigId
+            ? { ...g, nom: nomMeuble, config: { ...config }, items: reapplyPivots(g.items, items) }
+            : g,
+        ),
+      );
       toast.success(`${nomMeuble} mis à jour`);
       setEditingConfigId(null);
       restoreFormBackup();
@@ -239,12 +327,12 @@ const FurnitureCalculator: React.FC = () => {
       nom: nomMeuble,
       config: { ...config },
       items: items,
-      dateAjout: new Date()
+      dateAjout: new Date(),
     };
 
     setMeubleGroups([...meubleGroups, newMeuble]);
     setMeubleCounter(meubleCounter + 1);
-    setMeubleNom('');
+    setMeubleNom("");
   };
 
   const startEditMeubleConfig = (groupe: MeubleGroup) => {
@@ -252,7 +340,7 @@ const FurnitureCalculator: React.FC = () => {
     setEditingConfigId(groupe.id);
     setConfig({ ...groupe.config });
     setMeubleNom(groupe.nom);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const startEditingMeuble = (meubleId: string, currentNom: string) => {
@@ -261,63 +349,78 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const saveEditedMeubleName = () => {
-    if (!editingNom.trim()) { cancelEditingMeuble(); return; }
+    if (!editingNom.trim()) {
+      cancelEditingMeuble();
+      return;
+    }
     if (editingMeubleId && editingNom.trim()) {
-      setMeubleGroups(meubleGroups.map(groupe =>
-        groupe.id === editingMeubleId
-          ? { ...groupe, nom: editingNom.trim() }
-          : groupe
-      ));
+      setMeubleGroups(
+        meubleGroups.map((groupe) => (groupe.id === editingMeubleId ? { ...groupe, nom: editingNom.trim() } : groupe)),
+      );
       setEditingMeubleId(null);
-      setEditingNom('');
+      setEditingNom("");
     }
   };
 
   const cancelEditingMeuble = () => {
     setEditingMeubleId(null);
-    setEditingNom('');
+    setEditingNom("");
   };
 
   const removeMeubleGroup = (meubleId: string) => {
     const originId = collection.activeId;
-    const index = meubleGroups.findIndex(g => g.id === meubleId);
+    const index = meubleGroups.findIndex((g) => g.id === meubleId);
     const removed = meubleGroups[index];
     if (!removed) return;
-    setMeubleGroups(meubleGroups.filter(group => group.id !== meubleId));
+    setMeubleGroups(meubleGroups.filter((group) => group.id !== meubleId));
     if (editingConfigId === meubleId) cancelEditMeuble();
     toast(`${removed.nom} supprimé`, {
       duration: 6000,
       action: {
-        label: 'Annuler',
-        onClick: () => restoreInSheet(originId, removed.nom, state => {
-          if (state.meubleGroups.some(g => g.id === removed.id)) return state;
-          const next = [...state.meubleGroups];
-          next.splice(Math.min(index, next.length), 0, removed);
-          return { ...state, meubleGroups: next };
-        })
-      }
+        label: "Annuler",
+        onClick: () =>
+          restoreInSheet(originId, removed.nom, (state) => {
+            if (state.meubleGroups.some((g) => g.id === removed.id)) return state;
+            const next = [...state.meubleGroups];
+            next.splice(Math.min(index, next.length), 0, removed);
+            return { ...state, meubleGroups: next };
+          }),
+      },
     });
   };
 
   const addCustomItem = () => {
-    if (newItem.nom?.trim() && [newItem.longueur, newItem.largeur, newItem.epaisseur].every(n => typeof n === 'number' && Number.isFinite(n) && n > 0) && typeof newItem.quantite === 'number' && Number.isInteger(newItem.quantite) && newItem.quantite > 0 && newItem.longueur && newItem.largeur && newItem.epaisseur) {
+    if (
+      newItem.nom?.trim() &&
+      [newItem.longueur, newItem.largeur, newItem.epaisseur].every(
+        (n) => typeof n === "number" && Number.isFinite(n) && n > 0,
+      ) &&
+      typeof newItem.quantite === "number" &&
+      Number.isInteger(newItem.quantite) &&
+      newItem.quantite > 0 &&
+      newItem.longueur &&
+      newItem.largeur &&
+      newItem.epaisseur
+    ) {
       const item: CutSheetItem = {
         nom: newItem.nom.trim(),
         longueur: newItem.longueur,
         largeur: newItem.largeur,
         epaisseur: newItem.epaisseur,
-        quantite: newItem.quantite
+        quantite: newItem.quantite,
       };
       setCustomItems([...customItems, item]);
       setNewItem({
-        nom: '',
+        nom: "",
         longueur: 0,
         largeur: 0,
         epaisseur: 19,
-        quantite: 1
+        quantite: 1,
       });
       setShowAddForm(false);
-    } else { toast.error("Saisissez un nom, des dimensions positives et une quantité entière positive."); }
+    } else {
+      toast.error("Saisissez un nom, des dimensions positives et une quantité entière positive.");
+    }
   };
 
   const removeCustomItem = (index: number) => {
@@ -328,37 +431,63 @@ const FurnitureCalculator: React.FC = () => {
     toast(`${removed.nom} supprimé`, {
       duration: 6000,
       action: {
-        label: 'Annuler',
-        onClick: () => restoreInSheet(originId, removed.nom, state => {
-          const next = [...state.customItems];
-          next.splice(Math.min(index, next.length), 0, removed);
-          return { ...state, customItems: next };
-        })
-      }
+        label: "Annuler",
+        onClick: () =>
+          restoreInSheet(originId, removed.nom, (state) => {
+            const next = [...state.customItems];
+            next.splice(Math.min(index, next.length), 0, removed);
+            return { ...state, customItems: next };
+          }),
+      },
     });
   };
 
   const pivotSectionRow = (sectionId: string, row: { item: CutSheetItem; index: number }) => {
-    const apply = (items: CutSheetItem[]) => row.index >= 0 ? pivotAt(items, row.index) : pivotMatching(items, row.item);
+    const apply = (items: CutSheetItem[]) =>
+      row.index >= 0 ? pivotAt(items, row.index) : pivotMatching(items, row.item);
     if (sectionId === CUSTOM_SECTION_ID) setCustomItems(apply);
-    else setMeubleGroups(groups => groups.map(g => g.id === sectionId ? { ...g, items: apply(g.items) } : g));
+    else setMeubleGroups((groups) => groups.map((g) => (g.id === sectionId ? { ...g, items: apply(g.items) } : g)));
   };
 
   const pivotSizeRow = (row: { item: CutSheetItem; meubleId: string; index: number }) => {
     if (row.index >= 0) {
-      if (row.meubleId === CUSTOM_SECTION_ID) setCustomItems(items => pivotAt(items, row.index));
-      else setMeubleGroups(groups => groups.map(g => g.id === row.meubleId ? { ...g, items: pivotAt(g.items, row.index) } : g));
+      if (row.meubleId === CUSTOM_SECTION_ID) setCustomItems((items) => pivotAt(items, row.index));
+      else
+        setMeubleGroups((groups) =>
+          groups.map((g) => (g.id === row.meubleId ? { ...g, items: pivotAt(g.items, row.index) } : g)),
+        );
     } else {
-      setMeubleGroups(groups => groups.map(g => ({ ...g, items: pivotMatching(g.items, row.item) })));
-      setCustomItems(items => pivotMatching(items, row.item));
+      setMeubleGroups((groups) => groups.map((g) => ({ ...g, items: pivotMatching(g.items, row.item) })));
+      setCustomItems((items) => pivotMatching(items, row.item));
     }
   };
 
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
+  // iPhone/iPad et app installée (écran d'accueil) : pas d'onglets ni de bouton retour,
+  // on imprime depuis la page elle-même au lieu d'ouvrir une fenêtre sans issue.
+  const printInPage = (html: string) => {
+    const parsed = new DOMParser().parseFromString(html, "text/html");
+    document.getElementById("print-root")?.remove();
+    document.getElementById("print-root-style")?.remove();
+    const css = [...parsed.querySelectorAll("style")].map((s) => s.textContent ?? "").join("\n");
+    const style = document.createElement("style");
+    style.id = "print-root-style";
+    style.textContent = `#print-root{display:none}@media print{body>*:not(#print-root){display:none!important}#print-root{display:block!important}${css}}`;
+    const root = document.createElement("div");
+    root.id = "print-root";
+    root.innerHTML = parsed.body.innerHTML;
+    document.head.appendChild(style);
+    document.body.appendChild(root);
+    const cleanup = () => {
+      root.remove();
+      style.remove();
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+  };
 
-    if (printWindow) {
-      printWindow.document.write(`
+  const handlePrint = () => {
+    const printDocument = `
         <html lang="fr">
           <head>
             <title>Feuille de Débit</title>
@@ -438,7 +567,7 @@ const FurnitureCalculator: React.FC = () => {
           <body>
             <div class="print-header">
               <h1>FEUILLE DE DÉBIT</h1>
-              <p>${new Date().toLocaleDateString('fr-FR')}</p>
+              <p>${new Date().toLocaleDateString("fr-FR")}</p>
               <p>${GRAIN_LEGEND}</p>
             </div>
             ${generatePrintContent()}
@@ -448,14 +577,34 @@ const FurnitureCalculator: React.FC = () => {
             </div>
           </body>
         </html>
-      `);
+      `;
+    const standalone =
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    const iOS =
+      /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (standalone || iOS) {
+      printInPage(printDocument);
+      return;
+    }
+    const printWindow = window.open("", "_blank");
+
+    if (printWindow) {
+      printWindow.document.write(printDocument);
       printWindow.onafterprint = () => printWindow.close();
       let requested = false;
-      const requestPrint = () => { if (!requested && !printWindow.closed) { requested = true; printWindow.print(); } };
+      const requestPrint = () => {
+        if (!requested && !printWindow.closed) {
+          requested = true;
+          printWindow.print();
+        }
+      };
       printWindow.onload = requestPrint;
       printWindow.document.close();
       setTimeout(requestPrint, 500);
-    } else { toast.error('Autorisez les fenêtres d’impression dans votre navigateur.'); }
+    } else {
+      toast.error("Autorisez les fenêtres d’impression dans votre navigateur.");
+    }
   };
 
   const handleClearSheet = () => {
@@ -463,17 +612,19 @@ const FurnitureCalculator: React.FC = () => {
     setMeubleGroups([]);
     setCustomItems([]);
     setMeubleCounter(1);
-    toast.success('Feuille de débit vidée.');
+    toast.success("Feuille de débit vidée.");
   };
 
   const generatePrintContent = () => {
-    if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th><th>Fil</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td><td style="text-align: center;">${grainLabel(item)}</td></tr>`).join('')}</tbody></table>`;
-    return sections.map((section, index) => {
-      const groupe = meubleGroups.find(g => g.id === section.id);
-      return `
-      <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? 'border-top: 1px solid #bbb; padding-top: 6px;' : ''}">
+    if (order === "taille")
+      return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th><th>Fil</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td><td style="text-align: center;">${grainLabel(item)}</td></tr>`).join("")}</tbody></table>`;
+    return sections
+      .map((section, index) => {
+        const groupe = meubleGroups.find((g) => g.id === section.id);
+        return `
+      <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? "border-top: 1px solid #bbb; padding-top: 6px;" : ""}">
         <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
-          ${showThumbnails && groupe ? thumbnailSvgMarkup(groupe.config, 56) : ''}${escapeHtml(section.nom)}${section.detail ? ` (${section.detail})` : ''}
+          ${showThumbnails && groupe ? thumbnailSvgMarkup(groupe.config, 56) : ""}${escapeHtml(section.nom)}${section.detail ? ` (${section.detail})` : ""}
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
           <thead>
@@ -487,7 +638,9 @@ const FurnitureCalculator: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            ${section.rows.map(({ item }) => `
+            ${section.rows
+              .map(
+                ({ item }) => `
               <tr style="border-bottom: 1px solid #ddd;">
                 <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
@@ -496,45 +649,84 @@ const FurnitureCalculator: React.FC = () => {
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.epaisseur}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${grainLabel(item)}</td>
               </tr>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
       </div>
     `;
-    }).join('');
+      })
+      .join("");
   };
 
   const handleExportPDF = async () => {
     try {
-      const { jsPDF } = await import('jspdf');
-      const { default: autoTable } = await import('jspdf-autotable');
+      const { jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
       const pdf = new jsPDF();
-      pdf.setFontSize(16); pdf.text('FEUILLE DE DÉBIT', 14, 15);
-      pdf.setFontSize(9); pdf.text(new Date().toLocaleDateString('fr-FR'), 14, 21);
+      pdf.setFontSize(16);
+      pdf.text("FEUILLE DE DÉBIT", 14, 15);
+      pdf.setFontSize(9);
+      pdf.text(new Date().toLocaleDateString("fr-FR"), 14, 21);
       pdf.text(GRAIN_LEGEND, 14, 26);
-      const pdfSections = order === 'taille'
-        ? [{ title: 'Pièces par taille décroissante', config: undefined as FurnitureConfig | undefined, rows: sizeRows.map(({ item, meuble }) => [meuble + ' · ' + item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur, grainLabel(item)]) }]
-        : sections.map(s => ({ title: s.detail ? s.nom + ' — ' + s.detail : s.nom, config: meubleGroups.find(g => g.id === s.id)?.config, rows: s.rows.map(({ item }) => [item.nom, item.quantite, formatMm(item.longueur), formatMm(item.largeur), item.epaisseur, grainLabel(item)]) }));
+      const pdfSections =
+        order === "taille"
+          ? [
+              {
+                title: "Pièces par taille décroissante",
+                config: undefined as FurnitureConfig | undefined,
+                rows: sizeRows.map(({ item, meuble }) => [
+                  meuble + " · " + item.nom,
+                  item.quantite,
+                  formatMm(item.longueur),
+                  formatMm(item.largeur),
+                  item.epaisseur,
+                  grainLabel(item),
+                ]),
+              },
+            ]
+          : sections.map((s) => ({
+              title: s.detail ? s.nom + " — " + s.detail : s.nom,
+              config: meubleGroups.find((g) => g.id === s.id)?.config,
+              rows: s.rows.map(({ item }) => [
+                item.nom,
+                item.quantite,
+                formatMm(item.longueur),
+                formatMm(item.largeur),
+                item.epaisseur,
+                grainLabel(item),
+              ]),
+            }));
       const thumbByRow = new Map<number, FurnitureConfig>();
       let rowIndex = 0;
-      const body = pdfSections.flatMap(section => {
+      const body = pdfSections.flatMap((section) => {
         const withThumb = showThumbnails && section.config;
         if (withThumb) thumbByRow.set(rowIndex, section.config!);
         rowIndex += 1 + section.rows.length;
-        const titleStyles: Record<string, unknown> = { fontStyle: 'bold' as const, fillColor: 255 };
+        const titleStyles: Record<string, unknown> = { fontStyle: "bold" as const, fillColor: 255 };
         if (withThumb) titleStyles.minCellHeight = 24;
         return [[{ content: section.title, colSpan: 6, styles: titleStyles }], ...section.rows];
       });
-      autoTable(pdf, { startY: 31, margin: { left: 14, right: 14, bottom: 24 }, head: [['Pièce', 'Qté', 'L (mm)', 'l (mm)', 'e (mm)', 'Fil']], body, theme: 'plain', styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: 'linebreak' }, headStyles: { fillColor: 255, textColor: 0, fontStyle: 'bold' }, rowPageBreak: 'avoid',
+      autoTable(pdf, {
+        startY: 31,
+        margin: { left: 14, right: 14, bottom: 24 },
+        head: [["Pièce", "Qté", "L (mm)", "l (mm)", "e (mm)", "Fil"]],
+        body,
+        theme: "plain",
+        styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: "linebreak" },
+        headStyles: { fillColor: 255, textColor: 0, fontStyle: "bold" },
+        rowPageBreak: "avoid",
         didDrawCell: (data) => {
           const cfg = thumbByRow.get(data.row.index);
-          if (!cfg || data.section !== 'body' || data.column.index !== 0) return;
+          if (!cfg || data.section !== "body" || data.column.index !== 0) return;
           const { front, side, largeur, hauteur, profondeur } = getThumbnailViews(cfg);
           const H = 18; // hauteur miniature en mm
           const s = H / Math.max(1, hauteur);
           const draw = (rects: { x: number; y: number; width: number; height: number }[], w: number, x0: number) => {
             const minT = 0.5 / s;
-            pdf.setDrawColor(0); pdf.setLineWidth(0.15);
+            pdf.setDrawColor(0);
+            pdf.setLineWidth(0.15);
             for (const r of rects) {
               const rw = Math.max(r.width, Math.min(minT, w));
               const rh = Math.max(r.height, Math.min(minT, hauteur));
@@ -548,12 +740,17 @@ const FurnitureCalculator: React.FC = () => {
           const x0 = data.cell.x + data.cell.width - 4 - totalW;
           const wf = draw(front, largeur, x0);
           draw(side, profondeur, x0 + wf + 2);
-        } });
-      const page = pdf.getNumberOfPages(); pdf.setPage(page);
-      pdf.setFontSize(8); pdf.text('Emeric Chenay · 2026 · superdebitcoupe@proton.me', 14, 285);
-      pdf.addImage('/favicon.png', 'PNG', 183, 278, 10, 10);
-      pdf.save(`feuille-debit-${new Date().toISOString().split('T')[0]}.pdf`);
-    } catch { toast.error('Impossible de créer le PDF. Réessayez ou utilisez Imprimer.'); }
+        },
+      });
+      const page = pdf.getNumberOfPages();
+      pdf.setPage(page);
+      pdf.setFontSize(8);
+      pdf.text("Emeric Chenay · 2026 · superdebitcoupe@proton.me", 14, 285);
+      pdf.addImage("/favicon.png", "PNG", 183, 278, 10, 10);
+      pdf.save(`feuille-debit-${new Date().toISOString().split("T")[0]}.pdf`);
+    } catch {
+      toast.error("Impossible de créer le PDF. Réessayez ou utilisez Imprimer.");
+    }
   };
 
   const pivotButton = (item: CutSheetItem, onClick: () => void) => (
@@ -576,7 +773,15 @@ const FurnitureCalculator: React.FC = () => {
         {/* En-tête simplifié */}
         <div className="text-center">
           <h1 className="text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
-            <img src={logo.url} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/app-icon-192.png'; }} alt="Logo Emeric Chenay" className="h-12 w-16 shrink-0 object-contain" />
+            <img
+              src={logo.url}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/app-icon-192.png";
+              }}
+              alt="Logo Emeric Chenay"
+              className="h-12 w-16 shrink-0 object-contain"
+            />
             Débit Rapide
           </h1>
         </div>
@@ -588,7 +793,9 @@ const FurnitureCalculator: React.FC = () => {
               <CardContent className="pt-6 space-y-4">
                 {/* Nom du meuble */}
                 <div>
-                  <Label htmlFor="meuble-nom" className="text-sm">Nom du meuble (optionnel)</Label>
+                  <Label htmlFor="meuble-nom" className="text-sm">
+                    Nom du meuble (optionnel)
+                  </Label>
                   <Input
                     id="meuble-nom"
                     value={meubleNom}
@@ -598,15 +805,36 @@ const FurnitureCalculator: React.FC = () => {
                 </div>
                 <FurnitureDesigner config={config} onChange={setConfig} />
 
-
-                {validationErrors.length > 0 && <p role="alert" className="text-sm text-destructive">{validationErrors[0]}</p>}
-                {getWarnings(config).length > 0 && <div role="status" className="space-y-1">{getWarnings(config).map((warning, index) => <p key={index} className="text-sm text-muted-foreground">{warning}</p>)}</div>}
+                {validationErrors.length > 0 && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {validationErrors[0]}
+                  </p>
+                )}
+                {getWarnings(config).length > 0 && (
+                  <div role="status" className="space-y-1">
+                    {getWarnings(config).map((warning, index) => (
+                      <p key={index} className="text-sm text-muted-foreground">
+                        {warning}
+                      </p>
+                    ))}
+                  </div>
+                )}
                 <div className="sticky bottom-0 z-20 -mx-6 flex items-center gap-3 border-t border-border bg-card/95 px-6 py-3 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
-                  <CabinetThumbnail config={config} className="pointer-events-none flex h-12 shrink-0 gap-1 overflow-hidden md:hidden [&_figcaption]:hidden [&_p]:hidden [&_svg]:h-12 [&_svg]:w-auto" />
-                  <Button disabled={validationErrors.length > 0} onClick={addMeubleToSheet} className="min-w-0 flex-1 whitespace-normal px-4" size="lg">
+                  <CabinetThumbnail
+                    config={config}
+                    className="pointer-events-none flex h-12 shrink-0 gap-1 overflow-hidden md:hidden [&_figcaption]:hidden [&_p]:hidden [&_svg]:h-12 [&_svg]:w-auto"
+                  />
+                  <Button
+                    disabled={validationErrors.length > 0}
+                    onClick={addMeubleToSheet}
+                    className="min-w-0 flex-1 whitespace-normal px-4"
+                    size="lg"
+                  >
                     <Plus className="mr-2 h-4 w-4 shrink-0" />
-                    <span className="md:hidden">{editingConfigId ? 'Mettre à jour' : 'Ajouter à la feuille'}</span>
-                    <span className="hidden md:inline">{editingConfigId ? 'Mettre à jour le meuble' : 'Ajouter à la feuille de débit'}</span>
+                    <span className="md:hidden">{editingConfigId ? "Mettre à jour" : "Ajouter à la feuille"}</span>
+                    <span className="hidden md:inline">
+                      {editingConfigId ? "Mettre à jour le meuble" : "Ajouter à la feuille de débit"}
+                    </span>
                   </Button>
                 </div>
                 {editingConfigId && (
@@ -624,7 +852,7 @@ const FurnitureCalculator: React.FC = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between text-lg">
                   <div className="flex flex-wrap items-center gap-2">
-                     <FileText className="h-4 w-4 text-primary" />
+                    <FileText className="h-4 w-4 text-primary" />
                     Feuille de débit
                     {editingListNom === null ? (
                       <>
@@ -633,39 +861,78 @@ const FurnitureCalculator: React.FC = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {collection.sheets.map(s => (
-                              <SelectItem key={s.id} value={s.id}>{s.nom}</SelectItem>
+                            {collection.sheets.map((s) => (
+                              <SelectItem key={s.id} value={s.id}>
+                                {s.nom}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="h-8 w-8 p-0" aria-label="Actions de la liste"><MoreHorizontal className="h-4 w-4" /></Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 w-8 p-0"
+                              aria-label="Actions de la liste"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start">
-                            <DropdownMenuItem onSelect={() => setEditingListNom(activeEntry.nom)}><Edit2 className="mr-2 h-4 w-4" />Renommer</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={createSheet}><Plus className="mr-2 h-4 w-4" />Nouvelle liste</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => setConfirmDeleteList(true)} className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" />Supprimer la liste</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => setEditingListNom(activeEntry.nom)}>
+                              <Edit2 className="mr-2 h-4 w-4" />
+                              Renommer
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={createSheet}>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Nouvelle liste
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() => setConfirmDeleteList(true)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Supprimer la liste
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </>
                     ) : (
                       <form
-                        onSubmit={e => { e.preventDefault(); renameActiveSheet(); }}
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          renameActiveSheet();
+                        }}
                         className="flex items-center gap-1"
                       >
                         <Input
                           value={editingListNom}
-                          onChange={e => setEditingListNom(e.target.value)}
-                          onKeyDown={e => { if (e.key === 'Escape') setEditingListNom(null); }}
+                          onChange={(e) => setEditingListNom(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") setEditingListNom(null);
+                          }}
                           className="h-8 w-[150px]"
                           aria-label="Nom de la liste"
                           autoFocus
                         />
-                        <Button type="submit" size="sm" variant="outline" className="flex items-center gap-1" aria-label="Valider le nom de la liste">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          variant="outline"
+                          className="flex items-center gap-1"
+                          aria-label="Valider le nom de la liste"
+                        >
                           <Check className="h-3 w-3" />
                         </Button>
-                        <Button type="button" size="sm" variant="outline" className="flex items-center gap-1" aria-label="Annuler le renommage" onClick={() => setEditingListNom(null)}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="flex items-center gap-1"
+                          aria-label="Annuler le renommage"
+                          onClick={() => setEditingListNom(null)}
+                        >
                           <X className="h-3 w-3" />
                         </Button>
                       </form>
@@ -675,7 +942,8 @@ const FurnitureCalculator: React.FC = () => {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Supprimer « {activeEntry.nom} » ?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Toute la liste (meubles et pièces personnalisées) sera supprimée définitivement. Cette action est irréversible.
+                            Toute la liste (meubles et pièces personnalisées) sera supprimée définitivement. Cette
+                            action est irréversible.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -688,12 +956,7 @@ const FurnitureCalculator: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-2">
                     {(meubleGroups.length > 0 || customItems.length > 0) && (
                       <>
-                        <Button
-                          onClick={handlePrint}
-                          size="sm"
-                          variant="outline"
-                          className="flex items-center gap-1"
-                        >
+                        <Button onClick={handlePrint} size="sm" variant="outline" className="flex items-center gap-1">
                           <Printer className="h-3 w-3" />
                           Imprimer
                         </Button>
@@ -708,11 +971,7 @@ const FurnitureCalculator: React.FC = () => {
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex items-center gap-1"
-                            >
+                            <Button size="sm" variant="outline" className="flex items-center gap-1">
                               <Trash2 className="h-3 w-3" />
                               Vider la feuille
                             </Button>
@@ -721,7 +980,8 @@ const FurnitureCalculator: React.FC = () => {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Vider la feuille de débit ?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Tous les meubles et pièces personnalisées seront supprimés définitivement. Cette action est irréversible.
+                                Tous les meubles et pièces personnalisées seront supprimés définitivement. Cette action
+                                est irréversible.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -748,19 +1008,36 @@ const FurnitureCalculator: React.FC = () => {
                 <div className="mb-4 max-w-xs space-y-3">
                   <div>
                     <Label htmlFor="sheet-order">Classement</Label>
-                    <Select value={order} onValueChange={v => setOrder(v as SheetOrder)}>
-                      <SelectTrigger id="sheet-order"><SelectValue /></SelectTrigger>
-                      <SelectContent><SelectItem value="meuble">Par meuble</SelectItem><SelectItem value="taille">Par taille · grande dimension décroissante</SelectItem></SelectContent>
+                    <Select value={order} onValueChange={(v) => setOrder(v as SheetOrder)}>
+                      <SelectTrigger id="sheet-order">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="meuble">Par meuble</SelectItem>
+                        <SelectItem value="taille">Par taille · grande dimension décroissante</SelectItem>
+                      </SelectContent>
                     </Select>
                     <p className="mt-1 text-xs text-muted-foreground">{GRAIN_LEGEND}</p>
                   </div>
                   <div className="flex items-center gap-3 [&>button]:shrink-0">
-                    <Checkbox id="group-identical" checked={groupIdentical} onCheckedChange={checked => setGroupIdentical(checked === true)} />
-                    <Label className="block leading-5" htmlFor="group-identical">Regrouper les pièces identiques</Label>
+                    <Checkbox
+                      id="group-identical"
+                      checked={groupIdentical}
+                      onCheckedChange={(checked) => setGroupIdentical(checked === true)}
+                    />
+                    <Label className="block leading-5" htmlFor="group-identical">
+                      Regrouper les pièces identiques
+                    </Label>
                   </div>
                   <div className="flex items-center gap-3 [&>button]:shrink-0">
-                    <Checkbox id="show-thumbnails" checked={showThumbnails} onCheckedChange={checked => setShowThumbnails(checked === true)} />
-                    <Label className="block leading-5" htmlFor="show-thumbnails">Vues du meuble en miniature</Label>
+                    <Checkbox
+                      id="show-thumbnails"
+                      checked={showThumbnails}
+                      onCheckedChange={(checked) => setShowThumbnails(checked === true)}
+                    />
+                    <Label className="block leading-5" htmlFor="show-thumbnails">
+                      Vues du meuble en miniature
+                    </Label>
                   </div>
                 </div>
                 {showAddForm && (
@@ -769,7 +1046,8 @@ const FurnitureCalculator: React.FC = () => {
                       <CardTitle className="text-base flex items-center justify-between">
                         Ajouter une pièce personnalisée
                         <Button
-                          aria-label="Fermer le formulaire" onClick={() => setShowAddForm(false)}
+                          aria-label="Fermer le formulaire"
+                          onClick={() => setShowAddForm(false)}
                           size="sm"
                           variant="ghost"
                         >
@@ -781,7 +1059,7 @@ const FurnitureCalculator: React.FC = () => {
                       <div>
                         <Label className="text-sm">Nom de la pièce</Label>
                         <Input
-                          value={newItem.nom || ''}
+                          value={newItem.nom || ""}
                           onChange={(e) => setNewItem({ ...newItem, nom: e.target.value })}
                           placeholder="Ex: Tablette, Tiroir..."
                         />
@@ -789,29 +1067,50 @@ const FurnitureCalculator: React.FC = () => {
 
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div>
-                          <NumberField id="custom-longueur" label="Longueur (mm)" labelClassName="text-xs" value={newItem.longueur || undefined} onCommit={v => setNewItem({ ...newItem, longueur: v })} />
+                          <NumberField
+                            id="custom-longueur"
+                            label="Longueur (mm)"
+                            labelClassName="text-xs"
+                            value={newItem.longueur || undefined}
+                            onCommit={(v) => setNewItem({ ...newItem, longueur: v })}
+                          />
                         </div>
                         <div>
-                          <NumberField id="custom-largeur" label="Largeur (mm)" labelClassName="text-xs" value={newItem.largeur || undefined} onCommit={v => setNewItem({ ...newItem, largeur: v })} />
+                          <NumberField
+                            id="custom-largeur"
+                            label="Largeur (mm)"
+                            labelClassName="text-xs"
+                            value={newItem.largeur || undefined}
+                            onCommit={(v) => setNewItem({ ...newItem, largeur: v })}
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">Épaisseur</Label>
                           <Select
-                            value={newItem.epaisseur?.toString() || '19'}
+                            value={newItem.epaisseur?.toString() || "19"}
                             onValueChange={(value) => setNewItem({ ...newItem, epaisseur: Number(value) })}
                           >
                             <SelectTrigger className="h-9">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {epaisseursDos.map(ep => (
-                                <SelectItem key={ep} value={ep.toString()}>{ep}</SelectItem>
+                              {epaisseursDos.map((ep) => (
+                                <SelectItem key={ep} value={ep.toString()}>
+                                  {ep}
+                                </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         </div>
                         <div>
-                          <NumberField id="custom-quantite" label="Quantité" labelClassName="text-xs" value={newItem.quantite} min="1" onCommit={v => setNewItem({ ...newItem, quantite: v })} />
+                          <NumberField
+                            id="custom-quantite"
+                            label="Quantité"
+                            labelClassName="text-xs"
+                            value={newItem.quantite}
+                            min="1"
+                            onCommit={(v) => setNewItem({ ...newItem, quantite: v })}
+                          />
                         </div>
                       </div>
 
@@ -819,11 +1118,7 @@ const FurnitureCalculator: React.FC = () => {
                         <Button onClick={addCustomItem} className="flex-1">
                           Ajouter
                         </Button>
-                        <Button
-                          onClick={() => setShowAddForm(false)}
-                          variant="outline"
-                          className="flex-1"
-                        >
+                        <Button onClick={() => setShowAddForm(false)} variant="outline" className="flex-1">
                           Annuler
                         </Button>
                       </div>
@@ -831,135 +1126,221 @@ const FurnitureCalculator: React.FC = () => {
                   </Card>
                 )}
 
-                {(meubleGroups.length > 0 || customItems.length > 0) ? (
+                {meubleGroups.length > 0 || customItems.length > 0 ? (
                   <div className="space-y-4">
-                    {thicknesses.length > 0 && <div role="group" aria-label="Filtrer par épaisseur" className="flex flex-wrap gap-2">
-                      {[{ epaisseur: null as number | null, count: thicknesses.reduce((a, t) => a + t.count, 0) }, ...thicknesses].map(t => {
-                        const active = t.epaisseur === activeThickness;
-                        return <button key={t.epaisseur ?? 'all'} type="button" aria-pressed={active} onClick={() => setThicknessFilter(t.epaisseur)}
-                          className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-background text-foreground hover:bg-muted'}`}>
-                          {t.epaisseur === null ? 'Toutes' : `${t.epaisseur} mm`}
-                          <span className={`rounded-full px-1.5 text-xs tabular-nums ${active ? 'bg-primary-foreground/20' : 'bg-muted text-muted-foreground'}`}>{t.count}</span>
-                        </button>;
-                      })}
-                    </div>}
-                    {order === 'taille' && <div className="divide-y divide-border">{sizeRows.map((row, index) => <div key={index} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground break-words">{row.meuble}</p><p className="font-medium break-words">{row.item.nom}</p><p className="text-sm">{formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm · Qté {row.item.quantite} · Fil {grainLabel(row.item)}</p></div>{pivotButton(row.item, () => pivotSizeRow(row))}</div>)}</div>}
-                    {order === 'meuble' && sections.length > 1 && <div className="flex justify-end"><Button size="sm" variant="ghost" onClick={() => setCollapsed(collapsed.size >= sections.length ? new Set() : new Set(sections.map(x => x.id)))}>{collapsed.size >= sections.length ? 'Tout déplier' : 'Tout réduire'}</Button></div>}
+                    {thicknesses.length > 0 && (
+                      <div role="group" aria-label="Filtrer par épaisseur" className="flex flex-wrap gap-2">
+                        {[
+                          { epaisseur: null as number | null, count: thicknesses.reduce((a, t) => a + t.count, 0) },
+                          ...thicknesses,
+                        ].map((t) => {
+                          const active = t.epaisseur === activeThickness;
+                          return (
+                            <button
+                              key={t.epaisseur ?? "all"}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() => setThicknessFilter(t.epaisseur)}
+                              className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background text-foreground hover:bg-muted"}`}
+                            >
+                              {t.epaisseur === null ? "Toutes" : `${t.epaisseur} mm`}
+                              <span
+                                className={`rounded-full px-1.5 text-xs tabular-nums ${active ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"}`}
+                              >
+                                {t.count}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {order === "taille" && (
+                      <div className="divide-y divide-border">
+                        {sizeRows.map((row, index) => (
+                          <div key={index} className="flex items-center justify-between gap-2 py-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm text-muted-foreground break-words">{row.meuble}</p>
+                              <p className="font-medium break-words">{row.item.nom}</p>
+                              <p className="text-sm">
+                                {formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm ·
+                                Qté {row.item.quantite} · Fil {grainLabel(row.item)}
+                              </p>
+                            </div>
+                            {pivotButton(row.item, () => pivotSizeRow(row))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {order === "meuble" && sections.length > 1 && (
+                      <div className="flex justify-end">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            setCollapsed(
+                              collapsed.size >= sections.length ? new Set() : new Set(sections.map((x) => x.id)),
+                            )
+                          }
+                        >
+                          {collapsed.size >= sections.length ? "Tout déplier" : "Tout réduire"}
+                        </Button>
+                      </div>
+                    )}
                     {/* Groupes de meubles */}
-                    {order === 'meuble' && sections.map((section) => {
-                      const groupe = meubleGroups.find(g => g.id === section.id);
-                      const isCollapsed = collapsed.has(section.id);
-                      const toggle = <Button size="sm" variant="ghost" className="h-11 w-11 shrink-0 p-0 text-muted-foreground" aria-expanded={!isCollapsed} aria-label={`${isCollapsed ? 'Déplier' : 'Réduire'} ${groupe?.nom ?? CUSTOM_SECTION_NAME}`} onClick={() => toggleCollapsed(section.id)}><ChevronDown className={`h-4 w-4 transition-transform ${isCollapsed ? '-rotate-90' : ''}`} /></Button>;
-                      return (
-                      <Card key={section.id} className={`border-l-4 ${section.id === CUSTOM_SECTION_ID ? 'border-l-secondary' : 'border-l-primary'}`}>
-                        <CardHeader className="pb-2">
-                          {section.id === CUSTOM_SECTION_ID ? (
-                            <div className="flex items-center gap-1">{toggle}<CardTitle className="text-base">{CUSTOM_SECTION_NAME}</CardTitle>{isCollapsed && <span className="text-xs text-muted-foreground">· {section.rows.length} pièce{section.rows.length > 1 ? 's' : ''}</span>}</div>
-                          ) : groupe && (
-                            <>
-                            <div className="flex items-center justify-between">
-                              {editingMeubleId === groupe.id ? (
-                                <div className="flex min-w-0 items-center gap-2 flex-1">
-                                  <Input
-                                    value={editingNom}
-                                    onChange={(e) => setEditingNom(e.target.value)}
-                                    className="h-8"
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') saveEditedMeubleName();
-                                      if (e.key === 'Escape') cancelEditingMeuble();
-                                    }}
-                                    autoFocus
-                                  />
-                                  <Button
-                                    aria-label="Enregistrer le nom" onClick={saveEditedMeubleName}
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-11 w-11 shrink-0 p-0 text-primary"
-                                  >
-                                    <Check className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    aria-label="Annuler le renommage" onClick={cancelEditingMeuble}
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
+                    {order === "meuble" &&
+                      sections.map((section) => {
+                        const groupe = meubleGroups.find((g) => g.id === section.id);
+                        const isCollapsed = collapsed.has(section.id);
+                        const toggle = (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
+                            aria-expanded={!isCollapsed}
+                            aria-label={`${isCollapsed ? "Déplier" : "Réduire"} ${groupe?.nom ?? CUSTOM_SECTION_NAME}`}
+                            onClick={() => toggleCollapsed(section.id)}
+                          >
+                            <ChevronDown
+                              className={`h-4 w-4 transition-transform ${isCollapsed ? "-rotate-90" : ""}`}
+                            />
+                          </Button>
+                        );
+                        return (
+                          <Card
+                            key={section.id}
+                            className={`border-l-4 ${section.id === CUSTOM_SECTION_ID ? "border-l-secondary" : "border-l-primary"}`}
+                          >
+                            <CardHeader className="pb-2">
+                              {section.id === CUSTOM_SECTION_ID ? (
+                                <div className="flex items-center gap-1">
+                                  {toggle}
+                                  <CardTitle className="text-base">{CUSTOM_SECTION_NAME}</CardTitle>
+                                  {isCollapsed && (
+                                    <span className="text-xs text-muted-foreground">
+                                      · {section.rows.length} pièce{section.rows.length > 1 ? "s" : ""}
+                                    </span>
+                                  )}
                                 </div>
                               ) : (
-                                <>
-                                  <div className="flex min-w-0 items-center gap-1 flex-1">
-                                    {toggle}
-                                    <CardTitle className="min-w-0 break-words text-base">{groupe.nom}</CardTitle>
-                                    <Button
-                                      aria-label={`Renommer ${groupe.nom}`} title="Renommer"
-                                      onClick={() => startEditingMeuble(groupe.id, groupe.nom)}
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
-                                    >
-                                      <Edit2 className="h-3 w-3" />
-                                    </Button>
-                                    <Button
-                                      aria-label={`Modifier ${groupe.nom}`} title={`Modifier ${groupe.nom}`}
-                                      onClick={() => startEditMeubleConfig(groupe)}
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
-                                    >
-                                      <SlidersHorizontal className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                  <Button
-                                    aria-label={`Supprimer ${groupe.nom}`} title={`Supprimer ${groupe.nom}`}
-                                    onClick={() => removeMeubleGroup(groupe.id)}
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-11 w-11 shrink-0 p-0 text-destructive"
+                                groupe && (
+                                  <>
+                                    <div className="flex items-center justify-between">
+                                      {editingMeubleId === groupe.id ? (
+                                        <div className="flex min-w-0 items-center gap-2 flex-1">
+                                          <Input
+                                            value={editingNom}
+                                            onChange={(e) => setEditingNom(e.target.value)}
+                                            className="h-8"
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter") saveEditedMeubleName();
+                                              if (e.key === "Escape") cancelEditingMeuble();
+                                            }}
+                                            autoFocus
+                                          />
+                                          <Button
+                                            aria-label="Enregistrer le nom"
+                                            onClick={saveEditedMeubleName}
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-11 w-11 shrink-0 p-0 text-primary"
+                                          >
+                                            <Check className="h-3 w-3" />
+                                          </Button>
+                                          <Button
+                                            aria-label="Annuler le renommage"
+                                            onClick={cancelEditingMeuble}
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
+                                          >
+                                            <X className="h-3 w-3" />
+                                          </Button>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <div className="flex min-w-0 items-center gap-1 flex-1">
+                                            {toggle}
+                                            <CardTitle className="min-w-0 break-words text-base">
+                                              {groupe.nom}
+                                            </CardTitle>
+                                            <Button
+                                              aria-label={`Renommer ${groupe.nom}`}
+                                              title="Renommer"
+                                              onClick={() => startEditingMeuble(groupe.id, groupe.nom)}
+                                              size="sm"
+                                              variant="ghost"
+                                              className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
+                                            >
+                                              <Edit2 className="h-3 w-3" />
+                                            </Button>
+                                            <Button
+                                              aria-label={`Modifier ${groupe.nom}`}
+                                              title={`Modifier ${groupe.nom}`}
+                                              onClick={() => startEditMeubleConfig(groupe)}
+                                              size="sm"
+                                              variant="ghost"
+                                              className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
+                                            >
+                                              <SlidersHorizontal className="h-3 w-3" />
+                                            </Button>
+                                          </div>
+                                          <Button
+                                            aria-label={`Supprimer ${groupe.nom}`}
+                                            title={`Supprimer ${groupe.nom}`}
+                                            onClick={() => removeMeubleGroup(groupe.id)}
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-11 w-11 shrink-0 p-0 text-destructive"
+                                          >
+                                            <Trash2 className="h-3 w-3" />
+                                          </Button>
+                                        </>
+                                      )}
+                                    </div>
+                                    {!isCollapsed && <p className="text-xs text-muted-foreground">{section.detail}</p>}
+                                    {showThumbnails && !isCollapsed && (
+                                      <CabinetThumbnail config={groupe.config} className="mt-2" />
+                                    )}
+                                  </>
+                                )
+                              )}
+                            </CardHeader>
+                            {!isCollapsed && (
+                              <CardContent className="space-y-2">
+                                {section.rows.map((row, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex justify-between items-center bg-muted/50 rounded-lg p-2"
                                   >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                            {!isCollapsed && <p className="text-xs text-muted-foreground">
-                              {section.detail}
-                            </p>}
-                            {showThumbnails && !isCollapsed && <CabinetThumbnail config={groupe.config} className="mt-2" />}
-                            </>
-                          )}
-                        </CardHeader>
-                        {!isCollapsed && <CardContent className="space-y-2">
-                          {section.rows.map((row, index) => (
-                            <div key={index} className="flex justify-between items-center bg-muted/50 rounded-lg p-2">
-                              <div className="flex-1">
-                                <h5 className="font-medium text-sm">{row.item.nom}</h5>
-                                <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-5">
-                                  <div>L: {formatMm(row.item.longueur)}mm</div>
-                                  <div>l: {formatMm(row.item.largeur)}mm</div>
-                                  <div>Ép: {row.item.epaisseur}mm</div>
-                                  <div>Qté: {row.item.quantite}</div>
-                                  <div>Fil: {grainLabel(row.item)}</div>
-                                </div>
-                              </div>
-                              {pivotButton(row.item, () => pivotSectionRow(section.id, row))}
-                              {section.id === CUSTOM_SECTION_ID && !groupIdentical && (
-                                <Button
-                                  aria-label={`Supprimer ${row.item.nom}`} onClick={() => removeCustomItem(row.index)}
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-11 w-11 shrink-0 p-0 text-destructive"
-                                >
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              )}
-                            </div>
-                          ))}
-                        </CardContent>}
-                      </Card>
-                      );
-                    })}
+                                    <div className="flex-1">
+                                      <h5 className="font-medium text-sm">{row.item.nom}</h5>
+                                      <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-5">
+                                        <div>L: {formatMm(row.item.longueur)}mm</div>
+                                        <div>l: {formatMm(row.item.largeur)}mm</div>
+                                        <div>Ép: {row.item.epaisseur}mm</div>
+                                        <div>Qté: {row.item.quantite}</div>
+                                        <div>Fil: {grainLabel(row.item)}</div>
+                                      </div>
+                                    </div>
+                                    {pivotButton(row.item, () => pivotSectionRow(section.id, row))}
+                                    {section.id === CUSTOM_SECTION_ID && !groupIdentical && (
+                                      <Button
+                                        aria-label={`Supprimer ${row.item.nom}`}
+                                        onClick={() => removeCustomItem(row.index)}
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-11 w-11 shrink-0 p-0 text-destructive"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                ))}
+                              </CardContent>
+                            )}
+                          </Card>
+                        );
+                      })}
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center py-8">
@@ -976,12 +1357,23 @@ const FurnitureCalculator: React.FC = () => {
       <footer className="mt-8 pt-6 border-t border-border">
         <div className="text-center text-sm text-muted-foreground">
           <p className="flex flex-wrap items-center justify-center gap-2">
-            <img src={logo.url} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/app-icon-192.png'; }} alt="" className="h-8 w-10 object-contain" /><span>Créé par</span>
+            <img
+              src={logo.url}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/app-icon-192.png";
+              }}
+              alt=""
+              className="h-8 w-10 object-contain"
+            />
+            <span>Créé par</span>
             <span className="font-semibold text-foreground">Emeric Chenay</span>
             <span>•</span>
             <span>2026</span>
           </p>
-          <a className="mt-2 inline-block underline text-sm" href="mailto:superdebitcoupe@proton.me">superdebitcoupe@proton.me</a>
+          <a className="mt-2 inline-block underline text-sm" href="mailto:superdebitcoupe@proton.me">
+            superdebitcoupe@proton.me
+          </a>
         </div>
       </footer>
     </div>
