@@ -5,13 +5,14 @@ import { cn } from '@/lib/utils';
 
 /** Boutons côte à côte pour 2-3 choix courts ; passent à la ligne sans chevauchement. */
 export function Segmented({ label, value, options, onChange, id }: { label: string; value: string; options: [string, string][]; onChange: (v: string) => void; id?: string }) {
+  const compact = Math.max(...options.map(o => o[1].length)) <= 4;
   return <div className="min-w-0 space-y-2">
     <Label className="block leading-5" id={`${id ?? label}-label`}>{label}</Label>
     <div role="radiogroup" aria-labelledby={`${id ?? label}-label`} className="flex flex-wrap gap-1 rounded-md border border-input bg-muted/40 p-1">
       {options.map(([v, text]) => {
         const active = v === value;
         return <button key={v} type="button" role="radio" aria-checked={active} onClick={() => onChange(v)}
-          className={cn('min-h-9 flex-1 basis-[7rem] rounded px-3 py-1.5 text-sm leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          className={cn('min-h-9 flex-1 rounded', compact ? 'basis-0 min-w-[2.5rem] px-1' : 'basis-[7rem]', 'rounded px-3 py-1.5 text-sm leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             active ? 'bg-background font-medium text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>{text}</button>;
       })}
     </div>
