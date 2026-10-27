@@ -1370,7 +1370,14 @@ const FurnitureCalculator: React.FC = () => {
               className="h-8 w-10 object-contain"
             />
             <span>Créé par</span>
-            <span className="font-semibold text-foreground">Emeric Chenay</span>
+            <a
+              href="https://www.instagram.com/emeric_chenay/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-foreground underline-offset-4 hover:underline"
+            >
+              Emeric Chenay
+            </a>
             <span>•</span>
             <span>2026</span>
           </p>
