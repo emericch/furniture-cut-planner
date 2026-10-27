@@ -50,7 +50,10 @@ export const serializeCollection = (collection: SheetCollection): string =>
   });
 export const CUSTOM_SECTION_ID = 'custom';
 export const CUSTOM_SECTION_NAME = 'Pièces personnalisées';
-export const GRAIN_LEGEND = 'L = longueur dans le sens du fil';
+export const GRAIN_LEGEND = 'Fil : L = fil dans la longueur · l = fil dans la largeur';
+
+/** Lettre de la colonne Fil : le fil suit la longueur affichée (L), sauf pour une pièce pivotée (l). */
+export const grainLabel = (item: CutSheetItem): 'L' | 'l' => (item.filPivote ? 'l' : 'L');
 
 // --- Pivotement du sens du fil ---
 
@@ -66,6 +69,11 @@ export const pivotAt = (items: CutSheetItem[], index: number): CutSheetItem[] =>
 
 const sameDims = (a: CutSheetItem, b: CutSheetItem) =>
   a.longueur === b.longueur && a.largeur === b.largeur && a.epaisseur === b.epaisseur;
+
+// Deux pièces de mêmes dimensions mais de fil différent ne sont pas interchangeables :
+// le regroupement ne les fusionne pas pour que la colonne Fil reste exacte.
+const sameGrain = (a: CutSheetItem, b: CutSheetItem) => !!a.filPivote === !!b.filPivote;
+const samePiece = (a: CutSheetItem, b: CutSheetItem) => sameDims(a, b) && sameGrain(a, b);
 
 export const pivotMatching = (items: CutSheetItem[], target: CutSheetItem): CutSheetItem[] =>
   items.map(item => (sameDims(item, target) ? pivotItem(item) : item));
