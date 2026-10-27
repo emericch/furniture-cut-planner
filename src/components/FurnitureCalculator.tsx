@@ -9,7 +9,7 @@ import { FileText, Plus, X, Trash2, Printer, Download, Edit2, Check, ArrowUpDown
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateMeubleItems, validateConfig, getWarnings, escapeHtml, formatMm, type FurnitureConfig, type CutSheetItem, type MeubleGroup } from '@/lib/furniture';
-import { buildMeubleSections, buildSizeRows, thicknessCounts, filterSectionsByThickness, filterSizeRowsByThickness, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
+import { buildMeubleSections, buildSizeRows, thicknessCounts, filterSectionsByThickness, filterSizeRowsByThickness, pivotAt, pivotMatching, reapplyPivots, loadCollection, serializeCollection, emptySheetState, CUSTOM_SECTION_ID, CUSTOM_SECTION_NAME, GRAIN_LEGEND, grainLabel, COLLECTION_STORAGE_KEY, type SheetOrder, type SheetState, type SheetEntry, type SheetCollection } from '@/lib/sheet';
 import logo from '@/assets/ours-logo.png.asset.json';
 import { toast } from 'sonner';
 export type { FurnitureConfig } from '@/lib/furniture';
@@ -439,7 +439,7 @@ const FurnitureCalculator: React.FC = () => {
   };
 
   const generatePrintContent = () => {
-    if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
+    if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th><th>Fil</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td><td style="text-align: center;">${grainLabel(item)}</td></tr>`).join('')}</tbody></table>`;
     return sections.map((section, index) => {
       const groupe = meubleGroups.find(g => g.id === section.id);
       return `
