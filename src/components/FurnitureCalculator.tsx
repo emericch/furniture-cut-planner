@@ -336,6 +336,13 @@ const FurnitureCalculator: React.FC = () => {
     } else { toast.error('Autorisez les fenêtres d’impression dans votre navigateur.'); }
   };
 
+  const handleClearSheet = () => {
+    setMeubleGroups([]);
+    setCustomItems([]);
+    setMeubleCounter(1);
+    toast.success('Feuille de débit vidée.');
+  };
+
   const generatePrintContent = () => {
     if (order === 'taille') return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td></tr>`).join('')}</tbody></table>`;
     return sections.map((section, index) => {
