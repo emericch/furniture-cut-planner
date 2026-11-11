@@ -14,3 +14,4 @@
 - Generate PDFs with text and table pagination rather than a full-document canvas to keep dimensions readable and avoid cut rows.
 - Home-screen installation uses manifest metadata and local icons only; do not introduce app-shell service workers without an explicit offline requirement.
 - Keep bun.lock and package-lock.json consistent for security-sensitive dependency resolutions; use text lockfiles so scanners can verify installed fixes without forced transitive overrides.
+- La vue 3D (Cabinet3D.tsx) tire ses volumes du helper pur getBoxes3D (src/lib/cabinet-3d.ts), lui-même basé sur getFurnitureLayout, generateMeubleItems et getFrontRectangles : ne jamais y dupliquer de formules de débit.

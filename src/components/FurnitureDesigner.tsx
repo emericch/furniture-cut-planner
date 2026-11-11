@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FurnitureExtras } from "./FurnitureExtras";
 import { CabinetDrawing } from "./CabinetDrawing";
+import { Cabinet3D } from "./Cabinet3D";
+import { Checkbox } from "@/components/ui/checkbox";
 import { getFurnitureLayout, formatMm, type FurnitureConfig } from "@/lib/furniture";
 interface Props {
   config: FurnitureConfig;
@@ -120,9 +122,8 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
   const sections = useRef<Array<HTMLElement | null>>([]);
   const [side, setSide] = useState<"gauche" | "droite">("gauche");
   const [drawerSide, setDrawerSide] = useState<"gauche" | "droite">("gauche");
-  const [view, setView] = useState<"interieur" | "facades">(
-    c.nombrePortes > 0 || c.tiroirs || c.tiroirsCompartiments ? "facades" : "interieur",
-  );
+  const [view, setView] = useState<"interieur" | "3d">("interieur");
+  const [showFronts, setShowFronts] = useState(false);
   const sameCarcass = c.epaisseurMontants === c.epaisseurTraverses && c.epaisseurMontants === c.epaisseurRayons;
   const [customTh, setCustomTh] = useState(!sameCarcass);
   const hasFronts =
@@ -219,11 +220,23 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
             >
               Intérieur
             </Button>
-            <Button size="sm" variant={view === "facades" ? "secondary" : "outline"} onClick={() => setView("facades")}>
-              Façades
+            <Button size="sm" variant={view === "3d" ? "secondary" : "outline"} onClick={() => setView("3d")}>
+              3D
             </Button>
           </div>
-          <CabinetDrawing config={c} view={view} onSelect={selectSection} />
+          {view === "3d" ? (
+            <Cabinet3D config={c} onSelect={selectSection} />
+          ) : (
+            <>
+              <div className="flex items-center justify-center gap-2">
+                <Checkbox id="afficher-facades" checked={showFronts} onCheckedChange={(v) => setShowFronts(v === true)} />
+                <Label htmlFor="afficher-facades" className="cursor-pointer leading-5">
+                  Façades
+                </Label>
+              </div>
+              <CabinetDrawing config={c} view={showFronts ? "facades" : "interieur"} onSelect={selectSection} />
+            </>
+          )}
         </aside>
         <div className="min-w-0 space-y-6">
           <section
@@ -481,7 +494,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                           ? "applique"
                           : c.typePorte,
                     });
-                    setView("facades");
+                    setShowFronts(true);
                   }}
                 />
                 {c.nombrePortes > 0 && (
@@ -494,7 +507,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                     ]}
                     onChange={(v) => {
                       update({ typePorte: v as "applique" | "interieur" });
-                      setView("facades");
+                      setShowFronts(true);
                     }}
                   />
                 )}
