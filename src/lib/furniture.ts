@@ -428,7 +428,7 @@ export const generateMeubleItems = (config: FurnitureConfig): CutSheetItem[] => 
   return items.map((i) => ({ ...i, longueur: round(i.longueur), largeur: round(i.largeur) }));
 };
 
-export const MIN_PANEL_SIZE = 50;
+export const MIN_PANEL_SIZE = 30;
 
 export const validateConfig = (c: FurnitureConfig): string[] => {
   const errors: string[] = [];
@@ -547,7 +547,7 @@ export const validateConfig = (c: FurnitureConfig): string[] => {
   if (pieces.some((i) => ![i.longueur, i.largeur, i.epaisseur].every((n) => Number.isFinite(n) && n > 0)))
     errors.push("Une pièce aurait une dimension nulle ou négative : réduisez les retraits ou augmentez le meuble.");
   else {
-    // Limite de fabrication : aucun panneau de moins de 50 mm de long ou de large.
+    // Limite de fabrication : aucun panneau de moins de 30 mm de long ou de large.
     const small = pieces.find((i) => Math.min(i.longueur, i.largeur) < MIN_PANEL_SIZE);
     if (small)
       errors.push(
