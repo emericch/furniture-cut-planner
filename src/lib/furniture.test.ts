@@ -258,7 +258,7 @@ describe("Invalid configurations and full matrix", () => {
         ...base,
         nombreRayons: 0,
         nombrePortes: 1,
-        profondeur: 23,
+        profondeur: 50,
         dosType: "entre-montants-traverses",
       }),
     ).toEqual([]);
