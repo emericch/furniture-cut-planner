@@ -1384,6 +1384,9 @@ const FurnitureCalculator: React.FC = () => {
           <a className="mt-2 inline-block underline text-sm" href="mailto:superdebitcoupe@proton.me">
             superdebitcoupe@proton.me
           </a>
+          <p className="mt-2 text-xs text-muted-foreground">
+            © {new Date().getFullYear()} Emeric Chenay. Tous droits réservés. Reproduction ou réutilisation interdite sans autorisation.
+          </p>
         </div>
       </footer>
     </div>
