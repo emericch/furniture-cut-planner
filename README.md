@@ -4,6 +4,8 @@ Outil de menuiserie pour générer des feuilles de débit de meubles : calcul de
 
 Créé par Emeric Chenay.
 
+© Emeric Chenay. Tous droits réservés. Le code n'est pas open source : toute copie, modification ou réutilisation, même partielle ou sous un autre nom, est interdite sans autorisation écrite (voir LICENSE). L'utilisation du site reste libre et gratuite.
+
 **Site** : https://debit-rapide.pages.dev
 
 ## Développement local
