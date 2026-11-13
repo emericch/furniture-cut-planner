@@ -41,7 +41,6 @@ import {
   validateConfig,
   getWarnings,
   escapeHtml,
-  formatMm,
   type FurnitureConfig,
   type CutSheetItem,
   type MeubleGroup,
@@ -61,7 +60,6 @@ import {
   CUSTOM_SECTION_ID,
   CUSTOM_SECTION_NAME,
   GRAIN_LEGEND,
-  grainLabel,
   COLLECTION_STORAGE_KEY,
   type SheetOrder,
   type SheetState,
@@ -73,6 +71,7 @@ const logo = {
   url: "data:image/webp;base64,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",
 };
 import { toast } from "sonner";
+import { t, tPiece, tName, tMessage, formatMm, grainLabel, dateLocale, useLang, setLang } from "@/lib/i18n";
 export type { FurnitureConfig } from "@/lib/furniture";
 import { FurnitureDesigner } from "./FurnitureDesigner";
 import { NumberField } from "./NumberField";
@@ -109,6 +108,7 @@ const loadSavedCollection = (): SheetCollection => {
 };
 
 const FurnitureCalculator: React.FC = () => {
+  const lang = useLang();
   const [collection, setCollection] = useState<SheetCollection>(loadSavedCollection);
   const activeEntry = collection.sheets.find((s) => s.id === collection.activeId) ?? collection.sheets[0];
   const [config, setConfig] = useState<FurnitureConfig>(activeEntry.state.config ?? defaultConfig);
@@ -166,7 +166,7 @@ const FurnitureCalculator: React.FC = () => {
     const latest = undoContext.current;
     const origin = latest.collection.sheets.find((s) => s.id === originId);
     if (!origin) {
-      toast.error("Impossible d'annuler : la liste d'origine a été supprimée.");
+      toast.error(t("Impossible d'annuler : la liste d'origine a été supprimée."));
       return;
     }
     if (latest.collection.activeId === originId) {
@@ -178,7 +178,7 @@ const FurnitureCalculator: React.FC = () => {
         ...current,
         sheets: current.sheets.map((s) => (s.id === originId ? { ...s, state: restore(s.state) } : s)),
       }));
-      toast.success(`${nom} restauré dans ${origin.nom}`);
+      toast.success(t("{nom} restauré dans {liste}", { nom: tName(tPiece(nom)), liste: tName(origin.nom) }));
     }
   };
 
@@ -245,7 +245,7 @@ const FurnitureCalculator: React.FC = () => {
     cancelOngoingEdits();
     setCollection({ sheets: [...updated.sheets, entry], activeId: entry.id });
     loadStateIntoFields(entry.state);
-    toast.success(`${entry.nom} créée`);
+    toast.success(t("{nom} créée", { nom: tName(entry.nom) }));
   };
 
   const deleteActiveSheet = () => {
@@ -257,26 +257,26 @@ const FurnitureCalculator: React.FC = () => {
     cancelOngoingEdits();
     setCollection(next);
     loadStateIntoFields(next.sheets.find((s) => s.id === next.activeId)!.state);
-    toast.success("Liste supprimée");
+    toast.success(t("Liste supprimée"));
   };
 
   const renameActiveSheet = () => {
     const nom = editingListNom?.trim();
     if (!nom) {
-      toast.error("Le nom de la liste ne peut pas être vide");
+      toast.error(t("Le nom de la liste ne peut pas être vide"));
       return;
     }
     const updated = saveCurrentInto(collection);
     setCollection({ ...updated, sheets: updated.sheets.map((s) => (s.id === updated.activeId ? { ...s, nom } : s)) });
     setEditingListNom(null);
-    toast.success(`Liste renommée en « ${nom} »`);
+    toast.success(t("Liste renommée en « {nom} »", { nom }));
   };
 
   const validationErrors = validateConfig(config);
   const allSections = buildMeubleSections(meubleGroups, customItems, groupIdentical);
   const thicknesses = thicknessCounts(allSections);
   const activeThickness =
-    thicknessFilter !== null && thicknesses.some((t) => t.epaisseur === thicknessFilter) ? thicknessFilter : null;
+    thicknessFilter !== null && thicknesses.some((x) => x.epaisseur === thicknessFilter) ? thicknessFilter : null;
   const sections = filterSectionsByThickness(allSections, activeThickness);
   const sizeRows = filterSizeRowsByThickness(buildSizeRows(meubleGroups, customItems, groupIdentical), activeThickness);
 
@@ -301,7 +301,7 @@ const FurnitureCalculator: React.FC = () => {
 
   const addMeubleToSheet = () => {
     if (validationErrors.length) {
-      toast.error(validationErrors[0]);
+      toast.error(tMessage(validationErrors[0]));
       return;
     }
     const items = generateMeubleItems(config);
@@ -319,7 +319,7 @@ const FurnitureCalculator: React.FC = () => {
             : g,
         ),
       );
-      toast.success(`${nomMeuble} mis à jour`);
+      toast.success(t("{nom} mis à jour", { nom: tName(nomMeuble) }));
       setEditingConfigId(null);
       restoreFormBackup();
       return;
@@ -377,10 +377,10 @@ const FurnitureCalculator: React.FC = () => {
     if (!removed) return;
     setMeubleGroups(meubleGroups.filter((group) => group.id !== meubleId));
     if (editingConfigId === meubleId) cancelEditMeuble();
-    toast(`${removed.nom} supprimé`, {
+    toast(t("{nom} supprimé", { nom: tName(tPiece(removed.nom)) }), {
       duration: 6000,
       action: {
-        label: "Annuler",
+        label: t("Annuler|suppression"),
         onClick: () =>
           restoreInSheet(originId, removed.nom, (state) => {
             if (state.meubleGroups.some((g) => g.id === removed.id)) return state;
@@ -422,7 +422,7 @@ const FurnitureCalculator: React.FC = () => {
       });
       setShowAddForm(false);
     } else {
-      toast.error("Saisissez un nom, des dimensions positives et une quantité entière positive.");
+      toast.error(t("Saisissez un nom, des dimensions positives et une quantité entière positive."));
     }
   };
 
@@ -431,10 +431,10 @@ const FurnitureCalculator: React.FC = () => {
     const removed = customItems[index];
     if (!removed) return;
     setCustomItems(customItems.filter((_, i) => i !== index));
-    toast(`${removed.nom} supprimé`, {
+    toast(t("{nom} supprimé", { nom: tName(tPiece(removed.nom)) }), {
       duration: 6000,
       action: {
-        label: "Annuler",
+        label: t("Annuler|suppression"),
         onClick: () =>
           restoreInSheet(originId, removed.nom, (state) => {
             const next = [...state.customItems];
@@ -491,9 +491,9 @@ const FurnitureCalculator: React.FC = () => {
 
   const handlePrint = () => {
     const printDocument = `
-        <html lang="fr">
+        <html lang="${lang}">
           <head>
-            <title>Feuille de Débit</title>
+            <title>${t("Feuille de Débit")}</title>
             <style>
               body {
                 font-family: Arial, sans-serif;
@@ -569,13 +569,13 @@ const FurnitureCalculator: React.FC = () => {
           </head>
           <body>
             <div class="print-header">
-              <h1>FEUILLE DE DÉBIT</h1>
-              <p>${new Date().toLocaleDateString("fr-FR")}</p>
-              <p>${GRAIN_LEGEND}</p>
+              <h1>${t("FEUILLE DE DÉBIT")}</h1>
+              <p>${new Date().toLocaleDateString(dateLocale())}</p>
+              <p>${t(GRAIN_LEGEND)}</p>
             </div>
             ${generatePrintContent()}
             <div class="print-footer" style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #bbb; text-align: center; font-size: 10px; color: #666;">
-              <img src="/favicon.png" width="24" height="24" alt="" /><p style="margin: 2px 0;">Créé par <strong>Emeric Chenay</strong> • 2026</p>
+              <img src="/favicon.png" width="24" height="24" alt="" /><p style="margin: 2px 0;">${t("Créé par")} <strong>Emeric Chenay</strong> • 2026</p>
               <p style="margin: 2px 0;">superdebitcoupe@proton.me</p>
             </div>
           </body>
@@ -606,7 +606,7 @@ const FurnitureCalculator: React.FC = () => {
       printWindow.document.close();
       setTimeout(requestPrint, 500);
     } else {
-      toast.error("Autorisez les fenêtres d’impression dans votre navigateur.");
+      toast.error(t("Autorisez les fenêtres d’impression dans votre navigateur."));
     }
   };
 
@@ -615,29 +615,29 @@ const FurnitureCalculator: React.FC = () => {
     setMeubleGroups([]);
     setCustomItems([]);
     setMeubleCounter(1);
-    toast.success("Feuille de débit vidée.");
+    toast.success(t("Feuille de débit vidée."));
   };
 
   const generatePrintContent = () => {
     if (order === "taille")
-      return `<table><thead><tr><th>Meuble · Pièce</th><th>Qté</th><th>L (mm)</th><th>l (mm)</th><th>e (mm)</th><th>Fil</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(meuble)} · ${escapeHtml(item.nom)}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td><td style="text-align: center;">${grainLabel(item)}</td></tr>`).join("")}</tbody></table>`;
+      return `<table><thead><tr><th>${t("Meuble · Pièce")}</th><th>${t("Qté")}</th><th>${t("L (mm)")}</th><th>${t("l (mm)")}</th><th>${t("e (mm)")}</th><th>${t("Fil")}</th></tr></thead><tbody>${sizeRows.map(({ item, meuble }) => `<tr><td>${escapeHtml(tName(meuble))} · ${escapeHtml(tPiece(item.nom))}</td><td>${item.quantite}</td><td>${formatMm(item.longueur)}</td><td>${formatMm(item.largeur)}</td><td>${item.epaisseur}</td><td style="text-align: center;">${grainLabel(item)}</td></tr>`).join("")}</tbody></table>`;
     return sections
       .map((section, index) => {
         const groupe = meubleGroups.find((g) => g.id === section.id);
         return `
       <div class="print-section" style="margin-bottom: 12px; ${index > 0 ? "border-top: 1px solid #bbb; padding-top: 6px;" : ""}">
         <div class="print-section-title" style="font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #bbb; padding-bottom: 6px; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">
-          ${showThumbnails && groupe ? thumbnailSvgMarkup(groupe.config, 56) : ""}${escapeHtml(section.nom)}${section.detail ? ` (${section.detail})` : ""}
+          ${showThumbnails && groupe ? thumbnailSvgMarkup(groupe.config, 56) : ""}${escapeHtml(tName(section.nom))}${section.detail ? ` (${tMessage(section.detail)})` : ""}
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px;">
           <thead>
             <tr style="border-bottom: 1px solid #bbb;">
-              <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Pièce</th>
-              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Qté</th>
-              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">L (mm)</th>
-              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">l (mm)</th>
-              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">e (mm)</th>
-              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">Fil</th>
+              <th style="text-align: left; padding: 4px 5px; font-weight: bold; line-height: 1.4;">${t("Pièce")}</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">${t("Qté")}</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">${t("L (mm)")}</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">${t("l (mm)")}</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">${t("e (mm)")}</th>
+              <th style="text-align: center; padding: 4px 5px; font-weight: bold; line-height: 1.4;">${t("Fil")}</th>
             </tr>
           </thead>
           <tbody>
@@ -645,7 +645,7 @@ const FurnitureCalculator: React.FC = () => {
               .map(
                 ({ item }) => `
               <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(item.nom)}</td>
+                <td style="padding: 4px 5px; line-height: 1.4; vertical-align: middle;">${escapeHtml(tPiece(item.nom))}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${item.quantite}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.longueur)}</td>
                 <td style="padding: 4px 5px; text-align: center; line-height: 1.4; vertical-align: middle;">${formatMm(item.largeur)}</td>
@@ -669,18 +669,18 @@ const FurnitureCalculator: React.FC = () => {
       const { default: autoTable } = await import("jspdf-autotable");
       const pdf = new jsPDF();
       pdf.setFontSize(16);
-      pdf.text("FEUILLE DE DÉBIT", 14, 15);
+      pdf.text(t("FEUILLE DE DÉBIT"), 14, 15);
       pdf.setFontSize(9);
-      pdf.text(new Date().toLocaleDateString("fr-FR"), 14, 21);
-      pdf.text(GRAIN_LEGEND, 14, 26);
+      pdf.text(new Date().toLocaleDateString(dateLocale()), 14, 21);
+      pdf.text(t(GRAIN_LEGEND), 14, 26);
       const pdfSections =
         order === "taille"
           ? [
               {
-                title: "Pièces par taille décroissante",
+                title: t("Pièces par taille décroissante"),
                 config: undefined as FurnitureConfig | undefined,
                 rows: sizeRows.map(({ item, meuble }) => [
-                  meuble + " · " + item.nom,
+                  tName(meuble) + " · " + tPiece(item.nom),
                   item.quantite,
                   formatMm(item.longueur),
                   formatMm(item.largeur),
@@ -690,10 +690,10 @@ const FurnitureCalculator: React.FC = () => {
               },
             ]
           : sections.map((s) => ({
-              title: s.detail ? s.nom + " — " + s.detail : s.nom,
+              title: s.detail ? tName(s.nom) + " — " + tMessage(s.detail) : tName(s.nom),
               config: meubleGroups.find((g) => g.id === s.id)?.config,
               rows: s.rows.map(({ item }) => [
-                item.nom,
+                tPiece(item.nom),
                 item.quantite,
                 formatMm(item.longueur),
                 formatMm(item.largeur),
@@ -714,7 +714,7 @@ const FurnitureCalculator: React.FC = () => {
       autoTable(pdf, {
         startY: 31,
         margin: { left: 14, right: 14, bottom: 24 },
-        head: [["Pièce", "Qté", "L (mm)", "l (mm)", "e (mm)", "Fil"]],
+        head: [[t("Pièce"), t("Qté"), t("L (mm)"), t("l (mm)"), t("e (mm)"), t("Fil")]],
         body,
         theme: "plain",
         styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 210, lineWidth: 0.1, overflow: "linebreak" },
@@ -750,17 +750,17 @@ const FurnitureCalculator: React.FC = () => {
       pdf.setFontSize(8);
       pdf.text("Emeric Chenay · 2026 · superdebitcoupe@proton.me", 14, 285);
       pdf.addImage("/favicon.png", "PNG", 183, 278, 10, 10);
-      pdf.save(`feuille-debit-${new Date().toISOString().split("T")[0]}.pdf`);
+      pdf.save(`${t("feuille-debit")}-${new Date().toISOString().split("T")[0]}.pdf`);
     } catch {
-      toast.error("Impossible de créer le PDF. Réessayez ou utilisez Imprimer.");
+      toast.error(t("Impossible de créer le PDF. Réessayez ou utilisez Imprimer."));
     }
   };
 
   const pivotButton = (item: CutSheetItem, onClick: () => void) => (
     <Button
       key="pivot"
-      aria-label={`Pivoter le sens du fil de ${item.nom}`}
-      title={`Pivoter le sens du fil de ${item.nom}`}
+      aria-label={t("Pivoter le sens du fil de {nom}", { nom: tPiece(item.nom) })}
+      title={t("Pivoter le sens du fil de {nom}", { nom: tPiece(item.nom) })}
       onClick={onClick}
       size="sm"
       variant="ghost"
@@ -774,8 +774,18 @@ const FurnitureCalculator: React.FC = () => {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* En-tête simplifié */}
-        <div className="text-center">
-          <h1 className="text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
+        <div className="relative text-center">
+          <button
+            type="button"
+            lang={lang === "fr" ? "en" : "fr"}
+            onClick={() => setLang(lang === "fr" ? "en" : "fr")}
+            aria-label={lang === "fr" ? "Switch the site to English" : "Passer le site en français"}
+            title={lang === "fr" ? "English" : "Français"}
+            className="absolute right-0 top-1/2 flex h-8 min-w-8 -translate-y-1/2 items-center justify-center rounded-md border border-input bg-background px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {lang === "fr" ? "EN" : "FR"}
+          </button>
+          <h1 className="text-xl sm:text-2xl font-bold flex items-center justify-center gap-2 px-10">
             <img
               src={logo.url}
               onError={(e) => {
@@ -797,27 +807,27 @@ const FurnitureCalculator: React.FC = () => {
                 {/* Nom du meuble */}
                 <div>
                   <Label htmlFor="meuble-nom" className="text-sm">
-                    Nom du meuble (optionnel)
+                    {t("Nom du meuble (optionnel)")}
                   </Label>
                   <Input
                     id="meuble-nom"
                     value={meubleNom}
                     onChange={(e) => setMeubleNom(e.target.value)}
-                    placeholder="Ex: Bibliothèque salon, Placard chambre..."
+                    placeholder={t("Ex: Bibliothèque salon, Placard chambre...")}
                   />
                 </div>
                 <FurnitureDesigner config={config} onChange={setConfig} />
 
                 {validationErrors.length > 0 && (
                   <p role="alert" className="text-sm text-destructive">
-                    {validationErrors[0]}
+                    {tMessage(validationErrors[0])}
                   </p>
                 )}
                 {getWarnings(config).length > 0 && (
                   <div role="status" className="space-y-1">
                     {getWarnings(config).map((warning, index) => (
                       <p key={index} className="text-sm text-muted-foreground">
-                        {warning}
+                        {tMessage(warning)}
                       </p>
                     ))}
                   </div>
@@ -834,15 +844,15 @@ const FurnitureCalculator: React.FC = () => {
                     size="lg"
                   >
                     <Plus className="mr-2 h-4 w-4 shrink-0" />
-                    <span className="md:hidden">{editingConfigId ? "Mettre à jour" : "Ajouter à la feuille"}</span>
+                    <span className="md:hidden">{editingConfigId ? t("Mettre à jour") : t("Ajouter à la feuille")}</span>
                     <span className="hidden md:inline">
-                      {editingConfigId ? "Mettre à jour le meuble" : "Ajouter à la feuille de débit"}
+                      {editingConfigId ? t("Mettre à jour le meuble") : t("Ajouter à la feuille de débit")}
                     </span>
                   </Button>
                 </div>
                 {editingConfigId && (
                   <Button onClick={cancelEditMeuble} variant="outline" className="w-full">
-                    Annuler la modification
+                    {t("Annuler la modification")}
                   </Button>
                 )}
               </CardContent>
@@ -856,17 +866,17 @@ const FurnitureCalculator: React.FC = () => {
                 <CardTitle className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between text-lg">
                   <div className="flex flex-wrap items-center gap-2">
                     <FileText className="h-4 w-4 text-primary" />
-                    Feuille de débit
+                    {t("Feuille de débit")}
                     {editingListNom === null ? (
                       <>
                         <Select value={collection.activeId} onValueChange={switchSheet}>
-                          <SelectTrigger className="h-8 w-[150px]" aria-label="Choisir la liste">
+                          <SelectTrigger className="h-8 w-[150px]" aria-label={t("Choisir la liste")}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             {collection.sheets.map((s) => (
                               <SelectItem key={s.id} value={s.id}>
-                                {s.nom}
+                                {tName(s.nom)}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -877,26 +887,26 @@ const FurnitureCalculator: React.FC = () => {
                               size="sm"
                               variant="outline"
                               className="h-8 w-8 p-0"
-                              aria-label="Actions de la liste"
+                              aria-label={t("Actions de la liste")}
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start">
-                            <DropdownMenuItem onSelect={() => setEditingListNom(activeEntry.nom)}>
+                            <DropdownMenuItem onSelect={() => setEditingListNom(tName(activeEntry.nom))}>
                               <Edit2 className="mr-2 h-4 w-4" />
-                              Renommer
+                              {t("Renommer")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={createSheet}>
                               <Plus className="mr-2 h-4 w-4" />
-                              Nouvelle liste
+                              {t("Nouvelle liste")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onSelect={() => setConfirmDeleteList(true)}
                               className="text-destructive focus:text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              Supprimer la liste
+                              {t("Supprimer la liste")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -916,7 +926,7 @@ const FurnitureCalculator: React.FC = () => {
                             if (e.key === "Escape") setEditingListNom(null);
                           }}
                           className="h-8 w-[150px]"
-                          aria-label="Nom de la liste"
+                          aria-label={t("Nom de la liste")}
                           autoFocus
                         />
                         <Button
@@ -924,7 +934,7 @@ const FurnitureCalculator: React.FC = () => {
                           size="sm"
                           variant="outline"
                           className="flex items-center gap-1"
-                          aria-label="Valider le nom de la liste"
+                          aria-label={t("Valider le nom de la liste")}
                         >
                           <Check className="h-3 w-3" />
                         </Button>
@@ -933,7 +943,7 @@ const FurnitureCalculator: React.FC = () => {
                           size="sm"
                           variant="outline"
                           className="flex items-center gap-1"
-                          aria-label="Annuler le renommage"
+                          aria-label={t("Annuler le renommage")}
                           onClick={() => setEditingListNom(null)}
                         >
                           <X className="h-3 w-3" />
@@ -943,15 +953,16 @@ const FurnitureCalculator: React.FC = () => {
                     <AlertDialog open={confirmDeleteList} onOpenChange={setConfirmDeleteList}>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Supprimer « {activeEntry.nom} » ?</AlertDialogTitle>
+                          <AlertDialogTitle>{t("Supprimer « {nom} » ?", { nom: tName(activeEntry.nom) })}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Toute la liste (meubles et pièces personnalisées) sera supprimée définitivement. Cette
-                            action est irréversible.
+                            {t(
+                              "Toute la liste (meubles et pièces personnalisées) sera supprimée définitivement. Cette action est irréversible.",
+                            )}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                          <AlertDialogAction onClick={deleteActiveSheet}>Supprimer</AlertDialogAction>
+                          <AlertDialogCancel>{t("Annuler")}</AlertDialogCancel>
+                          <AlertDialogAction onClick={deleteActiveSheet}>{t("Supprimer")}</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
@@ -961,7 +972,7 @@ const FurnitureCalculator: React.FC = () => {
                       <>
                         <Button onClick={handlePrint} size="sm" variant="outline" className="flex items-center gap-1">
                           <Printer className="h-3 w-3" />
-                          Imprimer
+                          {t("Imprimer")}
                         </Button>
                         <Button
                           onClick={handleExportPDF}
@@ -970,26 +981,27 @@ const FurnitureCalculator: React.FC = () => {
                           className="flex items-center gap-1"
                         >
                           <Download className="h-3 w-3" />
-                          Export PDF
+                          {t("Export PDF")}
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button size="sm" variant="outline" className="flex items-center gap-1">
                               <Trash2 className="h-3 w-3" />
-                              Vider la feuille
+                              {t("Vider la feuille")}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Vider la feuille de débit ?</AlertDialogTitle>
+                              <AlertDialogTitle>{t("Vider la feuille de débit ?")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Tous les meubles et pièces personnalisées seront supprimés définitivement. Cette action
-                                est irréversible.
+                                {t(
+                                  "Tous les meubles et pièces personnalisées seront supprimés définitivement. Cette action est irréversible.",
+                                )}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Annuler</AlertDialogCancel>
-                              <AlertDialogAction onClick={handleClearSheet}>Vider la feuille</AlertDialogAction>
+                              <AlertDialogCancel>{t("Annuler")}</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleClearSheet}>{t("Vider la feuille")}</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
@@ -1002,7 +1014,7 @@ const FurnitureCalculator: React.FC = () => {
                       className="flex items-center gap-1"
                     >
                       <Plus className="h-3 w-3" />
-                      Ajouter une pièce
+                      {t("Ajouter une pièce")}
                     </Button>
                   </div>
                 </CardTitle>
@@ -1010,17 +1022,17 @@ const FurnitureCalculator: React.FC = () => {
               <CardContent className="min-w-0">
                 <div className="mb-4 max-w-xs space-y-3">
                   <div>
-                    <Label htmlFor="sheet-order">Classement</Label>
+                    <Label htmlFor="sheet-order">{t("Classement")}</Label>
                     <Select value={order} onValueChange={(v) => setOrder(v as SheetOrder)}>
                       <SelectTrigger id="sheet-order">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="meuble">Par meuble</SelectItem>
-                        <SelectItem value="taille">Par taille · grande dimension décroissante</SelectItem>
+                        <SelectItem value="meuble">{t("Par meuble")}</SelectItem>
+                        <SelectItem value="taille">{t("Par taille · grande dimension décroissante")}</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="mt-1 text-xs text-muted-foreground">{GRAIN_LEGEND}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t(GRAIN_LEGEND)}</p>
                   </div>
                   <div className="flex items-center gap-3 [&>button]:shrink-0">
                     <Checkbox
@@ -1029,7 +1041,7 @@ const FurnitureCalculator: React.FC = () => {
                       onCheckedChange={(checked) => setGroupIdentical(checked === true)}
                     />
                     <Label className="block leading-5" htmlFor="group-identical">
-                      Regrouper les pièces identiques
+                      {t("Regrouper les pièces identiques")}
                     </Label>
                   </div>
                   <div className="flex items-center gap-3 [&>button]:shrink-0">
@@ -1039,7 +1051,7 @@ const FurnitureCalculator: React.FC = () => {
                       onCheckedChange={(checked) => setShowThumbnails(checked === true)}
                     />
                     <Label className="block leading-5" htmlFor="show-thumbnails">
-                      Vues du meuble en miniature
+                      {t("Vues du meuble en miniature")}
                     </Label>
                   </div>
                 </div>
@@ -1047,9 +1059,9 @@ const FurnitureCalculator: React.FC = () => {
                   <Card className="mb-4 border-primary/20">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-base flex items-center justify-between">
-                        Ajouter une pièce personnalisée
+                        {t("Ajouter une pièce personnalisée")}
                         <Button
-                          aria-label="Fermer le formulaire"
+                          aria-label={t("Fermer le formulaire")}
                           onClick={() => setShowAddForm(false)}
                           size="sm"
                           variant="ghost"
@@ -1060,11 +1072,11 @@ const FurnitureCalculator: React.FC = () => {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div>
-                        <Label className="text-sm">Nom de la pièce</Label>
+                        <Label className="text-sm">{t("Nom de la pièce")}</Label>
                         <Input
                           value={newItem.nom || ""}
                           onChange={(e) => setNewItem({ ...newItem, nom: e.target.value })}
-                          placeholder="Ex: Tablette, Tiroir..."
+                          placeholder={t("Ex: Tablette, Tiroir...")}
                         />
                       </div>
 
@@ -1072,7 +1084,7 @@ const FurnitureCalculator: React.FC = () => {
                         <div>
                           <NumberField
                             id="custom-longueur"
-                            label="Longueur (mm)"
+                            label={t("Longueur (mm)")}
                             labelClassName="text-xs"
                             value={newItem.longueur || undefined}
                             onCommit={(v) => setNewItem({ ...newItem, longueur: v })}
@@ -1081,14 +1093,14 @@ const FurnitureCalculator: React.FC = () => {
                         <div>
                           <NumberField
                             id="custom-largeur"
-                            label="Largeur (mm)"
+                            label={t("Largeur (mm)")}
                             labelClassName="text-xs"
                             value={newItem.largeur || undefined}
                             onCommit={(v) => setNewItem({ ...newItem, largeur: v })}
                           />
                         </div>
                         <div>
-                          <Label className="text-xs">Épaisseur</Label>
+                          <Label className="text-xs">{t("Épaisseur")}</Label>
                           <Select
                             value={newItem.epaisseur?.toString() || "19"}
                             onValueChange={(value) => setNewItem({ ...newItem, epaisseur: Number(value) })}
@@ -1108,7 +1120,7 @@ const FurnitureCalculator: React.FC = () => {
                         <div>
                           <NumberField
                             id="custom-quantite"
-                            label="Quantité"
+                            label={t("Quantité")}
                             labelClassName="text-xs"
                             value={newItem.quantite}
                             min="1"
@@ -1119,10 +1131,10 @@ const FurnitureCalculator: React.FC = () => {
 
                       <div className="flex gap-2">
                         <Button onClick={addCustomItem} className="flex-1">
-                          Ajouter
+                          {t("Ajouter")}
                         </Button>
                         <Button onClick={() => setShowAddForm(false)} variant="outline" className="flex-1">
-                          Annuler
+                          {t("Annuler")}
                         </Button>
                       </div>
                     </CardContent>
@@ -1132,25 +1144,25 @@ const FurnitureCalculator: React.FC = () => {
                 {meubleGroups.length > 0 || customItems.length > 0 ? (
                   <div className="space-y-4">
                     {thicknesses.length > 0 && (
-                      <div role="group" aria-label="Filtrer par épaisseur" className="flex flex-wrap gap-2">
+                      <div role="group" aria-label={t("Filtrer par épaisseur")} className="flex flex-wrap gap-2">
                         {[
-                          { epaisseur: null as number | null, count: thicknesses.reduce((a, t) => a + t.count, 0) },
+                          { epaisseur: null as number | null, count: thicknesses.reduce((a, x) => a + x.count, 0) },
                           ...thicknesses,
-                        ].map((t) => {
-                          const active = t.epaisseur === activeThickness;
+                        ].map((th) => {
+                          const active = th.epaisseur === activeThickness;
                           return (
                             <button
-                              key={t.epaisseur ?? "all"}
+                              key={th.epaisseur ?? "all"}
                               type="button"
                               aria-pressed={active}
-                              onClick={() => setThicknessFilter(t.epaisseur)}
+                              onClick={() => setThicknessFilter(th.epaisseur)}
                               className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background text-foreground hover:bg-muted"}`}
                             >
-                              {t.epaisseur === null ? "Toutes" : `${t.epaisseur} mm`}
+                              {th.epaisseur === null ? t("Toutes") : `${th.epaisseur} mm`}
                               <span
                                 className={`rounded-full px-1.5 text-xs tabular-nums ${active ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"}`}
                               >
-                                {t.count}
+                                {th.count}
                               </span>
                             </button>
                           );
@@ -1162,11 +1174,11 @@ const FurnitureCalculator: React.FC = () => {
                         {sizeRows.map((row, index) => (
                           <div key={index} className="flex items-center justify-between gap-2 py-3">
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm text-muted-foreground break-words">{row.meuble}</p>
-                              <p className="font-medium break-words">{row.item.nom}</p>
+                              <p className="text-sm text-muted-foreground break-words">{tName(row.meuble)}</p>
+                              <p className="font-medium break-words">{tPiece(row.item.nom)}</p>
                               <p className="text-sm">
-                                {formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm ·
-                                Qté {row.item.quantite} · Fil {grainLabel(row.item)}
+                                {formatMm(row.item.longueur)} × {formatMm(row.item.largeur)} × {row.item.epaisseur} mm ·{" "}
+                                {t("Qté")} {row.item.quantite} · {t("Fil")} {grainLabel(row.item)}
                               </p>
                             </div>
                             {pivotButton(row.item, () => pivotSizeRow(row))}
@@ -1185,7 +1197,7 @@ const FurnitureCalculator: React.FC = () => {
                             )
                           }
                         >
-                          {collapsed.size >= sections.length ? "Tout déplier" : "Tout réduire"}
+                          {collapsed.size >= sections.length ? t("Tout déplier") : t("Tout réduire")}
                         </Button>
                       </div>
                     )}
@@ -1200,7 +1212,7 @@ const FurnitureCalculator: React.FC = () => {
                             variant="ghost"
                             className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
                             aria-expanded={!isCollapsed}
-                            aria-label={`${isCollapsed ? "Déplier" : "Réduire"} ${groupe?.nom ?? CUSTOM_SECTION_NAME}`}
+                            aria-label={`${isCollapsed ? t("Déplier") : t("Réduire")} ${tName(groupe?.nom ?? CUSTOM_SECTION_NAME)}`}
                             onClick={() => toggleCollapsed(section.id)}
                           >
                             <ChevronDown
@@ -1217,10 +1229,10 @@ const FurnitureCalculator: React.FC = () => {
                               {section.id === CUSTOM_SECTION_ID ? (
                                 <div className="flex items-center gap-1">
                                   {toggle}
-                                  <CardTitle className="text-base">{CUSTOM_SECTION_NAME}</CardTitle>
+                                  <CardTitle className="text-base">{t(CUSTOM_SECTION_NAME)}</CardTitle>
                                   {isCollapsed && (
                                     <span className="text-xs text-muted-foreground">
-                                      · {section.rows.length} pièce{section.rows.length > 1 ? "s" : ""}
+                                      · {section.rows.length} {section.rows.length > 1 ? t("pièces") : t("pièce")}
                                     </span>
                                   )}
                                 </div>
@@ -1241,7 +1253,7 @@ const FurnitureCalculator: React.FC = () => {
                                             autoFocus
                                           />
                                           <Button
-                                            aria-label="Enregistrer le nom"
+                                            aria-label={t("Enregistrer le nom")}
                                             onClick={saveEditedMeubleName}
                                             size="sm"
                                             variant="ghost"
@@ -1250,7 +1262,7 @@ const FurnitureCalculator: React.FC = () => {
                                             <Check className="h-3 w-3" />
                                           </Button>
                                           <Button
-                                            aria-label="Annuler le renommage"
+                                            aria-label={t("Annuler le renommage")}
                                             onClick={cancelEditingMeuble}
                                             size="sm"
                                             variant="ghost"
@@ -1261,15 +1273,15 @@ const FurnitureCalculator: React.FC = () => {
                                         </div>
                                       ) : (
                                         <>
-                                          <div className="flex min-w-0 items-center gap-1 flex-1">
+                                          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
                                             {toggle}
-                                            <CardTitle className="min-w-0 break-words text-base">
-                                              {groupe.nom}
+                                            <CardTitle className="min-w-[4.5rem] flex-1 break-words text-base">
+                                              {tName(groupe.nom)}
                                             </CardTitle>
                                             <Button
-                                              aria-label={`Renommer ${groupe.nom}`}
-                                              title="Renommer"
-                                              onClick={() => startEditingMeuble(groupe.id, groupe.nom)}
+                                              aria-label={t("Renommer {nom}", { nom: tName(groupe.nom) })}
+                                              title={t("Renommer")}
+                                              onClick={() => startEditingMeuble(groupe.id, tName(groupe.nom))}
                                               size="sm"
                                               variant="ghost"
                                               className="h-11 w-11 shrink-0 p-0 text-muted-foreground"
@@ -1277,8 +1289,8 @@ const FurnitureCalculator: React.FC = () => {
                                               <Edit2 className="h-3 w-3" />
                                             </Button>
                                             <Button
-                                              aria-label={`Modifier ${groupe.nom}`}
-                                              title={`Modifier ${groupe.nom}`}
+                                              aria-label={t("Modifier {nom}", { nom: tName(groupe.nom) })}
+                                              title={t("Modifier {nom}", { nom: tName(groupe.nom) })}
                                               onClick={() => startEditMeubleConfig(groupe)}
                                               size="sm"
                                               variant="ghost"
@@ -1288,8 +1300,8 @@ const FurnitureCalculator: React.FC = () => {
                                             </Button>
                                           </div>
                                           <Button
-                                            aria-label={`Supprimer ${groupe.nom}`}
-                                            title={`Supprimer ${groupe.nom}`}
+                                            aria-label={t("Supprimer {nom}", { nom: tName(groupe.nom) })}
+                                            title={t("Supprimer {nom}", { nom: tName(groupe.nom) })}
                                             onClick={() => removeMeubleGroup(groupe.id)}
                                             size="sm"
                                             variant="ghost"
@@ -1300,7 +1312,7 @@ const FurnitureCalculator: React.FC = () => {
                                         </>
                                       )}
                                     </div>
-                                    {!isCollapsed && <p className="text-xs text-muted-foreground">{section.detail}</p>}
+                                    {!isCollapsed && <p className="text-xs text-muted-foreground">{tMessage(section.detail ?? "")}</p>}
                                     {showThumbnails && !isCollapsed && (
                                       <CabinetThumbnail config={groupe.config} className="mt-2" />
                                     )}
@@ -1316,19 +1328,27 @@ const FurnitureCalculator: React.FC = () => {
                                     className="flex justify-between items-center bg-muted/50 rounded-lg p-2"
                                   >
                                     <div className="flex-1">
-                                      <h5 className="font-medium text-sm">{row.item.nom}</h5>
+                                      <h5 className="font-medium text-sm">{tPiece(row.item.nom)}</h5>
                                       <div className="grid grid-cols-2 gap-2 text-sm text-foreground sm:grid-cols-5">
                                         <div>L: {formatMm(row.item.longueur)}mm</div>
-                                        <div>l: {formatMm(row.item.largeur)}mm</div>
-                                        <div>Ép: {row.item.epaisseur}mm</div>
-                                        <div>Qté: {row.item.quantite}</div>
-                                        <div>Fil: {grainLabel(row.item)}</div>
+                                        <div>
+                                          {t("l|largeur de pièce")}: {formatMm(row.item.largeur)}mm
+                                        </div>
+                                        <div>
+                                          {t("Ép")}: {row.item.epaisseur}mm
+                                        </div>
+                                        <div>
+                                          {t("Qté")}: {row.item.quantite}
+                                        </div>
+                                        <div>
+                                          {t("Fil")}: {grainLabel(row.item)}
+                                        </div>
                                       </div>
                                     </div>
                                     {pivotButton(row.item, () => pivotSectionRow(section.id, row))}
                                     {section.id === CUSTOM_SECTION_ID && !groupIdentical && (
                                       <Button
-                                        aria-label={`Supprimer ${row.item.nom}`}
+                                        aria-label={t("Supprimer {nom}", { nom: tPiece(row.item.nom) })}
                                         onClick={() => removeCustomItem(row.index)}
                                         size="sm"
                                         variant="ghost"
@@ -1347,7 +1367,7 @@ const FurnitureCalculator: React.FC = () => {
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center py-8">
-                    Configurez votre meuble et cliquez sur "Ajouter à la feuille de débit"
+                    {t('Configurez votre meuble et cliquez sur "Ajouter à la feuille de débit"')}
                   </p>
                 )}
               </CardContent>
@@ -1369,7 +1389,7 @@ const FurnitureCalculator: React.FC = () => {
               alt=""
               className="h-8 w-10 object-contain"
             />
-            <span>Créé par</span>
+            <span>{t("Créé par")}</span>
             <a
               href="https://www.instagram.com/emeric_chenay/"
               target="_blank"
@@ -1385,7 +1405,10 @@ const FurnitureCalculator: React.FC = () => {
             superdebitcoupe@proton.me
           </a>
           <p className="mt-2 text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Emeric Chenay. Tous droits réservés. Reproduction ou réutilisation interdite sans autorisation.
+            {t(
+              "© {annee} Emeric Chenay. Tous droits réservés. Reproduction ou réutilisation interdite sans autorisation.",
+              { annee: new Date().getFullYear() },
+            )}
           </p>
         </div>
       </footer>

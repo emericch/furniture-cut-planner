@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { parseDecimal } from '@/lib/furniture';
+import { useLang } from '@/lib/i18n';
 
 interface Props {
   id: string;
@@ -19,8 +20,9 @@ interface Props {
 // user can clear the field and retype freely (no forced leading zero, no
 // canonicalization rewriting the DOM value under the caret).
 export function NumberField({ id, label, labelClassName, value, min, placeholder, className, onCommit }: Props) {
+  const lang = useLang();
   const [draft, setDraft] = useState<string | null>(null);
-  const shown = draft ?? (value === undefined || !Number.isFinite(value) ? '' : String(value).replace('.', ','));
+  const shown = draft ?? (value === undefined || !Number.isFinite(value) ? '' : String(value).replace('.', lang === 'fr' ? ',' : '.'));
   return <>
     {label !== undefined && <Label className={labelClassName ?? 'block leading-5'} htmlFor={id}>{label}</Label>}
     <Input

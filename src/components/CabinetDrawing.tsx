@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Layers, PanelTop, DoorOpen } from "lucide-react";
-import { getFurnitureLayout, formatMm, type FurnitureConfig } from "@/lib/furniture";
+import { getFurnitureLayout, type FurnitureConfig } from "@/lib/furniture";
+import { t, formatMm, axisLabel, useLang } from "@/lib/i18n";
 import { getFrontRectangles, getSideRectangles, getThumbnailViews, type ThumbnailRect } from "@/lib/cabinet-drawing";
 
 const coordinate = (n: number) => (Number.isFinite(n) ? n : 0);
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function CabinetDrawing({ config: c, view, onSelect }: Props) {
+  useLang();
   const layout = getFurnitureLayout(c);
   const divided = !!c.montantIntermediaire;
   const bays = divided ? (["gauche", "droite"] as const) : (["gauche"] as const);
@@ -46,7 +48,7 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
               className="h-full w-full"
               role="img"
               aria-label={
-                view === "interieur" ? "Vue de face de la structure du meuble" : "Vue de face des portes et tiroirs"
+                view === "interieur" ? t("Vue de face de la structure du meuble") : t("Vue de face des portes et tiroirs")
               }
             >
               <g
@@ -156,8 +158,8 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
               <Button
                 variant="outline"
                 size="icon"
-                title="Bandeaux et façades"
-                aria-label="Sélectionner les bandeaux et façades"
+                title={t("Bandeaux et façades")}
+                aria-label={t("Sélectionner les bandeaux et façades")}
                 onClick={() => onSelect(3)}
               >
                 <PanelTop className="h-5 w-5" />
@@ -170,8 +172,8 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
                     key={side}
                     variant="outline"
                     size="icon"
-                    title={`Rayons ${divided ? side : ""}`}
-                    aria-label={`Sélectionner les rayons ${side}`}
+                    title={divided ? t("Rayons {cote}", { cote: t(side) }) : t("Rayons")}
+                    aria-label={t("Sélectionner les rayons {cote}", { cote: t(side) })}
                     onClick={() => onSelect(2, side)}
                   >
                     <Layers className="h-5 w-5" />
@@ -181,8 +183,8 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
                 <Button
                   variant="outline"
                   size="icon"
-                  title="Portes et tiroirs"
-                  aria-label="Sélectionner les portes et tiroirs"
+                  title={t("Portes et tiroirs")}
+                  aria-label={t("Sélectionner les portes et tiroirs")}
                   onClick={() => onSelect(3)}
                 >
                   <DoorOpen className="h-5 w-5" />
@@ -190,7 +192,7 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
               )}
             </div>
           </div>
-          <p className="mt-1 text-center text-xs text-muted-foreground">Vue de face</p>
+          <p className="mt-1 text-center text-xs text-muted-foreground">{t("Vue de face")}</p>
         </div>
         <div className="min-w-0 max-w-[190px] flex-1">
           <div className="aspect-[2/3]">
@@ -198,7 +200,7 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
               viewBox="0 0 200 300"
               className="h-full w-full"
               role="img"
-              aria-label="Vue de côté : profondeur du meuble avec dos, rayons et façades"
+              aria-label={t("Vue de côté : profondeur du meuble avec dos, rayons et façades")}
             >
               <g transform={`translate(22 12) scale(${sxSide} ${sy})`}>
                 {sideRects.map((r, i) => {
@@ -222,11 +224,12 @@ export function CabinetDrawing({ config: c, view, onSelect }: Props) {
               </g>
             </svg>
           </div>
-          <p className="mt-1 text-center text-xs text-muted-foreground">Vue de côté</p>
+          <p className="mt-1 text-center text-xs text-muted-foreground">{t("Vue de côté")}</p>
         </div>
       </div>
       <figcaption className="text-center text-sm text-muted-foreground">
-        H {formatMm(c.hauteur)} · L {formatMm(c.largeur)} · P {formatMm(c.profondeur)} mm
+        {axisLabel("H")} {formatMm(c.hauteur)} · {axisLabel("L")} {formatMm(c.largeur)} · {axisLabel("P")}{" "}
+        {formatMm(c.profondeur)} mm
       </figcaption>
     </figure>
   );
@@ -269,8 +272,8 @@ export function CabinetThumbnail({ config: c, className }: { config: FurnitureCo
   };
   return (
     <div className={`flex items-start gap-1 ${className ?? ""}`}>
-      {render(front, largeur, hauteur, "Vue de face miniature")}
-      {render(side, profondeur, hauteur, "Vue de côté miniature")}
+      {render(front, largeur, hauteur, t("Vue de face miniature"))}
+      {render(side, profondeur, hauteur, t("Vue de côté miniature"))}
     </div>
   );
 }

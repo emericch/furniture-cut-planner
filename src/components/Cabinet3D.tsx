@@ -3,7 +3,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Button } from "@/components/ui/button";
 import { DoorOpen, DoorClosed, Minus, Plus, Ruler, Pencil, X } from "lucide-react";
-import { formatMm, type FurnitureConfig } from "@/lib/furniture";
+import { type FurnitureConfig } from "@/lib/furniture";
+import { t, tPiece, tMessage, formatMm, axisLabel, useLang } from "@/lib/i18n";
 import { getBoxes3D, type Box3D } from "@/lib/cabinet-3d";
 
 interface Props {
@@ -55,6 +56,7 @@ interface Stage {
 }
 
 export function Cabinet3D({ config: c, onSelect }: Props) {
+  useLang();
   const wrap = useRef<HTMLDivElement>(null);
   const stage = useRef<Stage | null>(null);
   const openTargets = useRef(new Map<string, boolean>());
@@ -138,7 +140,7 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.domElement.style.display = "block";
     renderer.domElement.style.touchAction = "none";
-    renderer.domElement.setAttribute("aria-label", "Vue 3D du meuble : glisser pour tourner");
+    renderer.domElement.setAttribute("aria-label", t("Vue 3D du meuble : glisser pour tourner"));
     renderer.domElement.setAttribute("role", "img");
     el.prepend(renderer.domElement);
     const scene = new THREE.Scene();
@@ -447,7 +449,7 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
         className="relative mx-auto aspect-[5/4] w-full max-w-[520px] overflow-hidden rounded-md border border-border bg-muted/30"
         style={{ cursor: "grab" }}
       >
-        {["L", "H", "P"].map((k, i) => (
+        {(["L", "H", "P"] as const).map((k, i) => (
           <span
             key={k}
             ref={(n) => {
@@ -456,12 +458,12 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
             className="pointer-events-none absolute left-0 top-0 whitespace-nowrap rounded bg-background/90 px-1.5 py-0.5 text-xs font-medium tabular-nums text-foreground shadow-sm"
             style={{ display: "none" }}
           >
-            {k} {formatMm([c.largeur, c.hauteur, c.profondeur][i])}
+            {axisLabel(k)} {formatMm([c.largeur, c.hauteur, c.profondeur][i])}
           </span>
         ))}
         {failed && (
           <p className="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-muted-foreground">
-            La vue 3D n’est pas disponible sur cet appareil. Utilisez la vue Intérieur.
+            {t("La vue 3D n’est pas disponible sur cet appareil. Utilisez la vue Intérieur.")}
           </p>
         )}
         <div className="absolute right-2 top-2 flex flex-col gap-1">
@@ -470,7 +472,7 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
             variant="outline"
             size="icon"
             className="h-8 w-8 bg-background/90"
-            aria-label="Zoomer"
+            aria-label={t("Zoomer")}
             onClick={() => zoom(0.82)}
           >
             <Plus className="h-4 w-4" />
@@ -480,7 +482,7 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
             variant="outline"
             size="icon"
             className="h-8 w-8 bg-background/90"
-            aria-label="Dézoomer"
+            aria-label={t("Dézoomer")}
             onClick={() => zoom(1.22)}
           >
             <Minus className="h-4 w-4" />
@@ -495,12 +497,12 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
         {selectedBox ? (
           <>
             <span className="min-w-[11rem] flex-1">
-              <span className="font-medium">{selectedBox.name}</span>
-              {selectedBox.dims && <span className="tabular-nums text-muted-foreground"> · {selectedBox.dims}</span>}
+              <span className="font-medium">{tPiece(selectedBox.name)}</span>
+              {selectedBox.dims && <span className="tabular-nums text-muted-foreground"> · {tMessage(selectedBox.dims)}</span>}
             </span>
             {canOpen(selectedBox) && (
               <Button type="button" variant="outline" size="sm" className={chip} onClick={() => toggle(selectedBox)}>
-                {openTargets.current.get(selectedBox.name) ? "Fermer" : "Ouvrir"}
+                {openTargets.current.get(selectedBox.name) ? t("Fermer") : t("Ouvrir")}
               </Button>
             )}
             <Button
@@ -511,14 +513,14 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
               onClick={() => onSelect(selectedBox.section, selectedBox.side)}
             >
               <Pencil className="mr-1 h-3 w-3" />
-              Modifier
+              {t("Modifier")}
             </Button>
             <Button
               type="button"
               variant="ghost"
               size="icon"
               className="h-8 w-8 shrink-0"
-              aria-label="Désélectionner"
+              aria-label={t("Désélectionner")}
               onClick={() => setSelected(null)}
             >
               <X className="h-4 w-4" />
@@ -526,8 +528,8 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
           </>
         ) : (
           <span className="flex-1 text-muted-foreground">
-            Glissez pour tourner. Touchez une pièce pour voir ses dimensions
-            {openable.length > 0 ? ", une porte ou un tiroir pour l’ouvrir" : ""}.
+            {t("Glissez pour tourner. Touchez une pièce pour voir ses dimensions")}
+            {openable.length > 0 ? t(", une porte ou un tiroir pour l’ouvrir") : ""}.
           </span>
         )}
       </div>
@@ -535,15 +537,15 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
       <div className="mx-auto flex max-w-[520px] flex-wrap items-center gap-1.5">
         <div
           role="group"
-          aria-label="Angle de vue"
+          aria-label={t("Angle de vue")}
           className="flex gap-1 rounded-md border border-input bg-muted/40 p-1"
         >
           {(
             [
               ["3d", "3D"],
-              ["face", "Face"],
-              ["cote", "Côté"],
-              ["dessus", "Dessus"],
+              ["face", t("Face")],
+              ["cote", t("Côté")],
+              ["dessus", t("Dessus")],
             ] as Array<[ViewName, string]>
           ).map(([k, text]) => (
             <button
@@ -563,7 +565,7 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
         {openable.length > 0 && (
           <Button type="button" variant="outline" size="sm" className={chip} onClick={() => setAll(!anyOpen)}>
             {anyOpen ? <DoorClosed className="mr-1 h-3.5 w-3.5" /> : <DoorOpen className="mr-1 h-3.5 w-3.5" />}
-            {anyOpen ? "Tout fermer" : "Tout ouvrir"}
+            {anyOpen ? t("Tout fermer") : t("Tout ouvrir")}
           </Button>
         )}
         <Button
@@ -575,22 +577,22 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
           onClick={() => setShowDims(!showDims)}
         >
           <Ruler className="mr-1 h-3.5 w-3.5" />
-          Cotes
+          {t("Cotes")}
         </Button>
       </div>
       <div className="mx-auto flex max-w-[520px] flex-wrap items-center gap-x-4 gap-y-2">
         {boxes.some(isFront) && (
           <div
             role="group"
-            aria-label="Affichage des façades"
+            aria-label={t("Affichage des façades")}
             className="flex max-w-full flex-wrap items-center gap-1 rounded-md border border-input bg-muted/40 p-1"
           >
-            <span className="px-1 text-xs text-muted-foreground">Façades</span>
+            <span className="px-1 text-xs text-muted-foreground">{t("Façades")}</span>
             {(
               [
-                ["visibles", "Visibles"],
-                ["transparentes", "Transparentes"],
-                ["masquees", "Masquées"],
+                ["visibles", t("Visibles")],
+                ["transparentes", t("Transparentes")],
+                ["masquees", t("Masquées")],
               ] as Array<[FrontMode, string]>
             ).map(([k, text]) => (
               <button
@@ -609,7 +611,7 @@ export function Cabinet3D({ config: c, onSelect }: Props) {
           className="flex min-w-[10rem] flex-1 items-center gap-2 text-xs text-muted-foreground"
           htmlFor="vue-eclatee"
         >
-          Vue éclatée
+          {t("Vue éclatée")}
           <input
             id="vue-eclatee"
             type="range"

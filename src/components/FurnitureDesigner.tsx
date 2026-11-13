@@ -15,7 +15,8 @@ import { FurnitureExtras } from "./FurnitureExtras";
 import { CabinetDrawing } from "./CabinetDrawing";
 import { Cabinet3D } from "./Cabinet3D";
 import { Checkbox } from "@/components/ui/checkbox";
-import { getFurnitureLayout, formatMm, type FurnitureConfig } from "@/lib/furniture";
+import { getFurnitureLayout, type FurnitureConfig } from "@/lib/furniture";
+import { t, formatMm, useLang } from "@/lib/i18n";
 interface Props {
   config: FurnitureConfig;
   onChange: (c: FurnitureConfig) => void;
@@ -80,10 +81,12 @@ function Thickness({
           label={
             <>
               {label}
-              <span className="sr-only">{srLabel} · épaisseur (mm)</span>
+              <span className="sr-only">
+                {srLabel} · {t("épaisseur (mm)")}
+              </span>
             </>
           }
-          labelClassName="block truncate whitespace-nowrap leading-5"
+          labelClassName="block truncate whitespace-nowrap text-[13px] leading-5 min-[360px]:text-sm"
           className="pl-2 pr-8 min-[480px]:pl-3"
           value={value}
           min="0"
@@ -93,7 +96,7 @@ function Thickness({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              aria-label={`Valeurs courantes · ${label}`}
+              aria-label={t("Valeurs courantes · {label}", { label })}
               className="absolute bottom-0 right-0 flex h-10 w-8 items-center justify-center rounded-r-md text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <ChevronDown className="h-4 w-4" />
@@ -119,6 +122,7 @@ function Numeric({ label, value, onChange }: { label: string; value: number; onC
   );
 }
 export function FurnitureDesigner({ config: c, onChange }: Props) {
+  const en = useLang() === "en";
   const sections = useRef<Array<HTMLElement | null>>([]);
   const [side, setSide] = useState<"gauche" | "droite">("gauche");
   const [drawerSide, setDrawerSide] = useState<"gauche" | "droite">("gauche");
@@ -134,7 +138,12 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
     !!c.bandeauBas?.faceApplique;
   const l = getFurnitureLayout(c);
   const update = (v: Partial<FurnitureConfig>) => onChange({ ...c, ...v });
-  const steps = ["Dimensions hors-tout (mm)", "Structure et dos", "Étagères (rayons)", "Portes, bandeaux et tiroirs"];
+  const steps = [
+    t("Dimensions hors-tout (mm)"),
+    t("Structure et dos"),
+    t("Étagères (rayons)"),
+    t("Portes, bandeaux et tiroirs"),
+  ];
   const selectSection = (next: number, selectedSide?: "gauche" | "droite") => {
     setOpened((o) => new Set(o).add(next));
     if (next === 2 && selectedSide) setSide(selectedSide);
@@ -149,12 +158,12 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
       return n;
     });
   const dosLabel: Record<string, string> = {
-    aucun: "sans dos",
-    "toute-hauteur": "dos toute hauteur",
-    "toute-largeur": "dos toute largeur",
-    "en-applique": "dos en applique",
-    "entre-montants-traverses": "dos entre montants et traverses",
-    "en-rainure": "dos en rainure",
+    aucun: t("sans dos"),
+    "toute-hauteur": t("dos toute hauteur"),
+    "toute-largeur": t("dos toute largeur"),
+    "en-applique": t("dos en applique"),
+    "entre-montants-traverses": t("dos entre montants et traverses"),
+    "en-rainure": t("dos en rainure"),
   };
   const shelfM = c.montantIntermediaire
     ? (c.rayonsCompartiments?.gauche.mobiles ?? 0) + (c.rayonsCompartiments?.droite.mobiles ?? 0)
@@ -167,14 +176,18 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
     (c.tiroirsCompartiments ? c.tiroirsCompartiments.gauche.length + c.tiroirsCompartiments.droite.length : 0);
   const summaries = [
     `${formatMm(c.hauteur)} × ${formatMm(c.largeur)} × ${formatMm(c.profondeur)} · ${c.epaisseurMontants} mm`,
-    `${c.montantsTouteHauteur ? "Montants toute hauteur" : "Traverses toute largeur"}${c.montantIntermediaire ? " · séparation" : ""} · ${dosLabel[c.dosType] ?? ""}`,
-    `${shelfM} mobile${shelfM > 1 ? "s" : ""} · ${shelfF} fixe${shelfF > 1 ? "s" : ""}`,
+    `${c.montantsTouteHauteur ? t("Montants toute hauteur") : t("Traverses toute largeur")}${c.montantIntermediaire ? ` · ${t("séparation")}` : ""} · ${dosLabel[c.dosType] ?? ""}`,
+    en
+      ? `${shelfM} adjustable · ${shelfF} fixed`
+      : `${shelfM} mobile${shelfM > 1 ? "s" : ""} · ${shelfF} fixe${shelfF > 1 ? "s" : ""}`,
     [
       c.nombrePortes === 0
-        ? "Sans porte"
-        : `${c.nombrePortes} porte${c.nombrePortes > 1 ? "s" : ""} ${c.typePorte === "applique" ? "en applique" : "à l’intérieur"}`,
-      drawerCount ? `${drawerCount} tiroir${drawerCount > 1 ? "s" : ""}` : "",
-      c.bandeauHaut || c.bandeauBas ? "bandeau" : "",
+        ? t("Sans porte")
+        : en
+          ? `${c.nombrePortes} ${c.typePorte === "applique" ? "overlay" : "inset"} door${c.nombrePortes > 1 ? "s" : ""}`
+          : `${c.nombrePortes} porte${c.nombrePortes > 1 ? "s" : ""} ${c.typePorte === "applique" ? "en applique" : "à l’intérieur"}`,
+      drawerCount ? `${drawerCount} ${en ? "drawer" : "tiroir"}${drawerCount > 1 ? "s" : ""}` : "",
+      c.bandeauHaut || c.bandeauBas ? t("bandeau") : "",
     ]
       .filter(Boolean)
       .join(" · "),
@@ -218,7 +231,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
               variant={view === "interieur" ? "secondary" : "outline"}
               onClick={() => setView("interieur")}
             >
-              Intérieur
+              {t("Intérieur")}
             </Button>
             <Button size="sm" variant={view === "3d" ? "secondary" : "outline"} onClick={() => setView("3d")}>
               3D
@@ -231,7 +244,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
               <div className="flex items-center justify-center gap-2">
                 <Checkbox id="afficher-facades" checked={showFronts} onCheckedChange={(v) => setShowFronts(v === true)} />
                 <Label htmlFor="afficher-facades" className="cursor-pointer leading-5">
-                  Façades
+                  {t("Façades")}
                 </Label>
               </div>
               <CabinetDrawing config={c} view={showFronts ? "facades" : "interieur"} onSelect={selectSection} />
@@ -258,8 +271,8 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                           id={`${name} hors-tout (mm)`}
                           label={
                             <>
-                              {name}
-                              <span className="sr-only"> hors-tout (mm)</span>
+                              {t(name)}
+                              <span className="sr-only">{t(" hors-tout (mm)")}</span>
                             </>
                           }
                           labelClassName="block truncate whitespace-nowrap leading-5"
@@ -273,7 +286,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                   })}
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-medium">Épaisseurs (mm)</h3>
+                  <h3 className="font-medium">{t("Épaisseurs (mm)")}</h3>
                   <Button
                     type="button"
                     variant="link"
@@ -286,27 +299,27 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                       setCustomTh(!customTh);
                     }}
                   >
-                    {customTh ? "Simplifier" : "Personnaliser"}
+                    {customTh ? t("Simplifier") : t("Personnaliser")}
                   </Button>
                 </div>
                 <div className="grid grid-cols-3 items-end gap-2 min-[480px]:gap-3">
                   {customTh ? (
                     <>
                       <Thickness
-                        label="Montants"
+                        label={t("Montants")}
                         value={c.epaisseurMontants}
                         presets={[16, 18, 19, 22]}
                         onChange={(v) => update({ epaisseurMontants: v })}
                       />
                       <Thickness
-                        label="Traverses"
-                        srLabel=" et bandeaux"
+                        label={t("Traverses")}
+                        srLabel={t(" et bandeaux")}
                         value={c.epaisseurTraverses}
                         presets={[16, 18, 19, 22]}
                         onChange={(v) => update({ epaisseurTraverses: v })}
                       />
                       <Thickness
-                        label="Rayons"
+                        label={t("Rayons")}
                         value={c.epaisseurRayons}
                         presets={[16, 18, 19, 22]}
                         onChange={(v) => update({ epaisseurRayons: v })}
@@ -314,8 +327,8 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                     </>
                   ) : (
                     <Thickness
-                      label="Caisson"
-                      srLabel=" (montants, traverses, rayons)"
+                      label={t("Caisson")}
+                      srLabel={t(" (montants, traverses, rayons)")}
                       value={c.epaisseurMontants}
                       presets={[16, 18, 19, 22]}
                       onChange={(v) => update({ epaisseurMontants: v, epaisseurTraverses: v, epaisseurRayons: v })}
@@ -323,7 +336,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                   )}
                   {c.dosType !== "aucun" && (
                     <Thickness
-                      label="Dos"
+                      label={t("Dos")}
                       value={c.epaisseurDos}
                       presets={[3, 5, 8, 16, 19]}
                       onChange={(v) => update({ epaisseurDos: v })}
@@ -331,7 +344,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                   )}
                   {hasFronts && (
                     <Thickness
-                      label="Façades"
+                      label={t("Façades")}
                       value={c.epaisseurPortes}
                       presets={[16, 18, 19, 22]}
                       onChange={(v) => update({ epaisseurPortes: v })}
@@ -352,23 +365,23 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
             {opened.has(1) && (
               <>
                 <Choice
-                  label="Assemblage du meuble"
+                  label={t("Assemblage du meuble")}
                   value={c.montantsTouteHauteur ? "montants" : "traverses"}
                   options={[
-                    ["montants", "Montants toute hauteur"],
-                    ["traverses", "Traverses toute largeur"],
+                    ["montants", t("Montants toute hauteur")],
+                    ["traverses", t("Traverses toute largeur")],
                   ]}
                   onChange={(v) =>
                     update({ montantsTouteHauteur: v === "montants", traversesTouteLargeur: v === "traverses" })
                   }
                 />
                 <Choice
-                  label="Séparation centrale"
+                  label={t("Séparation centrale")}
                   value={c.montantIntermediaire ?? "aucun"}
                   options={[
-                    ["aucun", "Sans montant"],
-                    ["entre-traverses", "Entre la traverse haute et basse"],
-                    ["toute-hauteur", "Sur toute la hauteur du meuble"],
+                    ["aucun", t("Sans montant")],
+                    ["entre-traverses", t("Entre la traverse haute et basse")],
+                    ["toute-hauteur", t("Sur toute la hauteur du meuble")],
                   ]}
                   onChange={(v) =>
                     update({
@@ -382,15 +395,15 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                   }
                 />
                 <Choice
-                  label="Pose du dos"
+                  label={t("Pose du dos")}
                   value={c.dosType}
                   options={[
-                    ["aucun", "Sans dos"],
-                    ["toute-hauteur", "Toute hauteur"],
-                    ["toute-largeur", "Toute largeur"],
-                    ["en-applique", "En applique"],
-                    ["entre-montants-traverses", "Entre montants et traverses"],
-                    ["en-rainure", "En rainure · 5 mm"],
+                    ["aucun", t("Sans dos")],
+                    ["toute-hauteur", t("Toute hauteur")],
+                    ["toute-largeur", t("Toute largeur")],
+                    ["en-applique", t("En applique|dos")],
+                    ["entre-montants-traverses", t("Entre montants et traverses")],
+                    ["en-rainure", t("En rainure · 5 mm")],
                   ]}
                   onChange={(v) =>
                     update({
@@ -401,18 +414,18 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                 />
                 {c.montantIntermediaire && c.dosType !== "aucun" && (
                   <Choice
-                    label="Répartition du dos"
+                    label={t("Répartition du dos")}
                     value={c.dosParCompartiment ? "separe" : "unique"}
                     options={[
-                      ["unique", "Un dos pour tout le meuble"],
-                      ["separe", "Un dos par compartiment"],
+                      ["unique", t("Un dos pour tout le meuble")],
+                      ["separe", t("Un dos par compartiment")],
                     ]}
                     onChange={(v) => update({ dosParCompartiment: v === "separe" })}
                   />
                 )}
                 {c.dosType !== "aucun" && c.dosType !== "en-applique" && (
                   <Numeric
-                    label="Retrait du dos depuis l’arrière (mm)"
+                    label={t("Retrait du dos depuis l’arrière (mm)")}
                     value={c.decalageDos}
                     onChange={(v) => update({ decalageDos: v })}
                   />
@@ -432,23 +445,23 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
               <>
                 {c.montantIntermediaire && (
                   <Choice
-                    label="Côté à régler"
+                    label={t("Côté à régler")}
                     value={side}
                     options={[
-                      ["gauche", "Gauche"],
-                      ["droite", "Droite"],
+                      ["gauche", t("Gauche")],
+                      ["droite", t("Droite")],
                     ]}
                     onChange={(v) => setSide(v as "gauche" | "droite")}
                   />
                 )}
                 <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
                   <Stepper
-                    label="Étagères mobiles"
+                    label={t("Étagères mobiles")}
                     value={c.montantIntermediaire ? counts.mobiles : c.nombreRayons}
                     onChange={(v) => (c.montantIntermediaire ? setCounts("mobiles", v) : update({ nombreRayons: v }))}
                   />
                   <Stepper
-                    label="Étagères fixes"
+                    label={t("Étagères fixes")}
                     value={c.montantIntermediaire ? counts.fixes : (c.nombreRayonsFixes ?? 0)}
                     onChange={(v) =>
                       c.montantIntermediaire ? setCounts("fixes", v) : update({ nombreRayonsFixes: v })
@@ -456,14 +469,15 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                   />
                 </div>
                 <Numeric
-                  label="Retrait des rayons depuis l’avant (mm)"
+                  label={t("Retrait des rayons depuis l’avant (mm)")}
                   value={c.retraitRayons}
                   onChange={(v) => update({ retraitRayons: v })}
                 />
                 <p className="text-sm text-muted-foreground">
-                  Largeur fixe : {formatMm(c.montantIntermediaire ? l.bayWidth : c.largeur - 2 * c.epaisseurMontants)}{" "}
-                  mm · mobile :{" "}
-                  {formatMm((c.montantIntermediaire ? l.bayWidth : c.largeur - 2 * c.epaisseurMontants) - 1)} mm
+                  {t("Largeur fixe : {fixe} mm · mobile : {mobile} mm", {
+                    fixe: formatMm(c.montantIntermediaire ? l.bayWidth : c.largeur - 2 * c.epaisseurMontants),
+                    mobile: formatMm((c.montantIntermediaire ? l.bayWidth : c.largeur - 2 * c.epaisseurMontants) - 1),
+                  })}
                 </p>
               </>
             )}
@@ -479,12 +493,12 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
             {opened.has(3) && (
               <>
                 <Choice
-                  label="Nombre de portes"
+                  label={t("Nombre de portes")}
                   value={String(c.nombrePortes)}
                   options={[
-                    ["0", "Aucune"],
-                    ["1", "1 porte"],
-                    ["2", "2 portes"],
+                    ["0", t("Aucune")],
+                    ["1", t("1 porte")],
+                    ["2", t("2 portes")],
                   ]}
                   onChange={(v) => {
                     update({
@@ -499,11 +513,11 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                 />
                 {c.nombrePortes > 0 && (
                   <Choice
-                    label="Pose des portes"
+                    label={t("Pose des portes")}
                     value={c.typePorte}
                     options={[
-                      ["applique", "En applique"],
-                      ["interieur", "À l’intérieur du meuble"],
+                      ["applique", t("En applique|porte")],
+                      ["interieur", t("À l’intérieur du meuble")],
                     ]}
                     onChange={(v) => {
                       update({ typePorte: v as "applique" | "interieur" });
@@ -513,11 +527,11 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                 )}
                 {c.montantIntermediaire && (
                   <Choice
-                    label="Répartition des tiroirs"
+                    label={t("Répartition des tiroirs")}
                     value={drawer ? "separes" : "communs"}
                     options={[
-                      ["communs", "Sur toute la largeur du meuble"],
-                      ["separes", "Séparés à gauche et à droite"],
+                      ["communs", t("Sur toute la largeur du meuble")],
+                      ["separes", t("Séparés à gauche et à droite")],
                     ]}
                     onChange={(v) =>
                       update({
@@ -532,34 +546,34 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                 {drawer && (
                   <>
                     <Choice
-                      label="Position des tiroirs"
+                      label={t("Position des tiroirs")}
                       value={drawer.position}
                       options={[
-                        ["haut", "En haut"],
-                        ["bas", "En bas"],
+                        ["haut", t("En haut")],
+                        ["bas", t("En bas")],
                       ]}
                       onChange={(v) => update({ tiroirsCompartiments: { ...drawer, position: v as "haut" | "bas" } })}
                     />
                     <Choice
-                      label="Côté des tiroirs"
+                      label={t("Côté des tiroirs")}
                       value={drawerSide}
                       options={[
-                        ["gauche", "Gauche"],
-                        ["droite", "Droite"],
+                        ["gauche", t("Gauche")],
+                        ["droite", t("Droite")],
                       ]}
                       onChange={(v) => setDrawerSide(v as "gauche" | "droite")}
                     />
                     {drawer[drawerSide].map((h, i) => (
                       <div key={i} className="flex items-end gap-2">
                         <Numeric
-                          label={`Face ${i + 1} · hauteur (mm)`}
+                          label={t("Face {n} · hauteur (mm)", { n: i + 1 })}
                           value={h}
                           onChange={(v) => setHeights(drawer[drawerSide].map((x, j) => (j === i ? v : x)))}
                         />
                         <Button
                           variant="ghost"
                           size="icon"
-                          aria-label={`Supprimer tiroir ${drawerSide} ${i + 1}`}
+                          aria-label={t("Supprimer tiroir {cote} {n}", { cote: t(drawerSide), n: i + 1 })}
                           onClick={() => setHeights(drawer[drawerSide].filter((_, j) => j !== i))}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -572,13 +586,16 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                       onClick={() => setHeights([...drawer[drawerSide], 150])}
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      Ajouter un tiroir {drawerSide}
+                      {t("Ajouter un tiroir {cote}", { cote: t(drawerSide) })}
                     </Button>
                     <p className="text-sm text-muted-foreground">
-                      Hauteur restante commune : {formatMm(l.frontFreeHeight)} mm
+                      {t("Hauteur restante commune : {mm} mm", { mm: formatMm(l.frontFreeHeight) })}
                     </p>
                     <p aria-live="polite" className="text-sm text-muted-foreground">
-                      Hauteur restante {drawerSide} : {formatMm(l.drawerRemaining[drawerSide])} mm
+                      {t("Hauteur restante {cote} : {mm} mm", {
+                        cote: t(drawerSide),
+                        mm: formatMm(l.drawerRemaining[drawerSide]),
+                      })}
                     </p>
                     {c.nombrePortes === 0 && drawer[drawerSide].length > 0 && (
                       <Button
@@ -593,7 +610,7 @@ export function FurnitureDesigner({ config: c, onChange }: Props) {
                           )
                         }
                       >
-                        Compléter la dernière face {drawerSide}
+                        {t("Compléter la dernière face {cote}", { cote: t(drawerSide) })}
                       </Button>
                     )}
                   </>

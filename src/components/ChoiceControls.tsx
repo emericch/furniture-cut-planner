@@ -2,6 +2,7 @@ import { Minus, Plus } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { t } from '@/lib/i18n';
 
 /** Boutons côte à côte pour 2-3 choix courts ; passent à la ligne sans chevauchement. */
 export function Segmented({ label, value, options, onChange, id }: { label: string; value: string; options: [string, string][]; onChange: (v: string) => void; id?: string }) {
@@ -25,9 +26,9 @@ export function Stepper({ label, value, onChange, min = 0, max = 30 }: { label: 
   return <div className="min-w-0 space-y-2">
     <Label className="block leading-5">{label}</Label>
     <div className="flex items-center gap-2">
-      <Button type="button" variant="outline" size="icon" aria-label={`Retirer · ${label}`} disabled={n <= min} onClick={() => onChange(Math.max(min, n - 1))}><Minus className="h-4 w-4" /></Button>
+      <Button type="button" variant="outline" size="icon" aria-label={t("Retirer · {label}", { label })} disabled={n <= min} onClick={() => onChange(Math.max(min, n - 1))}><Minus className="h-4 w-4" /></Button>
       <span aria-live="polite" aria-label={label} className="w-8 text-center text-base font-medium tabular-nums">{n}</span>
-      <Button type="button" variant="outline" size="icon" aria-label={`Ajouter · ${label}`} disabled={n >= max} onClick={() => onChange(Math.min(max, n + 1))}><Plus className="h-4 w-4" /></Button>
+      <Button type="button" variant="outline" size="icon" aria-label={t("Ajouter · {label}", { label })} disabled={n >= max} onClick={() => onChange(Math.min(max, n + 1))}><Plus className="h-4 w-4" /></Button>
     </div>
   </div>;
 }
